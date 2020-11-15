@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Week1 Task</string>
+    <string name="text_to_share">Выберите текст, и он появится здесь</string>
+    <string name="text_static">Статический текст</string>
+    <string name="button_share">Поделиться</string>
+    <string name="button_choose">Выбрать</string>
+    <string name="text_invisible">Я невидимый</string>
+    <string-array name="planets">
+        <item>Меркурий</item>
+        <item>Венера</item>
+        <item>Земля</item>
+        <item>Марс</item>
+        <item>Юпитер</item>
+        <item>Сатурн</item>
+    </string-array>
+</resources>

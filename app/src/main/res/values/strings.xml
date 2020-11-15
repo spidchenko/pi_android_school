@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Week1 Task</string>
+    <string name="button_choose">Choose</string>
+    <string name="button_share">Share</string>
+    <string name="text_static">Static text</string>
+    <string name="text_to_share">Select the text and it will appear here</string>
+    <string name="text_invisible">I am invisible</string>
+
+    <string-array name="planets">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+    </string-array>
+
+</resources>
