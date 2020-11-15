@@ -11,9 +11,12 @@ import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+    // TODO: 15.11.2020 "textInvisible", "replyText" tell us nothing about the purpose of those variables. Use more appropriate naming next time.
+    //  E.g. "replyText" can be "tvSelectedPlanet".
     private TextView textInvisible;
     private TextView replyText;
     private String[] planets;
+    // TODO: 15.11.2020 Constants should be declared at the top most of the class
     public static final int TEXT_REQUEST = 1;
 
     @Override
@@ -26,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         planets = getResources().getStringArray(R.array.planets);
 
         if (intent != null) {
+            // TODO: 15.11.2020 Pay attention to warnings (In this case "String values are compared using '==', not 'equals()'").
             if (intent.getAction() == Intent.ACTION_SEND) {
                 String textFromImplicitIntent = intent.getExtras().getString(Intent.EXTRA_TEXT);
                 textInvisible.setText(textFromImplicitIntent);
@@ -44,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == TEXT_REQUEST) {
             if (resultCode == RESULT_OK) {
+                // TODO: 15.11.2020 We could pass a selected string in extras and there would be no need to:
+                //  - define planets array
+                //  - access planets item by received index
                 int reply = data.getIntExtra(PlanetChooserActivity.EXTRA_REPLY, 0);
                 replyText.setText(planets[reply]);
             }
@@ -53,6 +60,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        // TODO "textView1" and "textView2" are not the best names to describe these values purpose.
+        // TODO: 15.11.2020 Avoid hardcode and duplicates.
+        //  Harcode should be replaced with constant values.
+        //  E.g. private static final SAVED_SELECTED_PLANET = "SAVED_SELECTED_PLANET" instead of "textView2" hardcode and duplicate
         outState.putString("textView1", textInvisible.getText().toString());
         outState.putString("textView2", replyText.getText().toString());
     }
