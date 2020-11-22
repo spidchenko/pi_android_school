@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Week2 Task</string>
+    <string name="et_search_query_hint">Enter search query here</string>
+    <string name="action_search">Search</string>
+    <string name="msg_wait">Wait please…</string>
+    <string name="tv_hint_text">Your search result will be shown here</string>
+    <string name="error_text">Error</string>
+    <string name="error_nothing_found">No results were found for your search</string>
+    <string name="iv_splash_screen_descr">Simple flickr client logo</string>
+</resources>
