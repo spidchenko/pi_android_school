@@ -30,8 +30,15 @@ public class MainActivity extends AppCompatActivity {
     private static final String BUNDLE_IMAGE_LINKS = "SAVED_IMAGE_LINKS";
     static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
 
+    // TODO: 11/23/20 [INFO] Read about Butterknife for simple view injections
     private TextView mTvImageLinks;
     private EditText mEtSearchQuery;
+
+    // TODO: 11/23/20 Move request logic into separate class. Because this class will become some GOD class containing all the logic
+    //  Move retrofit usage into repository OR some "requester" class. You can also start investigating MVVM or MVP architectures to simplify component separation.
+    //  E.g. ViewModel/Presenter will interact with repository to fetch data the remote API.
+    //  In this way your activity will only be responsible for displaying result.
+    //  Try to keep activities/fragments as simple as possible.
     private Retrofit mRetrofit;
 
     @Override

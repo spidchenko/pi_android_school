@@ -3,8 +3,10 @@
     <string name="et_search_query_hint">Enter search query here</string>
     <string name="action_search">Search</string>
     <string name="msg_wait">Wait please…</string>
+<!--    TODO "hint_search" will be a more proper name. No need to place component prefix in front of resources as these resources can be reused in different components-->
     <string name="tv_hint_text">Your search result will be shown here</string>
     <string name="error_text">Error</string>
     <string name="error_nothing_found">No results were found for your search</string>
+<!--    TODO "description_splash_screen" and same note as above-->
     <string name="iv_splash_screen_descr">Simple flickr client logo</string>
 </resources>
