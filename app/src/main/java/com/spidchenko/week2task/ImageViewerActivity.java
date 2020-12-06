@@ -22,28 +22,27 @@ import com.spidchenko.week2task.db.models.Favourite;
 import static android.widget.Toast.LENGTH_SHORT;
 import static com.spidchenko.week2task.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.MainActivity.EXTRA_URL;
-import static com.spidchenko.week2task.MainActivity.LOG_TAG;
 
 public class ImageViewerActivity extends AppCompatActivity {
 
-    private static final String TAG = "ImageViewerActivity";
+    private static final String TAG = "ImageViewerAct.LOG_TAG";
 
 
     private String mIntentExtraUrl;
     private String mIntentExtraSearchString;
     private int mIntentExtraUserId;
-    private CurrentUser currentUser;
-    private Favourite favourite;
-    private DatabaseHelper db;
+    private final Handler mUiHandler = new Handler(Looper.getMainLooper());
+    private CurrentUser mCurrentUser;
+    private Favourite mFavourite;
     private boolean isFavorite = false;
-    private Handler mUiHandler = new Handler(Looper.getMainLooper());
+    private DatabaseHelper mDb;
     private CheckBox cbToggleFavourite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_viewer);
-        currentUser = CurrentUser.getInstance();
+        mCurrentUser = CurrentUser.getInstance();
 
         Intent intent = getIntent();
         WebView webView = findViewById(R.id.webView);
@@ -66,17 +65,17 @@ public class ImageViewerActivity extends AppCompatActivity {
 
         checkInFavourites();
 
-        Log.d(LOG_TAG, "Intent received. Image Url: " + intent.getStringExtra(EXTRA_URL));
+        Log.d(TAG, "Intent received. Image Url: " + intent.getStringExtra(EXTRA_URL));
     }
 
     //Save parent activity state on up home navigation
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d(LOG_TAG, "Options item selected");
+        Log.d(TAG, "Options item selected");
         int id = item.getItemId();
         if (id == android.R.id.home) {
             onBackPressed();
-            Log.d(LOG_TAG, "Pressed Back UP button");
+            Log.d(TAG, "Pressed Back UP button");
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -87,16 +86,15 @@ public class ImageViewerActivity extends AppCompatActivity {
             //cbToggleFavourite.setChecked(false);
 
             new Thread(() -> {
-                db = DatabaseHelper.getInstance(this);
-
-                db.addFavorite(new Favourite(currentUser.getUser().getId(),
-                        mIntentExtraSearchString,"", mIntentExtraUrl));
-                db.close();
+                mDb = DatabaseHelper.getInstance(this);
+                mDb.addFavorite(new Favourite(mCurrentUser.getUser().getId(),
+                        mIntentExtraSearchString, "", mIntentExtraUrl));
+                mDb.close();
 
                 mUiHandler.post(() -> {
                     cbToggleFavourite.setClickable(true);
                     isFavorite = true;
-                    Log.d(LOG_TAG, "Added to favourites!");
+                    Log.d(TAG, "Added to favourites!");
                     Toast.makeText(this, R.string.added_to_favourites, LENGTH_SHORT).show();
                 });
 
@@ -106,44 +104,43 @@ public class ImageViewerActivity extends AppCompatActivity {
         } else {
 
             new Thread(() -> {
-                db = DatabaseHelper.getInstance(this);
-                db.deleteFavourite(new Favourite(currentUser.getUser().getId(),
-                        mIntentExtraSearchString,"", mIntentExtraUrl));
-                db.close();
+                mDb = DatabaseHelper.getInstance(this);
+                mDb.deleteFavourite(new Favourite(mCurrentUser.getUser().getId(),
+                        mIntentExtraSearchString, "", mIntentExtraUrl));
+                mDb.close();
 
                 mUiHandler.post(() -> {
                     cbToggleFavourite.setClickable(true);
                     isFavorite = false;
-                    Log.d(LOG_TAG, "Removed from favourites!");
+                    Log.d(TAG, "Removed from favourites!");
                     Toast.makeText(this, R.string.removed_from_favourites, LENGTH_SHORT).show();
                 });
 
             }).start();
-
         }
-
     }
 
     private void checkInFavourites() {
         cbToggleFavourite.setClickable(false);
 
         new Thread(() -> {
-            db = DatabaseHelper.getInstance(this);
-            favourite = db.getFavourite(currentUser.getUser().getId(), mIntentExtraUrl);
-            db.close();
+            mDb = DatabaseHelper.getInstance(this);
+            mFavourite = mDb.getFavourite(mCurrentUser.getUser().getId(), mIntentExtraUrl);
+            mDb.close();
 
             mUiHandler.post(() -> {
                 cbToggleFavourite.setClickable(true);
-                if (favourite != null) {
+                if (mFavourite != null) {
                     cbToggleFavourite.setChecked(true);
                     isFavorite = true;
-                    Log.d(LOG_TAG, "checkInFavourites: Already in Favourites!");
+                    Log.d(TAG, "checkInFavourites: Already in Favourites!");
                 } else {
                     cbToggleFavourite.setChecked(false);
                     isFavorite = false;
-                    Log.d(LOG_TAG, "checkInFavourites: Not in Favourites!");
+                    Log.d(TAG, "checkInFavourites: Not in Favourites!");
                 }
             });
+
         }).start();
     }
 }

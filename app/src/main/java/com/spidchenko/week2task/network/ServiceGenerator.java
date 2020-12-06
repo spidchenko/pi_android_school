@@ -1,12 +1,8 @@
 package com.spidchenko.week2task.network;
 
-import java.io.IOException;
-
 import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -15,19 +11,16 @@ public class ServiceGenerator {
     private static final String API_KEY = "02692fb0a64b6b1b77f7f689c7f050c7";
 
     static OkHttpClient.Builder myHttpClient = new OkHttpClient.Builder()
-            .addInterceptor(new Interceptor() {
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            HttpUrl url = chain.request().url()
-                    .newBuilder()
-                    .addQueryParameter("api_key", API_KEY)
-                    .addQueryParameter("format", "json")
-                    .addQueryParameter("nojsoncallback", "1")
-                    .build();
-            Request request = chain.request().newBuilder().url(url).build();
-            return chain.proceed(request);
-        }
-    });
+            .addInterceptor(chain -> {
+                HttpUrl url = chain.request().url()
+                        .newBuilder()
+                        .addQueryParameter("api_key", API_KEY)
+                        .addQueryParameter("format", "json")
+                        .addQueryParameter("nojsoncallback", "1")
+                        .build();
+                Request request = chain.request().newBuilder().url(url).build();
+                return chain.proceed(request);
+            });
 
     static OkHttpClient client = myHttpClient.build();
 

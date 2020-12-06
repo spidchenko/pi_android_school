@@ -1,57 +1,57 @@
 package com.spidchenko.week2task.db.models;
 
 public class SearchRequest {
-    int id;
-    int user;
-    String searchRequest;
-    long sDateTime;
+    int mId;
+    int mUser;
+    String mSearchRequest;
+    long mDateTime;
 
 
-    public SearchRequest(){
+    public SearchRequest() {
 
     }
 
-    public SearchRequest(int id, int user, String searchRequest, long dateTime){
-        this.id=id;
-        this.user = user;
-        this.searchRequest = searchRequest;
-        this.sDateTime = dateTime;
+    public SearchRequest(int id, int user, String searchRequest, long dateTime) {
+        this.mId = id;
+        this.mUser = user;
+        this.mSearchRequest = searchRequest;
+        this.mDateTime = dateTime;
     }
 
-    public SearchRequest(int user, String searchRequest){
-        this.user = user;
-        this.searchRequest = searchRequest;
+    public SearchRequest(int user, String searchRequest) {
+        this.mUser = user;
+        this.mSearchRequest = searchRequest;
     }
 
-    public int getId(){
-        return this.id;
+    public int getId() {
+        return this.mId;
     }
 
-    public void setId(int id){
-        this.id = id;
+    public void setId(int id) {
+        this.mId = id;
     }
 
-    public int getUser(){
-        return this.user;
+    public int getUser() {
+        return this.mUser;
     }
 
-    public void setUser(int user){
-        this.user = user;
+    public void setUser(int user) {
+        this.mUser = user;
     }
 
-    public String getSearchRequest(){
-        return this.searchRequest;
+    public String getSearchRequest() {
+        return this.mSearchRequest;
     }
 
-    public void setSearchRequest(String searchRequest){
-        this.searchRequest = searchRequest;
+    public void setSearchRequest(String searchRequest) {
+        this.mSearchRequest = searchRequest;
     }
 
-    public long getDateTime(){
-        return this.sDateTime;
+    public long getDateTime() {
+        return this.mDateTime;
     }
 
-    public void setDate(long sDateTime){
-        this.sDateTime = sDateTime;
+    public void setDate(long sDateTime) {
+        this.mDateTime = sDateTime;
     }
 }

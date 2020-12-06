@@ -1,78 +1,80 @@
 package com.spidchenko.week2task.db.models;
 
 public class Favourite {
-    int id;
-    int user;
-    String searchRequest;
-    String title;
-    String url;
+    int mId;
+    int mUser;
+    String mSearchRequest;
+    String mTitle;
+    String mUrl;
 
 
-    public Favourite(){}
-
-    public Favourite(int id, int user, String searchRequest, String title, String url){
-        this.id=id;
-        this.user = user;
-        this.searchRequest = searchRequest;
-        this.title = title;
-        this.url = url;
+    public Favourite() {
     }
 
-    public Favourite(int user, String searchRequest, String title, String url){
-        this.user = user;
-        this.searchRequest = searchRequest;
-        this.title = title;
-        this.url = url;
+    public Favourite(int id, int user, String searchRequest, String title, String url) {
+        this.mId = id;
+        this.mUser = user;
+        this.mSearchRequest = searchRequest;
+        this.mTitle = title;
+        this.mUrl = url;
+    }
+
+    public Favourite(int user, String searchRequest, String title, String url) {
+        this.mUser = user;
+        this.mSearchRequest = searchRequest;
+        this.mTitle = title;
+        this.mUrl = url;
+    }
+
+
+    public int getId() {
+        return this.mId;
+    }
+
+    public void setId(int id) {
+        this.mId = id;
+    }
+
+    public int getUser() {
+        return this.mUser;
+    }
+
+    public void setUser(int user) {
+        this.mUser = user;
+    }
+
+    public String getSearchRequest() {
+        return this.mSearchRequest;
+    }
+
+    public void setSearchRequest(String searchRequest) {
+        this.mSearchRequest = searchRequest;
+    }
+
+    public String getTitle() {
+        return this.mTitle;
+    }
+
+    public void setTitle(String title) {
+        this.mTitle = title;
+    }
+
+    public String getUrl() {
+        return this.mUrl;
+    }
+
+    public void setUrl(String url) {
+        this.mUrl = url;
     }
 
     @Override
     public String toString() {
         return "Favourite{" +
-                "id=" + id +
-                ", user=" + user +
-                ", searchRequest='" + searchRequest + '\'' +
-                ", title='" + title + '\'' +
-                ", url='" + url + '\'' +
+                "id=" + mId +
+                ", user=" + mUser +
+                ", searchRequest='" + mSearchRequest + '\'' +
+                ", title='" + mTitle + '\'' +
+                ", url='" + mUrl + '\'' +
                 '}';
-    }
-
-    public int getId(){
-        return this.id;
-    }
-
-    public void setId(int id){
-        this.id = id;
-    }
-
-    public int getUser(){
-        return this.user;
-    }
-
-    public void setUser(int user){
-        this.user = user;
-    }
-
-    public String getSearchRequest(){
-        return this.searchRequest;
-    }
-
-    public void setSearchRequest(String searchRequest){
-        this.searchRequest = searchRequest;
-    }
-
-    public String getTitle(){
-        return this.title;
-    }
-
-    public void setTitle(String title){
-        this.title = title;
-    }
-
-    public String getUrl(){
-        return this.url;
-    }
-
-    public void setUrl(String url){
-        this.url = url;
     }
 }

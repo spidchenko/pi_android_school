@@ -19,7 +19,7 @@ import com.spidchenko.week2task.utils.SharedPreferencesHelper;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = "LoginActivity.LOG_TAG";
 
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
     private DatabaseHelper mDb;
@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
 
             new Thread(() -> {
                 Log.d(TAG, "actionSignIn: on Worker Thread." + Thread.currentThread().getName());
-                mDb = DatabaseHelper.getInstance(LoginActivity.this);
+                mDb = DatabaseHelper.getInstance(this);
                 User user = mDb.getUser(mUsername);
                 if (user == null) {
                     mDb.addUser(new User(mUsername));
@@ -58,7 +58,6 @@ public class LoginActivity extends AppCompatActivity {
                 currentUser.setUser(user);
                 mDb.close();
 
-                //Back to UI
                 mUiHandler.post(() -> {
                     Log.d(TAG, "actionSignIn: on UI Thread." + Thread.currentThread().getName());
                     mSharedPreferences.saveLogin(mUsername);
@@ -67,7 +66,6 @@ public class LoginActivity extends AppCompatActivity {
                 });
 
             }).start();
-
         }
     }
 }

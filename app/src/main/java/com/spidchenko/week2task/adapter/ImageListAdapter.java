@@ -12,15 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.utils.SwipeHelper;
 import com.spidchenko.week2task.models.Image;
+import com.spidchenko.week2task.utils.SwipeHelper;
 
 import java.util.LinkedList;
 
-import static com.spidchenko.week2task.MainActivity.LOG_TAG;
-
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder>
         implements SwipeHelper.ItemTouchHelperAdapter {
+
+    private static final String TAG = "ImgListAdapter.LOG_TAG";
 
     private final LinkedList<Image> mImageList;
     private final OnCardListener mOnCardListener;
@@ -49,7 +49,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
                 .into(holder.ivImageSurface);
 
         holder.tvImageSearchString.setText(mSearchString);
-        Log.d(LOG_TAG, "Binded! " + currentImage.getId());
+        Log.d(TAG, "Binded! " + currentImage.getId());
     }
 
     @Override
@@ -67,7 +67,11 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         mSearchString = searchString;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public interface OnCardListener {
+        void onCardClick(int position);
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView ivImageSurface;
         TextView tvImageSearchString;
         OnCardListener onCardListener;
@@ -78,7 +82,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
             tvImageSearchString = itemView.findViewById(R.id.tv_image_search_string);
             this.onCardListener = onCardListener;
             itemView.setOnClickListener(this);
-            Log.d(LOG_TAG, "ViewHolder created!");
+            Log.d(TAG, "ViewHolder created!");
         }
 
         @Override
@@ -86,9 +90,5 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
             onCardListener.onCardClick(getAdapterPosition());
         }
 
-    }
-
-    public interface OnCardListener{
-        void onCardClick(int position);
     }
 }

@@ -24,16 +24,16 @@ import com.spidchenko.week2task.utils.SwipeHelper;
 
 import java.util.ArrayList;
 
-import static com.spidchenko.week2task.MainActivity.LOG_TAG;
-
 public class FavouritesListAdapter extends RecyclerView.Adapter<FavouritesListAdapter.ViewHolder>
         implements SwipeHelper.ItemTouchHelperAdapter {
 
-    private Handler mUiHandler = new Handler(Looper.getMainLooper());
+    private static final String TAG = "FavListAdapter.LOG_TAG";
+
+    private final Handler mUiHandler = new Handler(Looper.getMainLooper());
     private final OnCardListener mOnCardListener;
     private final OnCardListener mOnCardEmptyListener = new OnCardEmptyListener();
     private DatabaseHelper mDb;
-    private Context mContext;
+    private final Context mContext;
 
     private final ArrayList<Favourite> mImageList;
 
@@ -54,9 +54,9 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<FavouritesListAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Favourite mCurrent = mImageList.get(position);
         String mSearchString = mCurrent.getSearchRequest();
-        Log.d(LOG_TAG, "onBindViewHolder__: " + position + ". " + mCurrent.getUrl());
+        Log.d(TAG, "onBindViewHolder__: " + position + ". " + mCurrent.getUrl());
         if (mCurrent.getUrl().trim().isEmpty()) {
-            Log.d(LOG_TAG, "onBindViewHolder: " + position + ". " + mCurrent.getUrl());
+            Log.d(TAG, "onBindViewHolder: " + position + ". " + mCurrent.getUrl());
 
             holder.onCardListener = mOnCardEmptyListener;
             holder.imageSurface.setVisibility(View.GONE);           //No image
@@ -77,7 +77,7 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<FavouritesListAd
 
         holder.imageSearchString.setText(mSearchString);
 
-        Log.d(LOG_TAG, "Binded! " + mCurrent.getId());
+        Log.d(TAG, "Binded! " + mCurrent.getId());
     }
 
     @Override
@@ -89,30 +89,37 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<FavouritesListAd
     public void onItemDismiss(int position) {
 
         Favourite toRemove = mImageList.get(position);
-        if (toRemove.getUrl().trim().isEmpty()){
-            Toast.makeText(mContext,R.string.forbidden_feature,Toast.LENGTH_SHORT).show();
+        if (toRemove.getUrl().trim().isEmpty()) {
+            Toast.makeText(mContext, R.string.forbidden_feature, Toast.LENGTH_SHORT).show();
             notifyDataSetChanged();
             return; //Do we need this feature?
         }
-        Log.d(LOG_TAG, "onItemDismiss: Before thread. Favourite toRemove " + toRemove);
+        Log.d(TAG, "onItemDismiss: Before thread. Favourite toRemove " + toRemove);
         new Thread(() -> {
-            Log.d(LOG_TAG, "onItemDismiss: Delete thread Started");
+            Log.d(TAG, "onItemDismiss: Delete thread Started");
             mDb = DatabaseHelper.getInstance(mContext);
-            Log.d(LOG_TAG, "onItemDismiss: Inside thread. Favourite toRemove " + toRemove);
+            Log.d(TAG, "onItemDismiss: Inside thread. Favourite toRemove " + toRemove);
             mDb.deleteFavourite(toRemove);
             mDb.close();
-            Log.d(LOG_TAG, "onItemDismiss: Delete thread ended");
+            Log.d(TAG, "onItemDismiss: Delete thread ended");
 
             mUiHandler.post(() -> {
                 mImageList.remove(position);
                 notifyItemRemoved(position);
-                Toast.makeText(mContext,R.string.removed_from_favourites,Toast.LENGTH_SHORT).show();
-                Log.d(LOG_TAG, "Dismissed:" + position);
+                Toast.makeText(mContext, R.string.removed_from_favourites, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Dismissed:" + position);
             });
 
         }).start();
 
 
+    }
+
+    private static class OnCardEmptyListener implements OnCardListener {
+        @Override
+        public void onCardClick(int position) {
+            //Do nothing
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -139,11 +146,11 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<FavouritesListAd
                 if (getAdapterPosition() != RecyclerView.NO_POSITION) {
                     onItemDismiss(getAdapterPosition());
                 } else {
-                    Log.d(LOG_TAG, "Clicked on NO_POSITION!");
+                    Log.d(TAG, "Clicked on NO_POSITION!");
                 }
             });
 
-            Log.d(LOG_TAG, "ViewHolder created!");
+            Log.d(TAG, "ViewHolder created!");
         }
 
         @Override
@@ -151,13 +158,6 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<FavouritesListAd
             onCardListener.onCardClick(getAdapterPosition());
         }
 
-    }
-
-    private class OnCardEmptyListener implements OnCardListener {
-        @Override
-        public void onCardClick(int position) {
-            //Do nothing
-        }
     }
 
     public interface OnCardListener {

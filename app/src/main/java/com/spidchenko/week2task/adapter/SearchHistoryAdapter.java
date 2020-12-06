@@ -4,23 +4,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.spidchenko.week2task.MainActivity;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.models.SearchRequest;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdapter.ViewHolder> {
-    private ArrayList<SearchRequest> mSearchRequests;
-    private String mSearchString;
+
+    private static final String TAG = "SearchHistAdapt.LOG_TAG";
+
+    private final ArrayList<SearchRequest> mSearchRequests;
 
     public SearchHistoryAdapter(ArrayList<SearchRequest> searchRequests) {
         this.mSearchRequests = searchRequests;
@@ -46,13 +44,13 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdap
         return mSearchRequests.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvItemSearchRequestValue;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvItemSearchRequestValue = itemView.findViewById(R.id.tv_item_search_request_value);
-            Log.d(MainActivity.LOG_TAG, "SearchHistoryItem ViewHolder created!");
+            Log.d(TAG, "SearchHistoryItem ViewHolder created!");
         }
     }
 }

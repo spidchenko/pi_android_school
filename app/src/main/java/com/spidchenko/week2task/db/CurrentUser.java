@@ -5,34 +5,33 @@ import android.util.Log;
 import com.spidchenko.week2task.db.models.User;
 
 public class CurrentUser {
-    private static final String TAG = "CurrentUser";
-    private static CurrentUser instance;
-    private User user;
+    private static final String TAG = "CurrentUser.LOG_TAG";
+    private static CurrentUser sInstance;
+    private User mUser;
 
-    private CurrentUser(){
+    private CurrentUser() {
+    }
+
+    public static CurrentUser getInstance() {
+        if (sInstance == null) {
+            sInstance = new CurrentUser();
+            Log.d(TAG, "getInstance: Created");
+        }
+        return sInstance;
+    }
+
+    public User getUser() {
+        return mUser;
+    }
+
+    public void setUser(User user) {
+        this.mUser = user;
     }
 
     @Override
     public String toString() {
         return "CurrentUser{" +
-                "user=" + user +
+                "user=" + mUser +
                 '}';
     }
-
-    public static CurrentUser getInstance(){
-        if (instance == null) {
-            instance = new CurrentUser();
-            Log.d(TAG, "getInstance: Created");
-        }
-        return instance;
-    }
-
-    public User getUser(){
-        return user;
-    }
-
-    public void setUser(User user){
-        this.user=user;
-    }
-
 }

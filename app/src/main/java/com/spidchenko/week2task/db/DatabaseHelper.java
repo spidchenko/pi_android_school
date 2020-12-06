@@ -20,7 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
     private static DatabaseHelper databaseHelper;
 
     private static final int DB_VERSION = 1;
-    private static final String DB_NAME = "com_spidchenko_week2task.db";
+    private static final String DB_NAME = "com.spidchenko.week2task.db";
     private static final String KEY_ID = "id";
     private static final String KEY_USER = "user";
     private static final String KEY_SEARCH_STRING = "search_string";
@@ -31,7 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
     private static final String TABLE_SEARCH_REQUESTS = "searches";
     private static final String KEY_SEARCH_REQUEST_DATE = "date";
 
-    private static final String TABLE_FAVORITES = "favourites";
+    private static final String TABLE_FAVOURITES = "favourites";
     private static final String KEY_FAVOURITE_TITLE = "title";
     private static final String KEY_FAVORITE_URL = "url";
 
@@ -57,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
                 + ");";
         db.execSQL(createUsers);
 
-        String createFavorites = "CREATE TABLE " + TABLE_FAVORITES + "("
+        String createFavorites = "CREATE TABLE " + TABLE_FAVOURITES + "("
                 + KEY_ID + " INTEGER PRIMARY KEY," + KEY_USER + " INTEGER,"
                 + KEY_SEARCH_STRING + " TEXT," + KEY_FAVOURITE_TITLE + " TEXT,"
                 + KEY_FAVORITE_URL + " TEXT UNIQUE);";
@@ -71,27 +71,23 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        StringBuilder dropTablesQueryBuilder = new StringBuilder();
-        dropTablesQueryBuilder.append("DROP TABLE IF EXISTS " + TABLE_USERS + ";");
-        dropTablesQueryBuilder.append("DROP TABLE IF EXISTS " + TABLE_FAVORITES + ";");
-        dropTablesQueryBuilder.append("DROP TABLE IF EXISTS " + TABLE_SEARCH_REQUESTS + ";");
-        db.execSQL(dropTablesQueryBuilder.toString());
+        String dropTablesRequest =
+                "DROP TABLE IF EXISTS " + TABLE_USERS + ";" +
+                        "DROP TABLE IF EXISTS " + TABLE_FAVOURITES + ";" +
+                        "DROP TABLE IF EXISTS " + TABLE_SEARCH_REQUESTS + ";";
+        db.execSQL(dropTablesRequest);
         onCreate(db);
     }
 
     @Override
     public void addUser(User user) {
         Log.d(TAG, "addUser: " + user);
-        SQLiteDatabase db = null;
-        try {
-            db = this.getWritableDatabase();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
             ContentValues values = new ContentValues();
             values.put(KEY_USER_LOGIN, user.getLogin());
             db.insert(TABLE_USERS, null, values);
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
     }
 
@@ -99,9 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
     @Override
     public User getUser(String login) {
         Log.d(TAG, "getUser: " + login);
-        SQLiteDatabase db = null;
-        try {
-            db = this.getReadableDatabase();
+        try (SQLiteDatabase db = this.getReadableDatabase()) {
             Cursor cursor = db.query(TABLE_USERS, new String[]{KEY_ID,
                             KEY_USER_LOGIN}, KEY_USER_LOGIN + "=?",
                     new String[]{String.valueOf(login)}, null, null, null, null);
@@ -118,8 +112,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
             }
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
         return null;
     }
@@ -127,27 +119,21 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
     //Working with favorites
     @Override
     public void addFavorite(Favourite favourite) {
-        SQLiteDatabase db = null;
-        try {
-            db = this.getWritableDatabase();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
             ContentValues values = new ContentValues();
             values.put(KEY_USER, favourite.getUser());
             values.put(KEY_SEARCH_STRING, favourite.getSearchRequest());
             values.put(KEY_FAVOURITE_TITLE, favourite.getTitle());
             values.put(KEY_FAVORITE_URL, favourite.getUrl());
-            db.insert(TABLE_FAVORITES, null, values);
+            db.insert(TABLE_FAVOURITES, null, values);
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
     }
 
     @Override
     public Favourite getFavourite(int id) {
-        SQLiteDatabase db = null;
-        try {
-            db = this.getReadableDatabase();
+        try (SQLiteDatabase db = this.getReadableDatabase()) {
             Cursor cursor = db.query(TABLE_USERS, new String[]{KEY_ID,
                             KEY_USER_LOGIN}, KEY_USER_LOGIN + "=?",
                     new String[]{String.valueOf(id)}, null, null, null, null);
@@ -166,18 +152,14 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
             }
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
         return null;
     }
 
     @Override
     public Favourite getFavourite(int user, String url) {
-        SQLiteDatabase db = null;
-        try {
-            db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_FAVORITES + " WHERE " + KEY_USER
+        try (SQLiteDatabase db = this.getReadableDatabase()) {
+            Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_FAVOURITES + " WHERE " + KEY_USER
                     + " = ?" + " AND " + KEY_FAVORITE_URL + " = ?", new String[]{Integer.toString(user), url});
             if (cursor != null) {
                 cursor.moveToFirst();
@@ -194,29 +176,25 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
             }
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
         return null;
     }
 
     @Override
     public ArrayList<Favourite> getAllFavourites(int user, String searchRequest) {
-        ArrayList<Favourite> favoritesList = new ArrayList<Favourite>();
-        String selectQuery = null;
-        SQLiteDatabase db = null;
-        try {
-            db = this.getWritableDatabase();
-            Cursor cursor = null;
+        ArrayList<Favourite> favoritesList = new ArrayList<>();
+        String selectQuery;
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
+            Cursor cursor;
             if (searchRequest == null) {
                 Log.d(TAG, "getAllFavourites: searchRequest = null");
-                selectQuery = "SELECT * FROM " + TABLE_FAVORITES + " WHERE " + KEY_USER
+                selectQuery = "SELECT * FROM " + TABLE_FAVOURITES + " WHERE " + KEY_USER
                         + " = ? ORDER BY " + KEY_SEARCH_STRING + " ASC";
                 Log.d(TAG, "getAllFavourites: query: " + selectQuery);
                 cursor = db.rawQuery(selectQuery, new String[]{Integer.toString(user)});
 
             } else {
-                selectQuery = "SELECT * FROM " + TABLE_FAVORITES + " WHERE " + KEY_USER
+                selectQuery = "SELECT * FROM " + TABLE_FAVOURITES + " WHERE " + KEY_USER
                         + " = ?" + " AND " + KEY_SEARCH_STRING + "= ? ORDER BY " + KEY_SEARCH_STRING + " ASC";
                 cursor = db.rawQuery(selectQuery, new String[]{Integer.toString(user), searchRequest});
             }
@@ -242,8 +220,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
             cursor.close();
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
 
         return favoritesList;
@@ -257,7 +233,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
             db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(KEY_SEARCH_STRING, favourite.getSearchRequest());
-            result = db.update(TABLE_FAVORITES, values, KEY_FAVORITE_URL + " = ?",
+            result = db.update(TABLE_FAVOURITES, values, KEY_FAVORITE_URL + " = ?",
                     new String[]{String.valueOf(favourite.getUrl())});
         } catch (Exception e) {
             Log.d(TAG, e.toString());
@@ -268,27 +244,21 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
     }
 
     public void deleteFavourite(Favourite favourite) {
-        SQLiteDatabase db = null;
-        try {
-            db = this.getWritableDatabase();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
             if (!favourite.getUrl().equals("")) {
-                db.delete(TABLE_FAVORITES, KEY_FAVORITE_URL + " = ?", new String[]{String.valueOf(favourite.getUrl())});
+                db.delete(TABLE_FAVOURITES, KEY_FAVORITE_URL + " = ?", new String[]{String.valueOf(favourite.getUrl())});
             } else {
-                db.delete(TABLE_FAVORITES, KEY_SEARCH_STRING + " = ?", new String[]{String.valueOf(favourite.getSearchRequest())});
+                db.delete(TABLE_FAVOURITES, KEY_SEARCH_STRING + " = ?", new String[]{String.valueOf(favourite.getSearchRequest())});
             }
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
     }
 
     //Working with search requests
     @Override
     public void addSearchRequest(SearchRequest searchRequest) {
-        SQLiteDatabase db = null;
-        try {
-            db = this.getWritableDatabase();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
             ContentValues values = new ContentValues();
             values.put(KEY_USER, searchRequest.getUser());
             values.put(KEY_SEARCH_STRING, searchRequest.getSearchRequest());
@@ -296,16 +266,12 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
             db.insert(TABLE_SEARCH_REQUESTS, null, values);
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
     }
 
     @Override
     public SearchRequest getLastSearchRequest(int user) {
-        SQLiteDatabase db = null;
-        try {
-            db = this.getReadableDatabase();
+        try (SQLiteDatabase db = this.getReadableDatabase()) {
             String selectQuery = "SELECT * FROM " + TABLE_SEARCH_REQUESTS + " WHERE " + KEY_USER
                     + "= ?" + " ORDER BY " + KEY_SEARCH_REQUEST_DATE + " DESC LIMIT 1";
             Cursor cursor = db.rawQuery(selectQuery, new String[]{Integer.toString(user)});
@@ -324,18 +290,14 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
             }
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
         return new SearchRequest(0, user, "", 0);
     }
 
     @Override
     public ArrayList<SearchRequest> getAllSearchRequests(int user) {
-        ArrayList<SearchRequest> searchRequestsList = new ArrayList<SearchRequest>();
-        SQLiteDatabase db = null;
-        try {
-            db = this.getWritableDatabase();
+        ArrayList<SearchRequest> searchRequestsList = new ArrayList<>();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
             String selectQuery = "SELECT * FROM " + TABLE_SEARCH_REQUESTS + " WHERE " + KEY_USER
                     + "= ?" + " ORDER BY " + KEY_SEARCH_REQUEST_DATE + " DESC LIMIT 20";
 
@@ -354,22 +316,16 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseHandler 
             cursor.close();
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
         return searchRequestsList;
     }
 
     @Override
     public void deleteSearchRequest(SearchRequest searchRequest) {
-        SQLiteDatabase db = null;
-        try {
-            db = this.getWritableDatabase();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
             db.delete(TABLE_SEARCH_REQUESTS, KEY_ID + " = ?", new String[]{String.valueOf(searchRequest.getId())});
         } catch (Exception e) {
             Log.d(TAG, e.toString());
-        } finally {
-            if (db != null) db.close();
         }
     }
 }

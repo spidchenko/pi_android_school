@@ -38,16 +38,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements ImageListAdapter.OnCardListener {
-    public static final String LOG_TAG = MainActivity.class.getSimpleName() + ".LOG_TAG";
+    private static final String TAG = "MainActivity.LOG_TAG";
     public static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
     public static final String EXTRA_SEARCH_STRING = "com.spidchenko.week2task.extras.EXTRA_SEARCH_STRING";
-
-   // private static final String API_KEY = "02692fb0a64b6b1b77f7f689c7f050c7";
 
     private DatabaseHelper mDb;
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
     private CurrentUser currentUser;
-    private FlickrApi mDataService;
     private Context mContext;
     private String mCurrentSearchString;
     private final LinkedList<Image> mImages = new LinkedList<>();
@@ -67,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
 
         mContext = this;
         currentUser = CurrentUser.getInstance();
-        Log.d(LOG_TAG, "onCreate: CurrentUser: " + currentUser);
+        Log.d(TAG, "onCreate: CurrentUser: " + currentUser);
 
         mRvImages = findViewById(R.id.rv_images);
         mEtSearchQuery = findViewById(R.id.et_search_query);
@@ -78,17 +75,8 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         mSharedPreferencesHelper = SharedPreferencesHelper.init(this);
         mEtSearchQuery.setText(mSharedPreferencesHelper.getLastSearch());
 
-        //Restore text on recreate
-        if (savedInstanceState != null) {
-//            mTvImageLinks.setText(savedInstanceState.getString(BUNDLE_IMAGE_LINKS));
-        }
     }
 
-//    @Override
-//    protected void onSaveInstanceState(@NonNull Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putString(BUNDLE_IMAGE_LINKS, mTvImageLinks.getText().toString());
-//    }
 
     public void searchImages(View view) {
 
@@ -105,21 +93,21 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
 
             mBtnSearch.setClickable(false);
             saveCurrentSearch(mCurrentSearchString);
-            mDataService = ServiceGenerator.getFlickrApi();
+            FlickrApi mDataService = ServiceGenerator.getFlickrApi();
 
-            Call<ImgSearchResult> call = mDataService.searchImages( mCurrentSearchString);
+            Call<ImgSearchResult> call = mDataService.searchImages(mCurrentSearchString);
 
             call.enqueue(new Callback<ImgSearchResult>() {
                 @Override
                 public void onResponse(Call<ImgSearchResult> call, Response<ImgSearchResult> response) {
 
                     if (!response.isSuccessful()) {
-                        Log.d(LOG_TAG, String.format("%s: %s", getString(R.string.error_text), response.code()));
+                        Log.d(TAG, String.format("%s: %s", getString(R.string.error_text), response.code()));
                         return;
                     }
 
                     if (response.body() != null) {
-                        Log.d(LOG_TAG, "Received flikr response" + response.body().getImageContainer().getImage());
+                        Log.d(TAG, "Received flikr response" + response.body().getImageContainer().getImage());
                         List<Image> images = response.body().getImageContainer().getImage();
 
                         if (!images.isEmpty()) {
@@ -134,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
 
                 @Override
                 public void onFailure(Call<ImgSearchResult> call, Throwable t) {
-                    Log.d(LOG_TAG, t.getMessage());
+                    Log.d(TAG, t.getMessage());
                 }
             });
         }
@@ -174,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
 
     @Override
     public void onCardClick(int position) {
-        Log.d(LOG_TAG, "ViewHolder clicked! Position = " + position);
+        Log.d(TAG, "ViewHolder clicked! Position = " + position);
         Intent intent = new Intent(this, ImageViewerActivity.class);
         intent.putExtra(EXTRA_URL, mImages.get(position).getUrl(Image.PIC_SIZE_MEDIUM));
         intent.putExtra(EXTRA_SEARCH_STRING, mCurrentSearchString);
@@ -187,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
             mDb = DatabaseHelper.getInstance(MainActivity.this);
             mDb.addSearchRequest(new SearchRequest(currentUser.getUser().getId(), searchString));
             mDb.close();
-            Log.d(LOG_TAG, "saveCurrentSearch: Worker thread finished saving. String: " + searchString);
+            Log.d(TAG, "saveCurrentSearch: Worker thread finished saving. String: " + searchString);
         }).start();
     }
 }

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import static com.spidchenko.week2task.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.MainActivity.EXTRA_URL;
-import static com.spidchenko.week2task.MainActivity.LOG_TAG;
 
 public class FavouritesActivity extends AppCompatActivity implements FavouritesListAdapter.OnCardListener {
 
@@ -34,17 +33,14 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
     private final ArrayList<Favourite> mImages = new ArrayList<>();
     private CurrentUser currentUser;
     private DatabaseHelper mDb;
-    private Handler mUiHandler = new Handler(Looper.getMainLooper());
+    private final Handler mUiHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favourites);
-
         currentUser = CurrentUser.getInstance();
-
         mRvFavouriteImages = findViewById(R.id.rv_favourite_images);
-       // mDb = DatabaseHelper.getInstance(this);
         initRecyclerView();
         insertImages();
     }
@@ -78,10 +74,9 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
             mDb.close();
             Log.d(TAG, "insertImages: " + mDb.getAllFavourites(currentUser.getUser().getId(), null));
 
-
             mUiHandler.post(() -> {
                 mRecyclerAdapter.notifyDataSetChanged();
-                Log.d(LOG_TAG, "Dataset Changed!");
+                Log.d(TAG, "Dataset Changed!");
                 Log.d(TAG, "insertImages. images: " + mImages);
 
             });

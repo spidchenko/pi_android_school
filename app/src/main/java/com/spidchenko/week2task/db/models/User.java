@@ -5,40 +5,41 @@ import android.util.Log;
 public class User {
     private static final String TAG = "User";
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", login='" + login + '\'' +
-                '}';
-    }
 
-    int id;
-    String login;
+    int mId;
+    String mLogin;
 
     public User(int id, String login) {
-        this.id = id;
-        this.login = login;
+        this.mId = id;
+        this.mLogin = login;
     }
 
     public User(String login) {
-        this.login = login;
+        this.mLogin = login;
         Log.d(TAG, "User: Created " + login);
     }
 
     public int getId() {
-        return this.id;
+        return this.mId;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.mId = id;
     }
 
     public String getLogin() {
-        return this.login;
+        return this.mLogin;
     }
 
     public void setLogin(String login) {
-        this.login = login;
+        this.mLogin = login;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + mId +
+                ", login='" + mLogin + '\'' +
+                '}';
     }
 }

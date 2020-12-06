@@ -8,20 +8,29 @@ import java.util.ArrayList;
 
 public interface DatabaseHandler {
 
-    public void addUser(User user);
-    public User getUser(String login);
+    void addUser(User user);
 
-    public void addFavorite(Favourite favourite);
-    public Favourite getFavourite(int id);
-    public Favourite getFavourite(int user, String url);
-    public ArrayList<Favourite> getAllFavourites(int user, String searchRequest);
-    public int updateFavourite(Favourite favourite);
-    public void deleteFavourite(Favourite favourite);
+    User getUser(String login);
 
-    public void addSearchRequest(SearchRequest searchRequest);
-    public SearchRequest getLastSearchRequest(int user);
-    public ArrayList<SearchRequest> getAllSearchRequests(int user);
-    public void deleteSearchRequest(SearchRequest searchRequest);
+    void addFavorite(Favourite favourite);
+
+    Favourite getFavourite(int id);
+
+    Favourite getFavourite(int user, String url);
+
+    ArrayList<Favourite> getAllFavourites(int user, String searchRequest);
+
+    int updateFavourite(Favourite favourite);
+
+    void deleteFavourite(Favourite favourite);
+
+    void addSearchRequest(SearchRequest searchRequest);
+
+    SearchRequest getLastSearchRequest(int user);
+
+    ArrayList<SearchRequest> getAllSearchRequests(int user);
+
+    void deleteSearchRequest(SearchRequest searchRequest);
 
 
 }

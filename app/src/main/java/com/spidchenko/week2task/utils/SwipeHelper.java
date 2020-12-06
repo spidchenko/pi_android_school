@@ -6,10 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.spidchenko.week2task.MainActivity.LOG_TAG;
-
 public class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     private final ItemTouchHelperAdapter mAdapter;
+
+    private static final String TAG = "SwipeHelper.LOG_TAG";
 
     public SwipeHelper(ItemTouchHelperAdapter adapter) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
@@ -25,7 +25,7 @@ public class SwipeHelper extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-        Log.d(LOG_TAG, "ViewHolder Swiped! Position= " + viewHolder.getAdapterPosition());
+        Log.d(TAG, "ViewHolder Swiped! Position= " + viewHolder.getAdapterPosition());
         mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
     }
 

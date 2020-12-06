@@ -17,15 +17,13 @@ import com.spidchenko.week2task.db.DatabaseHelper;
 import com.spidchenko.week2task.db.models.SearchRequest;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-
-import static com.spidchenko.week2task.MainActivity.LOG_TAG;
 
 public class SearchHistoryActivity extends AppCompatActivity {
 
-    private DatabaseHelper db;
-    private CurrentUser currentUser;
-    private Handler mUiHandler = new Handler(Looper.getMainLooper());
+    private static final String TAG = "SearchHistAct.LOG_TAG";
+    private final Handler mUiHandler = new Handler(Looper.getMainLooper());
+    private DatabaseHelper mDb;
+    private CurrentUser mCurrentUser;
 
     RecyclerView mRvSearchHistory;
     SearchHistoryAdapter mRecyclerAdapter;
@@ -36,20 +34,20 @@ public class SearchHistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_history);
-        currentUser = CurrentUser.getInstance();
+        mCurrentUser = CurrentUser.getInstance();
 
         initRecyclerView();
-        insertFakeSearches();
+        insertSearches();
     }
 
     //Save parent activity state on up home navigation
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d(LOG_TAG, "Options item selected");
+        Log.d(TAG, "Options item selected");
         int id = item.getItemId();
         if (id == android.R.id.home) {
             onBackPressed();
-            Log.d(LOG_TAG, "Pressed Back UP button");
+            Log.d(TAG, "Pressed Back UP button");
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -62,26 +60,20 @@ public class SearchHistoryActivity extends AppCompatActivity {
         mRvSearchHistory.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void insertFakeSearches(){
+    private void insertSearches() {
 
         new Thread(() -> {
-            db = DatabaseHelper.getInstance(SearchHistoryActivity.this);
-            mSearches.addAll(db.getAllSearchRequests(currentUser.getUser().getId()));
-            Log.d(LOG_TAG, "insertFakeSearches: "+ db.getAllSearchRequests(currentUser.getUser().getId()));
-            db.close();
+            mDb = DatabaseHelper.getInstance(SearchHistoryActivity.this);
+            mSearches.addAll(mDb.getAllSearchRequests(mCurrentUser.getUser().getId()));
+            Log.d(TAG, "insertFakeSearches: " + mDb.getAllSearchRequests(mCurrentUser.getUser().getId()));
+            mDb.close();
 
             mUiHandler.post(() -> {
                 mRecyclerAdapter.notifyDataSetChanged();
-                Log.d(LOG_TAG, "Dataset Changed!");
+                Log.d(TAG, "Data set Changed!");
             });
 
         }).start();
-
-//        for (int i = 0; i < 200; i++) {
-//            SearchRequest element = new SearchRequest();
-//            element.setSearchRequest("Search N=" + i);
-//            mSearches.add(element);
-//        }
 
     }
 }
