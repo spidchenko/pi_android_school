@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menuHide"
+        android:onClick="startFavouritesActivity"
+        android:title="@string/action_favourites"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menuExit"
+        android:onClick="startSearchHistoryActivity"
+        android:title="@string/action_search_history"
+        app:showAsAction="never" />
+</menu>
