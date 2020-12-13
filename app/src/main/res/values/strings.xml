@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Simple flickr client</string>
+    <string name="search_query_hint">Enter search query here</string>
+    <string name="action_search">Search</string>
+    <string name="msg_wait">Wait please…</string>
+    <string name="hint_search">Your search result will be shown here</string>
+    <string name="error_text">Error</string>
+    <string name="error_empty_search">Error. Empty search request.</string>
+    <string name="error_nothing_found">No results were found for your search</string>
+    <string name="description_splash_screen">Simple flickr client logo</string>
+
+    <string name="prompt_username">Username</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="welcome">"Welcome!"</string>
+    <string name="login_failed">"Login failed. Empty username."</string>
+
+    <string name="action_favourites">Favourites</string>
+    <string name="removed_from_favourites">Removed from Favourites</string>
+    <string name="added_to_favourites">Added to Favourites</string>
+    <string name="action_search_history">Search history</string>
+    <string name="action_map">Search on map</string>
+    <string name="search_on_map">Search on map</string>
+</resources>

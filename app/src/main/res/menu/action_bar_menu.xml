@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menuFavourites"
+        android:onClick="startFavouritesActivity"
+        android:title="@string/action_favourites"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menuSearchHistory"
+        android:onClick="startSearchHistoryActivity"
+        android:title="@string/action_search_history"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menuMaps"
+        android:onClick="startMapsActivity"
+        android:title="@string/action_map"
+        app:showAsAction="never" />
+</menu>
