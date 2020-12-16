@@ -9,12 +9,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.spidchenko.week2task.ImageRepository;
+import com.spidchenko.week2task.R;
+import com.spidchenko.week2task.SharedPreferencesRepository;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.models.Image;
-import com.spidchenko.week2task.SharedPreferencesRepository;
 import com.spidchenko.week2task.network.Result;
 
 import java.util.List;
+
+import static com.spidchenko.week2task.ImageRepository.RESULT_EMPTY_RESPONSE;
 
 public class MainActivityViewModel extends AndroidViewModel {
     private static final String TAG = "MainAcViewModel.LOG_TAG";
@@ -22,6 +25,8 @@ public class MainActivityViewModel extends AndroidViewModel {
     private ImageRepository mImageRepository;
     private MutableLiveData<List<Image>> mImages = new MutableLiveData<>();
     private MutableLiveData<String> mLastSearchString = new MutableLiveData<>();
+    private MutableLiveData<Boolean> mIsLoading = new MutableLiveData<>();
+    private SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
     private CurrentUser mCurrentUser;
     private SharedPreferencesRepository mSharedPrefRepository;
 
@@ -42,14 +47,24 @@ public class MainActivityViewModel extends AndroidViewModel {
     }
 
     public void searchImages(String searchRequest) {
+        downloadStarted();
         mSharedPrefRepository.saveLastSearch(searchRequest);
         setSearchString(searchRequest);
         mImageRepository.updateImages(searchRequest, result -> {
             if (result instanceof Result.Error) {
                 Log.d(TAG, "searchImages: Error Returned From Repo: " + ((Result.Error<List<Image>>) result).throwable.getMessage());
+                String errorMessage = ((Result.Error<List<Image>>) result).throwable.getMessage();
+                switch (errorMessage) {
+                    case RESULT_EMPTY_RESPONSE:
+                        mSnackBarMessage.postValue(R.string.error_nothing_found);
+                        break;
+                    default:
+                        mSnackBarMessage.postValue(R.string.error_default_message);
+                }
             } else {
                 mImages.postValue(((Result.Success<List<Image>>) result).data);
             }
+            downloadFinished();
         });
     }
 
@@ -73,10 +88,25 @@ public class MainActivityViewModel extends AndroidViewModel {
         return mLastSearchString;
     }
 
+    public LiveData<Boolean> getLoadingState() {
+        return mIsLoading;
+    }
+
+    public SingleLiveEvent<Integer> getSnackBarMessage() {
+        return mSnackBarMessage;
+    }
+
     private void setSearchString(String string) {
         mLastSearchString.setValue(string);
     }
 
+    private void downloadFinished() {
+        mIsLoading.postValue(false);
+    }
+
+    private void downloadStarted() {
+        mIsLoading.postValue(true);
+    }
 }
 
 

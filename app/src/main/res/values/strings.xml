@@ -7,6 +7,7 @@
     <string name="error_text">Error</string>
     <string name="error_empty_search">Error. Empty search request.</string>
     <string name="error_nothing_found">No results were found for your search</string>
+    <string name="error_default_message">Something bad happened :(</string>
     <string name="description_splash_screen">Simple flickr client logo</string>
 
     <string name="prompt_username">Username</string>

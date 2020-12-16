@@ -13,10 +13,12 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -24,6 +26,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.models.Image;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
     private EditText mEtSearchQuery;
     private Button mBtnSearch;
     private RecyclerView mRvImages;
+    private ProgressBar mPbLoading;
 
 
     @Override
@@ -56,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         mRvImages = findViewById(R.id.rv_images);
         mEtSearchQuery = findViewById(R.id.et_search_query);
         mBtnSearch = findViewById(R.id.btn_search);
+        mPbLoading = findViewById(R.id.pbLoading);
 
         initRecyclerView();
 
@@ -72,6 +78,13 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
             mRecyclerAdapter.setImages(images);
             mRecyclerAdapter.notifyDataSetChanged();
         });
+
+        mViewModel.getLoadingState().observe(this, loadingState -> {
+            Log.d(TAG, "onCreate: isLoading: " + loadingState);
+            mPbLoading.setVisibility(loadingState ? View.VISIBLE : View.GONE);
+        });
+
+        mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
     }
 
     public void actionSearch(View view) {
@@ -113,11 +126,11 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if ((resultCode == Activity.RESULT_OK) && (requestCode == ACTION_GET_COORDS)) {
-                String lat = data.getStringExtra(EXTRA_LATITUDE);
-                String lon = data.getStringExtra(EXTRA_LONGITUDE);
-                Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
-                mViewModel.searchImagesByCoordinates(lat, lon);
-                hideKeyboard(this);
+            String lat = data.getStringExtra(EXTRA_LATITUDE);
+            String lon = data.getStringExtra(EXTRA_LONGITUDE);
+            Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
+            mViewModel.searchImagesByCoordinates(lat, lon);
+            hideKeyboard(this);
         }
     }
 
@@ -167,7 +180,13 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         });
     }
 
-    public static void hideKeyboard(Activity activity) {
+    private void showSnackBarMessage(@StringRes int resourceId) {
+        Snackbar.make(findViewById(android.R.id.content),
+                resourceId,
+                BaseTransientBottomBar.LENGTH_LONG).show();
+    }
+
+    private static void hideKeyboard(Activity activity) {
         View view = activity.findViewById(android.R.id.content);
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
