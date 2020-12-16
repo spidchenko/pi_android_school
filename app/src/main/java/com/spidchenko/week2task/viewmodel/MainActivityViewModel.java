@@ -11,7 +11,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.spidchenko.week2task.ImageRepository;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.models.Image;
-import com.spidchenko.week2task.utils.SharedPreferencesHelper;
+import com.spidchenko.week2task.SharedPreferencesRepository;
+import com.spidchenko.week2task.network.Result;
 
 import java.util.List;
 
@@ -22,15 +23,15 @@ public class MainActivityViewModel extends AndroidViewModel {
     private MutableLiveData<List<Image>> mImages = new MutableLiveData<>();
     private MutableLiveData<String> mLastSearchString = new MutableLiveData<>();
     private CurrentUser mCurrentUser;
-    private SharedPreferencesHelper mSharedPreferencesHelper;
+    private SharedPreferencesRepository mSharedPrefRepository;
 
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
         mCurrentUser = CurrentUser.getInstance();
         mImageRepository = new ImageRepository(application, mCurrentUser.getUser().getId());
 
-        mSharedPreferencesHelper = SharedPreferencesHelper.init(application);
-        mLastSearchString.setValue(mSharedPreferencesHelper.getLastSearch());
+        mSharedPrefRepository = SharedPreferencesRepository.init(application);
+        mLastSearchString.setValue(mSharedPrefRepository.getLastSearch());
 
         Log.d(TAG, "MainActivityViewModel: Created");
         Log.d(TAG, "MainActivityViewModel: images=" + (mImages == null));
@@ -41,9 +42,15 @@ public class MainActivityViewModel extends AndroidViewModel {
     }
 
     public void searchImages(String searchRequest) {
-        mSharedPreferencesHelper.saveLastSearch(searchRequest);
+        mSharedPrefRepository.saveLastSearch(searchRequest);
         setSearchString(searchRequest);
-        mImageRepository.updateImages(mImages, searchRequest);
+        mImageRepository.updateImages(searchRequest, result -> {
+            if (result instanceof Result.Error) {
+                Log.d(TAG, "searchImages: Error Returned From Repo: " + ((Result.Error<List<Image>>) result).throwable.getMessage());
+            } else {
+                mImages.postValue(((Result.Success<List<Image>>) result).data);
+            }
+        });
     }
 
     public void searchImagesByCoordinates(String lat, String lon) {

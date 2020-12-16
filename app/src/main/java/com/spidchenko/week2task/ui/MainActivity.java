@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -34,11 +36,11 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
     private static final String TAG = "MainActivity.LOG_TAG";
     public static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
     public static final String EXTRA_SEARCH_STRING = "com.spidchenko.week2task.extras.EXTRA_SEARCH_STRING";
-    private static final String BUNDLE_SEARCH_STRING = "com.spidchenko.week2task.extras.BUNDLE_SEARCH_STRING";
+    public static final int ACTION_GET_COORDS = 1;
 
     private String mCurrentSearchString;
     private ImageListAdapter mRecyclerAdapter;
-    private MainActivityViewModel mMainActivityViewModel;
+    private MainActivityViewModel mViewModel;
 
     //UI
     private EditText mEtSearchQuery;
@@ -55,43 +57,22 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         mEtSearchQuery = findViewById(R.id.et_search_query);
         mBtnSearch = findViewById(R.id.btn_search);
 
-//        if (savedInstanceState != null) {
-//            if (!savedInstanceState.getString(BUNDLE_SEARCH_STRING).isEmpty()) {
-//                mCurrentSearchString = savedInstanceState.getString(BUNDLE_SEARCH_STRING);
-//            }
-//        }
-
         initRecyclerView();
 
-        mMainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
-        mMainActivityViewModel.getSearchString().observe(this, lastSearch -> {
+        mViewModel.getSearchString().observe(this, lastSearch -> {
             mCurrentSearchString = lastSearch;
             mEtSearchQuery.setText(lastSearch);
             mRecyclerAdapter.setSearchString(lastSearch);
             mRecyclerAdapter.notifyDataSetChanged();
         });
 
-        mMainActivityViewModel.getAllImages().observe(this, images -> {
+        mViewModel.getAllImages().observe(this, images -> {
             mRecyclerAdapter.setImages(images);
             mRecyclerAdapter.notifyDataSetChanged();
         });
-
-        Intent intent = getIntent();
-        if (intent.getStringExtra(EXTRA_LATITUDE) != null) {
-            String lat = intent.getStringExtra(EXTRA_LATITUDE);
-            String lon = intent.getStringExtra(EXTRA_LONGITUDE);
-            Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
-            mMainActivityViewModel.searchImagesByCoordinates(lat, lon);
-            hideKeyboard(this);
-        }
     }
-
-//    @Override
-//    protected void onSaveInstanceState(@NonNull Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putString(BUNDLE_SEARCH_STRING, mCurrentSearchString);
-//    }
 
     public void actionSearch(View view) {
 
@@ -102,8 +83,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
             Toast.makeText(this, R.string.error_empty_search, Toast.LENGTH_LONG).show();
         } else {
             //TODO set spinning wheel here
-            mMainActivityViewModel.searchImages(searchString);
-//            mBtnSearch.setClickable(false);
+            mViewModel.searchImages(searchString);
         }
     }
 
@@ -126,7 +106,19 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
 
     public void startMapsActivity(MenuItem item) {
         Intent intent = new Intent(this, MapsActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, ACTION_GET_COORDS);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if ((resultCode == Activity.RESULT_OK) && (requestCode == ACTION_GET_COORDS)) {
+                String lat = data.getStringExtra(EXTRA_LATITUDE);
+                String lon = data.getStringExtra(EXTRA_LONGITUDE);
+                Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
+                mViewModel.searchImagesByCoordinates(lat, lon);
+                hideKeyboard(this);
+        }
     }
 
     private void initRecyclerView() {
@@ -160,17 +152,17 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
-            public boolean onMove(RecyclerView recyclerView,
-                                  RecyclerView.ViewHolder viewHolder,
-                                  RecyclerView.ViewHolder target) {
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
 
             @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
                 Log.d(TAG, "ViewHolder Swiped! Position= " + position);
-                mMainActivityViewModel.deleteImageAtPosition(position);
+                mViewModel.deleteImageAtPosition(position);
             }
         });
     }

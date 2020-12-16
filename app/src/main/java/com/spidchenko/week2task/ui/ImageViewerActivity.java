@@ -63,7 +63,8 @@ public class ImageViewerActivity extends AppCompatActivity {
 
         checkInFavourites();
 
-        Log.d(TAG, "Intent received. Image Url: " + intent.getStringExtra(EXTRA_URL));
+        Log.d(TAG, "Intent received. Image Url: " + mIntentExtraUrl +
+                ". SearchString: " + mIntentExtraSearchString);
     }
 
     //Save parent activity state on up home navigation

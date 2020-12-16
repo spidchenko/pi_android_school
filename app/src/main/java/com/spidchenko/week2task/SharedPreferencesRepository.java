@@ -1,10 +1,10 @@
-package com.spidchenko.week2task.utils;
+package com.spidchenko.week2task;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-public class SharedPreferencesHelper {
+public class SharedPreferencesRepository {
     private static final String PREF_FILE_KEY = "com.spidchenko.week2task.PREF_FILE_KEY";
     private static final String PREF_LOGIN_KEY = "com.spidchenko.week2task.PREF_LOGIN_KEY";
     private static final String PREF_LAST_SEARCH_KEY = "com.spidchenko.week2task.PREF_LAST_SEARCH_KEY";
@@ -12,15 +12,15 @@ public class SharedPreferencesHelper {
 
     private static SharedPreferences sSharedPreferences;
 
-    private SharedPreferencesHelper() {
+    private SharedPreferencesRepository() {
     }
 
-    public static SharedPreferencesHelper init(Context context) {
+    public static SharedPreferencesRepository init(Context context) {
         if (sSharedPreferences == null) {
             sSharedPreferences = context.getSharedPreferences(PREF_FILE_KEY, Context.MODE_PRIVATE);
         }
         Log.d(TAG, "init: Initialized");
-        return new SharedPreferencesHelper();
+        return new SharedPreferencesRepository();
     }
 
     public String getLogin() {

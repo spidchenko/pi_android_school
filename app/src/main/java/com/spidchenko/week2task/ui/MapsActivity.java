@@ -114,10 +114,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             Log.d(TAG, "actionSearchByCoordinates: "+mMarker.getPosition().toString());
             LatLng coordinates = mMarker.getPosition();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(EXTRA_LATITUDE, Double.toString(coordinates.latitude));
-            intent.putExtra(EXTRA_LONGITUDE, Double.toString(coordinates.longitude));
-            startActivity(intent);
+            Intent replyIntent = new Intent();
+            replyIntent.putExtra(EXTRA_LATITUDE, Double.toString(coordinates.latitude));
+            replyIntent.putExtra(EXTRA_LONGITUDE, Double.toString(coordinates.longitude));
+            setResult(RESULT_OK, replyIntent);
             finish();
         }
     }

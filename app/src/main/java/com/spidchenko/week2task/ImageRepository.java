@@ -11,6 +11,7 @@ import com.spidchenko.week2task.db.models.SearchRequest;
 import com.spidchenko.week2task.models.Image;
 import com.spidchenko.week2task.models.ImgSearchResult;
 import com.spidchenko.week2task.network.FlickrApi;
+import com.spidchenko.week2task.network.Result;
 import com.spidchenko.week2task.network.ServiceGenerator;
 
 import java.util.List;
@@ -29,47 +30,15 @@ public class ImageRepository {
         mUserId = userId;
     }
 
-    public void updateImages(MutableLiveData<List<Image>> mImages, String searchRequest) {
-
+    public void updateImages(String searchRequest, RepositoryCallback<List<Image>> callback) {
         saveCurrentSearchInDb(searchRequest);
         FlickrApi mDataService = ServiceGenerator.getFlickrApi();
-
         Call<ImgSearchResult> call = mDataService.searchImages(searchRequest);
-
-        call.enqueue(new Callback<ImgSearchResult>() {
-            @Override
-            public void onResponse(Call<ImgSearchResult> call, Response<ImgSearchResult> response) {
-
-                if (!response.isSuccessful()) {
-                    Log.d(TAG, "Error: code = " + response.code());
-                    return;
-                }
-
-                if (response.body() != null) {
-                    Log.d(TAG, "Received flikr response" + response.body().getImageContainer().getImage());
-                    List<Image> images = response.body().getImageContainer().getImage();
-
-                    if (!images.isEmpty()) {
-                        mImages.postValue(images);
-//                        updateImages(images);
-                        //TODO stop spinning wheel here
-//                        mBtnSearch.setClickable(true);
-                    } else {
-                        //TODO return something here or throw Exception
-//                        Toast.makeText(mContext, R.string.error_nothing_found, Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ImgSearchResult> call, Throwable t) {
-                Log.d(TAG, t.getMessage());
-            }
-        });
+        getResultsFromNetwork(call, callback);
     }
 
     public void updateImagesByCoordinates(MutableLiveData<List<Image>> mImages, String lat, String lon,
-                                   String geoSearchString) {
+                                          String geoSearchString) {
 
         saveCurrentSearchInDb(geoSearchString);
         FlickrApi mDataService = ServiceGenerator.getFlickrApi();
@@ -88,15 +57,11 @@ public class ImageRepository {
                 if (response.body() != null) {
                     Log.d(TAG, "Received flikr response" + response.body().getImageContainer().getImage());
                     List<Image> images = response.body().getImageContainer().getImage();
-
+                    //TODO stop spinning wheel here
                     if (!images.isEmpty()) {
                         mImages.postValue(images);
-//                        updateImages(images);
-                        //TODO stop spinning wheel here
-//                        mBtnSearch.setClickable(true);
                     } else {
-                        //TODO return something here
-//                        Toast.makeText(mContext, R.string.error_nothing_found, Toast.LENGTH_LONG).show();
+                        //TODO return something here (R.string.error_nothing_found)
                     }
                 }
             }
@@ -116,4 +81,38 @@ public class ImageRepository {
             Log.d(TAG, "saveCurrentSearch: Worker thread finished saving. String: " + searchString);
         }).start();
     }
+
+    public interface RepositoryCallback<T> {
+        void onComplete(Result<T> result);
+    }
+
+    private void getResultsFromNetwork(Call<ImgSearchResult> call, RepositoryCallback<List<Image>> callback){
+        call.enqueue(new Callback<ImgSearchResult>() {
+            @Override
+            public void onResponse(Call<ImgSearchResult> call, Response<ImgSearchResult> response) {
+
+                if (!response.isSuccessful()) {
+                    String errorCode = String.valueOf(response.code());
+                    callback.onComplete(new Result.Error<>(new Exception(errorCode)));
+                    return;
+                }
+
+                if (response.body() != null) {
+                    Log.d(TAG, "Received flikr response" + response.body().getImageContainer().getImage());
+                    List<Image> images = response.body().getImageContainer().getImage();
+                    if (!images.isEmpty()) {
+                        callback.onComplete(new Result.Success<>(images));
+                    } else {
+                        callback.onComplete(new Result.Error<>(new Exception("Empty response")));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ImgSearchResult> call, Throwable t) {
+                callback.onComplete(new Result.Error<>(t));
+            }
+        });
+    }
 }
+

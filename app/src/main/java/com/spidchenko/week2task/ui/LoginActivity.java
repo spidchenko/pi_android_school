@@ -16,7 +16,7 @@ import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.DatabaseHelper;
 import com.spidchenko.week2task.db.models.User;
-import com.spidchenko.week2task.utils.SharedPreferencesHelper;
+import com.spidchenko.week2task.SharedPreferencesRepository;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -25,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
     private DatabaseHelper mDb;
     private String mUsername;
-    private SharedPreferencesHelper mSharedPreferences;
+    private SharedPreferencesRepository mSharedPreferences;
     private EditText mEtUsername;
     private Button mBtnSignIn;
 
@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mSharedPreferences = SharedPreferencesHelper.init(this);
+        mSharedPreferences = SharedPreferencesRepository.init(this);
         mEtUsername = findViewById(R.id.username);
         mBtnSignIn = findViewById(R.id.btn_sign_in);
     }
