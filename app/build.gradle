@@ -42,20 +42,15 @@ android {
 dependencies {
 
     def lifecycle_version = "2.2.0"
-    def room_version = "2.2.5"
+    def room_version = "2.2.6"
     def glide_version = "4.11.0"
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
+    //Google Maps
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
- //   implementation 'com.google.android.gms:play-services-base:17.5.0'
-//    implementation 'com.google.android.gms:play-services-analytics:17.0.0'
-//    implementation 'com.google.android.gms:play-services-awareness:18.0.1'
-//    implementation 'com.google.android.gms:play-services-cast:19.0.0'
-//    implementation 'com.google.android.gms:play-services-gcm:17.0.0'
-//    implementation 'com.google.android.gms:play-services-location:17.1.0'
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"

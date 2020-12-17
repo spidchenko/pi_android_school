@@ -98,14 +98,14 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
             }
 
             @Override
-            public boolean onMove(RecyclerView recyclerView,
-                                  RecyclerView.ViewHolder viewHolder,
-                                  RecyclerView.ViewHolder target) {
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
 
             @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
                 int position = viewHolder.getAdapterPosition();
                 Log.d(TAG, "ViewHolder Swiped! Position= " + position);

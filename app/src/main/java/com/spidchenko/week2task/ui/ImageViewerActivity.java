@@ -10,7 +10,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,12 +17,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
-import com.spidchenko.week2task.db.DatabaseHelper;
 import com.spidchenko.week2task.db.models.Favourite;
-import com.spidchenko.week2task.viewmodel.FavouritesActivityViewModel;
 import com.spidchenko.week2task.viewmodel.ImageViewerActivityViewModel;
 
-import static android.widget.Toast.LENGTH_SHORT;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
 
@@ -37,7 +33,6 @@ public class ImageViewerActivity extends AppCompatActivity {
     private CurrentUser mCurrentUser;
     private Favourite mFavourite;
     private ImageViewerActivityViewModel mViewModel;
-    private DatabaseHelper mDb;
     private CheckBox cbToggleFavourite;
 
     @Override
@@ -71,7 +66,15 @@ public class ImageViewerActivity extends AppCompatActivity {
         mIntentExtraSearchString = intent.getStringExtra(EXTRA_SEARCH_STRING);
         tvSearchString.setText(mIntentExtraSearchString);
 
-        mViewModel.checkInFavourites(mIntentExtraUrl);
+        mFavourite = new Favourite(mCurrentUser.getUser().getId(),
+                mIntentExtraSearchString, "", mIntentExtraUrl);
+
+        mViewModel.getInFavourites(mFavourite).observe(this, inFavourites -> {
+            if (inFavourites != null) {
+                cbToggleFavourite.setChecked(inFavourites);
+                Log.d(TAG, "onCreate: inFavourites = " + inFavourites);
+            }
+        });
 
         Log.d(TAG, "Intent received. Image Url: " + mIntentExtraUrl +
                 ". SearchString: " + mIntentExtraSearchString);
@@ -91,60 +94,13 @@ public class ImageViewerActivity extends AppCompatActivity {
     }
 
     public void toggleFavourite(View view) {
-        if (cbToggleFavourite.isChecked()) {
+        mViewModel.toggleFavourite(mFavourite);
 
-            new Thread(() -> {
-                mDb = DatabaseHelper.getInstance(this);
-                mDb.addFavorite(new Favourite(mCurrentUser.getUser().getId(),
-                        mIntentExtraSearchString, "", mIntentExtraUrl));
-                mDb.close();
+//                    Toast.makeText(this, R.string.added_to_favourites, LENGTH_SHORT).show();
+//TODO use this messages in Snackbar
+//                    Toast.makeText(this, R.string.removed_from_favourites, LENGTH_SHORT).show();
 
-                mUiHandler.post(() -> {
-                    cbToggleFavourite.setClickable(true);
-                    Log.d(TAG, "Added to favourites!");
-                    Toast.makeText(this, R.string.added_to_favourites, LENGTH_SHORT).show();
-                });
-
-            }).start();
-
-
-        } else {
-
-            new Thread(() -> {
-                mDb = DatabaseHelper.getInstance(this);
-                mDb.deleteFavourite(new Favourite(mCurrentUser.getUser().getId(),
-                        mIntentExtraSearchString, "", mIntentExtraUrl));
-                mDb.close();
-
-                mUiHandler.post(() -> {
-                    cbToggleFavourite.setClickable(true);
-                    Log.d(TAG, "Removed from favourites!");
-                    Toast.makeText(this, R.string.removed_from_favourites, LENGTH_SHORT).show();
-                });
-
-            }).start();
-        }
     }
 
-//    private void checkInFavourites() {
-//        cbToggleFavourite.setClickable(false);
-//
-//        new Thread(() -> {
-//            mDb = DatabaseHelper.getInstance(this);
-//            mFavourite = mDb.getFavourite(mCurrentUser.getUser().getId(), mIntentExtraUrl);
-//            mDb.close();
-//
-//            mUiHandler.post(() -> {
-//                cbToggleFavourite.setClickable(true);
-//                if (mFavourite != null) {
-//                    cbToggleFavourite.setChecked(true);
-//                    Log.d(TAG, "checkInFavourites: Already in Favourites!");
-//                } else {
-//                    cbToggleFavourite.setChecked(false);
-//                    Log.d(TAG, "checkInFavourites: Not in Favourites!");
-//                }
-//            });
-//
-//        }).start();
-//    }
+
 }

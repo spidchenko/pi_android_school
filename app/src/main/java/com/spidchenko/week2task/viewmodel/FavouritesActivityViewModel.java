@@ -15,9 +15,9 @@ import java.util.List;
 
 public class FavouritesActivityViewModel extends AndroidViewModel {
     private static final String TAG = "FavouritesActivityViewM";
-    private FavouriteRepository mFavouriteRepository;
-    private LiveData<List<Favourite>> mFavourites;
-    private CurrentUser mCurrentUser;
+    private final FavouriteRepository mFavouriteRepository;
+    private final LiveData<List<Favourite>> mFavourites;
+    private final CurrentUser mCurrentUser;
 
 
     public FavouritesActivityViewModel(@NonNull Application application) {
@@ -33,6 +33,9 @@ public class FavouritesActivityViewModel extends AndroidViewModel {
     }
 
     public void deleteFavourite(Favourite favourite) {
-        mFavouriteRepository.deleteFavourite(favourite);
+        mFavouriteRepository.deleteFavourite(favourite, result -> {
+            //TODO handle error here
+            mFavouriteRepository.updateFavouritesLiveData();
+        });
     }
 }

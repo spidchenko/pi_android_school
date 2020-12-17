@@ -16,12 +16,12 @@ import java.util.List;
 
 public class FavouriteRepository {
     private static final String TAG = "FavRepository.LOG_TAG";
-    private final DatabaseHelper mDb;
+    private final Application mApplication;
     private final MutableLiveData<List<Favourite>> mFavourites;
     private final int mUserId;
 
     public FavouriteRepository(@NonNull Application application, int userId) {
-        mDb = DatabaseHelper.getInstance(application);
+        mApplication = application;
         mUserId = userId;
         mFavourites = new MutableLiveData<>();
         updateFavouritesLiveData();
@@ -31,44 +31,57 @@ public class FavouriteRepository {
         return mFavourites;
     }
 
-    public void deleteFavourite(Favourite favourite) {
+    public void addFavorite(Favourite favourite, RepositoryCallback<Boolean> callback) {
         new Thread(() -> {
-            Log.d(TAG, "deleteFavourite: Inside thread. Favourite toRemove " + favourite);
-            mDb.deleteFavourite(favourite);
-            mDb.close();
-            Log.d(TAG, "deleteFavourite: Delete thread ended");
-            updateFavouritesLiveData();
+            try {
+                DatabaseHelper mDb = DatabaseHelper.getInstance(mApplication);
+                mDb.addFavorite(favourite);
+                mDb.close();
+                callback.onComplete(new Result.Success<>(true));
+            } catch (Exception e) {
+                callback.onComplete(new Result.Error<>(e));
+            }
+        }).start();
+    }
+
+    public void deleteFavourite(Favourite favourite, RepositoryCallback<Boolean> callback) {
+        new Thread(() -> {
+            try {
+                Log.d(TAG, "deleteFavourite: Inside thread. Favourite toRemove " + favourite);
+                DatabaseHelper mDb = DatabaseHelper.getInstance(mApplication);
+                mDb.deleteFavourite(favourite);
+                mDb.close();
+                Log.d(TAG, "deleteFavourite: Delete thread ended");
+                callback.onComplete(new Result.Success<>(true));
+            } catch (Exception e) {
+                callback.onComplete(new Result.Error<>(e));
+            }
         }).start();
 
     }
 
-    public void checkInFavourites(String url, RepositoryCallback<Boolean> callback) {
+    public void checkInFavourites(Favourite favourite, RepositoryCallback<Boolean> callback) {
 
         new Thread(() -> {
-            Favourite favourite = mDb.getFavourite(mUserId, url);
-            mDb.close();
-            //TODO send callback here
-            if (favourite != null) {
-                callback.onComplete(new Result.Success<Boolean>() {
-                });
+            try {
+                DatabaseHelper mDb = DatabaseHelper.getInstance(mApplication);
+                Favourite result = mDb.getFavourite(mUserId, favourite.getUrl());
+                mDb.close();
+                if (result != null) {
+                    callback.onComplete(new Result.Success<>(true));
+                } else {
+                    callback.onComplete(new Result.Success<>(false));
+                }
+            } catch (Exception e) {
+                callback.onComplete(new Result.Error<>(e));
             }
-//            mUiHandler.post(() -> {
-//                cbToggleFavourite.setClickable(true);
-//                if (mFavourite != null) {
-//                    cbToggleFavourite.setChecked(true);
-//                    Log.d(TAG, "checkInFavourites: Already in Favourites!");
-//                } else {
-//                    cbToggleFavourite.setChecked(false);
-//                    Log.d(TAG, "checkInFavourites: Not in Favourites!");
-//                }
-//            });
-
         }).start();
     }
 
     //Room will take care of this feature
-    private void updateFavouritesLiveData() {
+    public void updateFavouritesLiveData() {
         new Thread(() -> {
+            DatabaseHelper mDb = DatabaseHelper.getInstance(mApplication);
             ArrayList<Favourite> favourites =
                     new ArrayList<>(mDb.getAllFavourites(mUserId, null));
             mDb.close();
@@ -76,6 +89,7 @@ public class FavouriteRepository {
             Log.d(TAG, "FavouritesRepository: favourites from DB: " + favourites.toString());
         }).start();
     }
+
 
     public interface RepositoryCallback<T> {
         void onComplete(Result<T> result);
