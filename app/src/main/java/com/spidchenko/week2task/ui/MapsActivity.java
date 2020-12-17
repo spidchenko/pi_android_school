@@ -1,17 +1,18 @@
 package com.spidchenko.week2task.ui;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -23,6 +24,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -42,14 +45,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.google_map);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
     }
 
     @Override
     public void onMapReady(GoogleMap map) {
         mGoogleMap = map;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        mGoogleMap.setOnMapClickListener(latLng -> setMarker(latLng));
+        mGoogleMap.setOnMapClickListener(this::setMarker);
         getLocation();
     }
 
@@ -64,8 +69,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void getLocation() {
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mGoogleMap.setMyLocationEnabled(true);
+                android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (mGoogleMap != null) {
+                mGoogleMap.setMyLocationEnabled(true);
+            }
             try {
                 LocationManager locationManager =
                         (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -82,15 +89,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     setMarker(latLng);
                 } else {
+                    showSnackBarMessage(R.string.error_undefined_location);
                     Log.d(TAG, "getLocation: Error");
                 }
             } catch (Exception e) {
+                showSnackBarMessage(R.string.error_default_message);
                 Log.d(TAG, "getLocation: Exception " + e.getMessage());
             }
 
         } else {
-            ActivityCompat.requestPermissions(this, new String[]
-                    {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+            if (Build.VERSION.SDK_INT >= 23) { // Marshmallow
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION);
+            }
         }
     }
 
@@ -110,9 +122,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void actionSearchByCoordinates(View view) {
         if (mMarker == null) {
-            Toast.makeText(this, "Select point to search photos near", Toast.LENGTH_LONG).show();
+            showSnackBarMessage(R.string.select_point_message);
         } else {
-            Log.d(TAG, "actionSearchByCoordinates: "+mMarker.getPosition().toString());
+            Log.d(TAG, "actionSearchByCoordinates: " + mMarker.getPosition().toString());
             LatLng coordinates = mMarker.getPosition();
             Intent replyIntent = new Intent();
             replyIntent.putExtra(EXTRA_LATITUDE, Double.toString(coordinates.latitude));
@@ -121,4 +133,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             finish();
         }
     }
+
+    private void showSnackBarMessage(@StringRes int resourceId) {
+        Snackbar.make(findViewById(android.R.id.content),
+                resourceId,
+                BaseTransientBottomBar.LENGTH_LONG).show();
+    }
+
 }

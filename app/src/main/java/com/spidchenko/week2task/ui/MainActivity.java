@@ -14,7 +14,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -82,20 +81,18 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         mViewModel.getLoadingState().observe(this, loadingState -> {
             Log.d(TAG, "onCreate: isLoading: " + loadingState);
             mPbLoading.setVisibility(loadingState ? View.VISIBLE : View.GONE);
+            mBtnSearch.setClickable(!loadingState);
         });
 
         mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
     }
 
     public void actionSearch(View view) {
-
         hideKeyboard(this);
-
         String searchString = mEtSearchQuery.getText().toString().trim();
         if (searchString.isEmpty()) {
-            Toast.makeText(this, R.string.error_empty_search, Toast.LENGTH_LONG).show();
+            showSnackBarMessage(R.string.error_empty_search);
         } else {
-            //TODO set spinning wheel here
             mViewModel.searchImages(searchString);
         }
     }
@@ -125,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if ((resultCode == Activity.RESULT_OK) && (requestCode == ACTION_GET_COORDS)) {
+        if ((resultCode == Activity.RESULT_OK) && (requestCode == ACTION_GET_COORDS) && (data != null)) {
             String lat = data.getStringExtra(EXTRA_LATITUDE);
             String lon = data.getStringExtra(EXTRA_LONGITUDE);
             Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);

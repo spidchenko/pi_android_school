@@ -14,11 +14,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.DatabaseHelper;
 import com.spidchenko.week2task.db.models.Favourite;
+import com.spidchenko.week2task.viewmodel.FavouritesActivityViewModel;
+import com.spidchenko.week2task.viewmodel.ImageViewerActivityViewModel;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
@@ -33,6 +36,7 @@ public class ImageViewerActivity extends AppCompatActivity {
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
     private CurrentUser mCurrentUser;
     private Favourite mFavourite;
+    private ImageViewerActivityViewModel mViewModel;
     private DatabaseHelper mDb;
     private CheckBox cbToggleFavourite;
 
@@ -41,6 +45,8 @@ public class ImageViewerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_viewer);
         mCurrentUser = CurrentUser.getInstance();
+
+        mViewModel = new ViewModelProvider(this).get(ImageViewerActivityViewModel.class);
 
         Intent intent = getIntent();
         WebView webView = findViewById(R.id.webView);
@@ -54,6 +60,10 @@ public class ImageViewerActivity extends AppCompatActivity {
         webView.getSettings().setUseWideViewPort(true);
 
         mIntentExtraUrl = intent.getStringExtra(EXTRA_URL);
+
+        //This line will prevent random Fatal signal 11 (SIGSEGV) error on emulator:
+        webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+
         webView.loadUrl(mIntentExtraUrl);
 
         TextView tvSearchString = findViewById(R.id.tv_search_string);
@@ -61,7 +71,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         mIntentExtraSearchString = intent.getStringExtra(EXTRA_SEARCH_STRING);
         tvSearchString.setText(mIntentExtraSearchString);
 
-        checkInFavourites();
+        mViewModel.checkInFavourites(mIntentExtraUrl);
 
         Log.d(TAG, "Intent received. Image Url: " + mIntentExtraUrl +
                 ". SearchString: " + mIntentExtraSearchString);
@@ -82,7 +92,6 @@ public class ImageViewerActivity extends AppCompatActivity {
 
     public void toggleFavourite(View view) {
         if (cbToggleFavourite.isChecked()) {
-            //cbToggleFavourite.setChecked(false);
 
             new Thread(() -> {
                 mDb = DatabaseHelper.getInstance(this);
@@ -92,7 +101,6 @@ public class ImageViewerActivity extends AppCompatActivity {
 
                 mUiHandler.post(() -> {
                     cbToggleFavourite.setClickable(true);
-//                    isFavorite = true;
                     Log.d(TAG, "Added to favourites!");
                     Toast.makeText(this, R.string.added_to_favourites, LENGTH_SHORT).show();
                 });
@@ -110,7 +118,6 @@ public class ImageViewerActivity extends AppCompatActivity {
 
                 mUiHandler.post(() -> {
                     cbToggleFavourite.setClickable(true);
-//                    isFavorite = false;
                     Log.d(TAG, "Removed from favourites!");
                     Toast.makeText(this, R.string.removed_from_favourites, LENGTH_SHORT).show();
                 });
@@ -119,27 +126,25 @@ public class ImageViewerActivity extends AppCompatActivity {
         }
     }
 
-    private void checkInFavourites() {
-        cbToggleFavourite.setClickable(false);
-
-        new Thread(() -> {
-            mDb = DatabaseHelper.getInstance(this);
-            mFavourite = mDb.getFavourite(mCurrentUser.getUser().getId(), mIntentExtraUrl);
-            mDb.close();
-
-            mUiHandler.post(() -> {
-                cbToggleFavourite.setClickable(true);
-                if (mFavourite != null) {
-                    cbToggleFavourite.setChecked(true);
-//                    isFavorite = true;
-                    Log.d(TAG, "checkInFavourites: Already in Favourites!");
-                } else {
-                    cbToggleFavourite.setChecked(false);
-//                    isFavorite = false;
-                    Log.d(TAG, "checkInFavourites: Not in Favourites!");
-                }
-            });
-
-        }).start();
-    }
+//    private void checkInFavourites() {
+//        cbToggleFavourite.setClickable(false);
+//
+//        new Thread(() -> {
+//            mDb = DatabaseHelper.getInstance(this);
+//            mFavourite = mDb.getFavourite(mCurrentUser.getUser().getId(), mIntentExtraUrl);
+//            mDb.close();
+//
+//            mUiHandler.post(() -> {
+//                cbToggleFavourite.setClickable(true);
+//                if (mFavourite != null) {
+//                    cbToggleFavourite.setChecked(true);
+//                    Log.d(TAG, "checkInFavourites: Already in Favourites!");
+//                } else {
+//                    cbToggleFavourite.setChecked(false);
+//                    Log.d(TAG, "checkInFavourites: Not in Favourites!");
+//                }
+//            });
+//
+//        }).start();
+//    }
 }

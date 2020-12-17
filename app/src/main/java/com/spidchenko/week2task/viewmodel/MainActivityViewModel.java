@@ -18,28 +18,27 @@ import com.spidchenko.week2task.network.Result;
 import java.util.List;
 
 import static com.spidchenko.week2task.ImageRepository.RESULT_EMPTY_RESPONSE;
+import static com.spidchenko.week2task.ImageRepository.RESULT_TIMEOUT;
 
 public class MainActivityViewModel extends AndroidViewModel {
     private static final String TAG = "MainAcViewModel.LOG_TAG";
 
-    private ImageRepository mImageRepository;
-    private MutableLiveData<List<Image>> mImages = new MutableLiveData<>();
-    private MutableLiveData<String> mLastSearchString = new MutableLiveData<>();
-    private MutableLiveData<Boolean> mIsLoading = new MutableLiveData<>();
-    private SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
-    private CurrentUser mCurrentUser;
-    private SharedPreferencesRepository mSharedPrefRepository;
+    private final ImageRepository mImageRepository;
+    private final MutableLiveData<List<Image>> mImages = new MutableLiveData<>();
+    private final MutableLiveData<String> mLastSearchString = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> mIsLoading = new MutableLiveData<>();
+    private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
+    private final SharedPreferencesRepository mSharedPrefRepository;
 
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
-        mCurrentUser = CurrentUser.getInstance();
-        mImageRepository = new ImageRepository(application, mCurrentUser.getUser().getId());
+        CurrentUser user = CurrentUser.getInstance();
+        mImageRepository = new ImageRepository(application, user.getUser().getId());
 
         mSharedPrefRepository = SharedPreferencesRepository.init(application);
         mLastSearchString.setValue(mSharedPrefRepository.getLastSearch());
 
         Log.d(TAG, "MainActivityViewModel: Created");
-        Log.d(TAG, "MainActivityViewModel: images=" + (mImages == null));
     }
 
     public LiveData<List<Image>> getAllImages() {
@@ -52,15 +51,7 @@ public class MainActivityViewModel extends AndroidViewModel {
         setSearchString(searchRequest);
         mImageRepository.updateImages(searchRequest, result -> {
             if (result instanceof Result.Error) {
-                Log.d(TAG, "searchImages: Error Returned From Repo: " + ((Result.Error<List<Image>>) result).throwable.getMessage());
-                String errorMessage = ((Result.Error<List<Image>>) result).throwable.getMessage();
-                switch (errorMessage) {
-                    case RESULT_EMPTY_RESPONSE:
-                        mSnackBarMessage.postValue(R.string.error_nothing_found);
-                        break;
-                    default:
-                        mSnackBarMessage.postValue(R.string.error_default_message);
-                }
+                handleError((Result.Error<List<Image>>) result);
             } else {
                 mImages.postValue(((Result.Success<List<Image>>) result).data);
             }
@@ -69,16 +60,24 @@ public class MainActivityViewModel extends AndroidViewModel {
     }
 
     public void searchImagesByCoordinates(String lat, String lon) {
+        downloadStarted();
         String geoSearchString = "GeoSearch. Lat:" + lat.substring(0, 5) +
                 " Lon:" + lon.substring(0, 5);
         setSearchString(geoSearchString);
-        mImageRepository.updateImagesByCoordinates(mImages, lat, lon, geoSearchString);
+        mImageRepository.updateImagesByCoordinates(lat, lon, geoSearchString, result -> {
+            if (result instanceof Result.Error) {
+                handleError((Result.Error<List<Image>>) result);
+            } else {
+                mImages.postValue(((Result.Success<List<Image>>) result).data);
+            }
+            downloadFinished();
+        });
     }
 
     public void deleteImageAtPosition(int position) {
         //Remove and update LiveData
         List<Image> temp = mImages.getValue();
-        if ((temp.size() > position) && (temp.get(position) != null)) {
+        if ((temp != null) && (temp.get(position) != null)) {
             temp.remove(position);
             mImages.setValue(temp);
         }
@@ -94,6 +93,23 @@ public class MainActivityViewModel extends AndroidViewModel {
 
     public SingleLiveEvent<Integer> getSnackBarMessage() {
         return mSnackBarMessage;
+    }
+
+    private void handleError(Result.Error<List<Image>> error) {
+        Log.d(TAG, "handleError: Error Returned From Repo: " + error.throwable.getMessage());
+        String errorMessage = error.throwable.getMessage();
+        if (errorMessage != null) {
+            switch (errorMessage) {
+                case RESULT_EMPTY_RESPONSE:
+                    mSnackBarMessage.postValue(R.string.error_nothing_found);
+                    break;
+                case RESULT_TIMEOUT:
+                    mSnackBarMessage.postValue(R.string.error_network_timeout);
+                    break;
+                default:
+                    mSnackBarMessage.postValue(R.string.error_default_message);
+            }
+        }
     }
 
     private void setSearchString(String string) {

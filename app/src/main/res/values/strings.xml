@@ -6,6 +6,7 @@
     <string name="hint_search">Your search result will be shown here</string>
     <string name="error_text">Error</string>
     <string name="error_empty_search">Error. Empty search request.</string>
+    <string name="error_network_timeout">Connection timeout</string>
     <string name="error_nothing_found">No results were found for your search</string>
     <string name="error_default_message">Something bad happened :(</string>
     <string name="description_splash_screen">Simple flickr client logo</string>
@@ -21,4 +22,6 @@
     <string name="action_search_history">Search history</string>
     <string name="action_map">Search on map</string>
     <string name="search_on_map">Search on map</string>
+    <string name="select_point_message">Select point to search photos near</string>
+    <string name="error_undefined_location">Can\'t find your current location now</string>
 </resources>

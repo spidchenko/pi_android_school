@@ -2,6 +2,8 @@ package com.spidchenko.week2task.db;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.spidchenko.week2task.db.models.User;
 
 public class CurrentUser {
@@ -28,6 +30,7 @@ public class CurrentUser {
         this.mUser = user;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "CurrentUser{" +

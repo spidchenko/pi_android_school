@@ -24,7 +24,7 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
 
     private static final String TAG = "Favourites.LOG_TAG";
 
-    private FavouritesActivityViewModel mFavouritesActivityViewModel;
+    private FavouritesActivityViewModel mViewModel;
 
     private RecyclerView mRvFavouriteImages;
     private FavouritesListAdapter mRecyclerAdapter;
@@ -38,9 +38,9 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
         mRvFavouriteImages = findViewById(R.id.rv_favourite_images);
         initRecyclerView();
 
-        mFavouritesActivityViewModel = new ViewModelProvider(this).get(FavouritesActivityViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(FavouritesActivityViewModel.class);
 
-        mFavouritesActivityViewModel.getAllFavourites().observe(this, favourites -> {
+        mViewModel.getAllFavourites().observe(this, favourites -> {
             mRecyclerAdapter.setFavourites(favourites);
             mRecyclerAdapter.notifyDataSetChanged();
         });
@@ -83,7 +83,7 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
     public void onDeleteClick(int position) {
         Log.d(TAG, "Activity - onDeleteClick: " + position);
         Favourite favourite = mRecyclerAdapter.getFavouriteAtPosition(position);
-        mFavouritesActivityViewModel.deleteFavourite(favourite);
+        mViewModel.deleteFavourite(favourite);
     }
 
     ItemTouchHelper getSwipeToDismissTouchHelper() {
@@ -110,7 +110,7 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
                 int position = viewHolder.getAdapterPosition();
                 Log.d(TAG, "ViewHolder Swiped! Position= " + position);
                 Favourite favourite = mRecyclerAdapter.getFavouriteAtPosition(position);
-                mFavouritesActivityViewModel.deleteFavourite(favourite);
+                mViewModel.deleteFavourite(favourite);
             }
         });
     }
