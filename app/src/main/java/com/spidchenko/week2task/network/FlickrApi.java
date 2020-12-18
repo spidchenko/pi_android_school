@@ -1,6 +1,6 @@
 package com.spidchenko.week2task.network;
 
-import com.spidchenko.week2task.models.ImgSearchResult;
+import com.spidchenko.week2task.network.models.ImgSearchResult;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

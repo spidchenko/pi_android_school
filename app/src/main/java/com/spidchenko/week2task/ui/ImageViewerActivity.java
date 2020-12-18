@@ -12,9 +12,12 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
@@ -44,27 +47,16 @@ public class ImageViewerActivity extends AppCompatActivity {
         mViewModel = new ViewModelProvider(this).get(ImageViewerActivityViewModel.class);
 
         Intent intent = getIntent();
-        WebView webView = findViewById(R.id.webView);
-        cbToggleFavourite = findViewById(R.id.cb_toggle_favourite);
-
-        //Add zoom controls:
-        webView.getSettings().setBuiltInZoomControls(true);
-
-        //Resize image to screen width:
-        webView.getSettings().setLoadWithOverviewMode(true);
-        webView.getSettings().setUseWideViewPort(true);
-
         mIntentExtraUrl = intent.getStringExtra(EXTRA_URL);
-
-        //This line will prevent random Fatal signal 11 (SIGSEGV) error on emulator:
-        webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
-        webView.loadUrl(mIntentExtraUrl);
-
-        TextView tvSearchString = findViewById(R.id.tv_search_string);
-
         mIntentExtraSearchString = intent.getStringExtra(EXTRA_SEARCH_STRING);
+
+        WebView webView = findViewById(R.id.webView);
+        TextView tvSearchString = findViewById(R.id.tv_search_string);
+        cbToggleFavourite = findViewById(R.id.cb_toggle_favourite);
         tvSearchString.setText(mIntentExtraSearchString);
+
+        initWebView(webView);
+
 
         mFavourite = new Favourite(mCurrentUser.getUser().getId(),
                 mIntentExtraSearchString, "", mIntentExtraUrl);
@@ -76,9 +68,12 @@ public class ImageViewerActivity extends AppCompatActivity {
             }
         });
 
+        mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
+
         Log.d(TAG, "Intent received. Image Url: " + mIntentExtraUrl +
                 ". SearchString: " + mIntentExtraSearchString);
     }
+
 
     //Save parent activity state on up home navigation
     @Override
@@ -95,12 +90,23 @@ public class ImageViewerActivity extends AppCompatActivity {
 
     public void toggleFavourite(View view) {
         mViewModel.toggleFavourite(mFavourite);
-
-//                    Toast.makeText(this, R.string.added_to_favourites, LENGTH_SHORT).show();
-//TODO use this messages in Snackbar
-//                    Toast.makeText(this, R.string.removed_from_favourites, LENGTH_SHORT).show();
-
     }
 
+    private void initWebView(WebView view) {
+        //Add zoom controls:
+        view.getSettings().setBuiltInZoomControls(true);
+        //Resize image to screen width:
+        view.getSettings().setLoadWithOverviewMode(true);
+        view.getSettings().setUseWideViewPort(true);
+        //This line will prevent random Fatal signal 11 (SIGSEGV) error on emulator:
+        view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        view.loadUrl(mIntentExtraUrl);
+    }
+
+    private void showSnackBarMessage(@StringRes int resourceId) {
+        Snackbar.make(findViewById(android.R.id.content),
+                resourceId,
+                BaseTransientBottomBar.LENGTH_LONG).show();
+    }
 
 }

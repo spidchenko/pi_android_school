@@ -29,7 +29,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.ImageListAdapter;
-import com.spidchenko.week2task.models.Image;
+import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.viewmodel.MainActivityViewModel;
 
 import static com.spidchenko.week2task.ui.MapsActivity.EXTRA_LATITUDE;

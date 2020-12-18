@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.models.Image;
+import com.spidchenko.week2task.network.models.Image;
 
 import java.util.LinkedList;
 import java.util.List;

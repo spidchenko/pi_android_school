@@ -12,8 +12,8 @@ import com.spidchenko.week2task.ImageRepository;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.SharedPreferencesRepository;
 import com.spidchenko.week2task.db.CurrentUser;
-import com.spidchenko.week2task.models.Image;
 import com.spidchenko.week2task.network.Result;
+import com.spidchenko.week2task.network.models.Image;
 
 import java.util.List;
 

@@ -7,11 +7,11 @@ import androidx.annotation.NonNull;
 
 import com.spidchenko.week2task.db.DatabaseHelper;
 import com.spidchenko.week2task.db.models.SearchRequest;
-import com.spidchenko.week2task.models.Image;
-import com.spidchenko.week2task.models.ImgSearchResult;
 import com.spidchenko.week2task.network.FlickrApi;
 import com.spidchenko.week2task.network.Result;
 import com.spidchenko.week2task.network.ServiceGenerator;
+import com.spidchenko.week2task.network.models.Image;
+import com.spidchenko.week2task.network.models.ImgSearchResult;
 
 import java.util.List;
 import java.util.Objects;

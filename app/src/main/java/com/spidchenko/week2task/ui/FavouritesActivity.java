@@ -6,12 +6,15 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.FavouritesListAdapter;
 import com.spidchenko.week2task.db.models.Favourite;
@@ -44,6 +47,8 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
             mRecyclerAdapter.setFavourites(favourites);
             mRecyclerAdapter.notifyDataSetChanged();
         });
+
+        mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
 
     }
 
@@ -114,4 +119,11 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
             }
         });
     }
+
+    private void showSnackBarMessage(@StringRes int resourceId) {
+        Snackbar.make(findViewById(android.R.id.content),
+                resourceId,
+                BaseTransientBottomBar.LENGTH_LONG).show();
+    }
+
 }

@@ -4,12 +4,15 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.spidchenko.week2task.FavouriteRepository;
+import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
+import com.spidchenko.week2task.network.Result;
 
 import java.util.List;
 
@@ -17,6 +20,7 @@ public class FavouritesActivityViewModel extends AndroidViewModel {
     private static final String TAG = "FavouritesActivityViewM";
     private final FavouriteRepository mFavouriteRepository;
     private final LiveData<List<Favourite>> mFavourites;
+    private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
     private final CurrentUser mCurrentUser;
 
 
@@ -25,17 +29,37 @@ public class FavouritesActivityViewModel extends AndroidViewModel {
         mCurrentUser = CurrentUser.getInstance();
         mFavouriteRepository = new FavouriteRepository(application, mCurrentUser.getUser().getId());
         mFavourites = mFavouriteRepository.getAllFavourites();
-        Log.d(TAG, "FavouritesActivityViewModel: ");
+        Log.d(TAG, "FavouritesActivityViewModel: Created");
     }
 
     public LiveData<List<Favourite>> getAllFavourites() {
         return mFavourites;
     }
 
+    public SingleLiveEvent<Integer> getSnackBarMessage() {
+        return mSnackBarMessage;
+    }
+
     public void deleteFavourite(Favourite favourite) {
         mFavouriteRepository.deleteFavourite(favourite, result -> {
-            //TODO handle error here
-            mFavouriteRepository.updateFavouritesLiveData();
+            if (result instanceof Result.Success) {
+                Log.d(TAG, "toggleFavourite: Deleted from DB");
+                setMessage(R.string.removed_from_favourites);
+                mFavouriteRepository.updateFavouritesLiveData();
+            } else {
+                handleError((Result.Error<Boolean>) result);
+            }
         });
     }
+
+    private void handleError(Result.Error<Boolean> error) {
+        Log.d(TAG, "handleError: Error Returned From Repo: " + error.throwable.getMessage());
+        //can use switch-case here
+        setMessage(R.string.error_default_message);
+    }
+
+    private void setMessage(@StringRes int resId) {
+        mSnackBarMessage.postValue(resId);
+    }
+
 }

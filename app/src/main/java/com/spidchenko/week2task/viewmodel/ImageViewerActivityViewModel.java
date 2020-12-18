@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -41,10 +42,9 @@ public class ImageViewerActivityViewModel extends AndroidViewModel {
         mFavouriteRepository.checkInFavourites(favourite, result -> {
             if (result instanceof Result.Success) {
                 mInFavourites.postValue(((Result.Success<Boolean>) result).data);
+                Log.d(TAG, "checkInFavourites: Already in favourites!");
             } else {
-                mSnackBarMessage.postValue(R.string.error_default_message);
-                String message = ((Result.Error<Boolean>) result).throwable.getMessage();
-                Log.d(TAG, "checkInFavourites: ERROR " + message);
+                handleError((Result.Error<Boolean>) result);
             }
         });
     }
@@ -54,10 +54,9 @@ public class ImageViewerActivityViewModel extends AndroidViewModel {
         if (mInFavourites.getValue()) {
             mFavouriteRepository.deleteFavourite(favourite, result -> {
                 if (result instanceof Result.Success) {
-                    Log.d(TAG, "toggleFavourite: Deleted from DB");
+                    setMessage(R.string.removed_from_favourites);
                 } else {
-                    String message = ((Result.Error<Boolean>) result).throwable.getMessage();
-                    Log.d(TAG, "toggleFavourite: ERROR" + message);
+                    handleError((Result.Error<Boolean>) result);
                 }
                 //Room will take care of auto updating from DB
                 checkInFavourites(favourite);
@@ -65,14 +64,24 @@ public class ImageViewerActivityViewModel extends AndroidViewModel {
         } else {
             mFavouriteRepository.addFavorite(favourite, result -> {
                 if (result instanceof Result.Success) {
-                    Log.d(TAG, "toggleFavourite: Added to DB");
+                    setMessage(R.string.added_to_favourites);
                 } else {
-                    String message = ((Result.Error<Boolean>) result).throwable.getMessage();
-                    Log.d(TAG, "toggleFavourite: ERROR" + message);
+                    handleError((Result.Error<Boolean>) result);
                 }
                 //Room will take care of auto updating from DB
                 checkInFavourites(favourite);
             });
         }
     }
+
+    private void handleError(Result.Error<Boolean> error) {
+        Log.d(TAG, "handleError: Error Returned From Repo: " + error.throwable.getMessage());
+        //can use switch-case here
+        setMessage(R.string.error_default_message);
+    }
+
+    private void setMessage(@StringRes int resId) {
+        mSnackBarMessage.postValue(resId);
+    }
+
 }

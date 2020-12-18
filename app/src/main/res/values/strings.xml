@@ -19,6 +19,7 @@
     <string name="action_favourites">Favourites</string>
     <string name="removed_from_favourites">Removed from Favourites</string>
     <string name="added_to_favourites">Added to Favourites</string>
+
     <string name="action_search_history">Search history</string>
     <string name="action_map">Search on map</string>
     <string name="search_on_map">Search on map</string>
