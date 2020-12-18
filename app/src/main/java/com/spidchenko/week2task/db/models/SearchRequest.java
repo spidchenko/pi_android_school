@@ -1,9 +1,27 @@
 package com.spidchenko.week2task.db.models;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "searches")
 public class SearchRequest {
+
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    @ColumnInfo(name = "searches")
     int mId;
+
+    @NonNull
+    @ColumnInfo(name = "user_id")
     int mUser;
+
+    @NonNull
+    @ColumnInfo(name = "search_string")
     String mSearchRequest;
+
+    @ColumnInfo(name = "date")
     long mDateTime;
 
 

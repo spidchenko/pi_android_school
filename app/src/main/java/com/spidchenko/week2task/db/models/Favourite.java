@@ -1,10 +1,31 @@
 package com.spidchenko.week2task.db.models;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "favourites")
 public class Favourite {
+
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    @ColumnInfo(name = "id")
     int mId;
+
+    @NonNull
+    @ColumnInfo(name = "user_id")
     int mUser;
+
+    @NonNull
+    @ColumnInfo(name = "search_string")
     String mSearchRequest;
+
+    @ColumnInfo(name = "title")
     String mTitle;
+
+    @NonNull
+    @ColumnInfo(name = "url")
     String mUrl;
 
 
