@@ -7,23 +7,25 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.spidchenko.week2task.db.DatabaseHelper;
+import com.spidchenko.week2task.db.FlickrRoomDatabase;
+import com.spidchenko.week2task.db.dao.FavouriteDao;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.network.Result;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class FavouriteRepository {
     private static final String TAG = "FavRepository.LOG_TAG";
-    private final Application mApplication;
-    private final MutableLiveData<List<Favourite>> mFavourites;
+    private final MutableLiveData<List<Favourite>> mFavourites = new MutableLiveData<>();
+    private final FavouriteDao mFavouriteDao;
     private final int mUserId;
 
     public FavouriteRepository(@NonNull Application application, int userId) {
-        mApplication = application;
         mUserId = userId;
-        mFavourites = new MutableLiveData<>();
+        FlickrRoomDatabase db = FlickrRoomDatabase.getDatabase(application);
+        mFavouriteDao = db.favouriteDao();
         updateFavouritesLiveData();
     }
 
@@ -34,9 +36,7 @@ public class FavouriteRepository {
     public void addFavorite(Favourite favourite, RepositoryCallback<Boolean> callback) {
         new Thread(() -> {
             try {
-                DatabaseHelper mDb = DatabaseHelper.getInstance(mApplication);
-                mDb.addFavorite(favourite);
-                mDb.close();
+                mFavouriteDao.addFavourite(favourite);
                 callback.onComplete(new Result.Success<>(true));
             } catch (Exception e) {
                 callback.onComplete(new Result.Error<>(e));
@@ -48,9 +48,7 @@ public class FavouriteRepository {
         new Thread(() -> {
             try {
                 Log.d(TAG, "deleteFavourite: Inside thread. Favourite toRemove " + favourite);
-                DatabaseHelper mDb = DatabaseHelper.getInstance(mApplication);
-                mDb.deleteFavourite(favourite);
-                mDb.close();
+                mFavouriteDao.deleteFavourite(favourite.getUser(), favourite.getUrl());
                 Log.d(TAG, "deleteFavourite: Delete thread ended");
                 callback.onComplete(new Result.Success<>(true));
             } catch (Exception e) {
@@ -64,9 +62,7 @@ public class FavouriteRepository {
 
         new Thread(() -> {
             try {
-                DatabaseHelper mDb = DatabaseHelper.getInstance(mApplication);
-                Favourite result = mDb.getFavourite(mUserId, favourite.getUrl());
-                mDb.close();
+                Favourite result = mFavouriteDao.getFavourite(mUserId, favourite.getUrl());
                 if (result != null) {
                     callback.onComplete(new Result.Success<>(true));
                 } else {
@@ -78,18 +74,30 @@ public class FavouriteRepository {
         }).start();
     }
 
-    //Room will take care of this feature
+    //Can use LiveData here
     public void updateFavouritesLiveData() {
         new Thread(() -> {
-            DatabaseHelper mDb = DatabaseHelper.getInstance(mApplication);
             ArrayList<Favourite> favourites =
-                    new ArrayList<>(mDb.getAllFavourites(mUserId, null));
-            mDb.close();
+                    new ArrayList<>(prepareList(mFavouriteDao.getAllFavourites(mUserId)));
             mFavourites.postValue(favourites);
             Log.d(TAG, "FavouritesRepository: favourites from DB: " + favourites.toString());
         }).start();
     }
 
+    private List<Favourite> prepareList(List<Favourite> inList) {
+        Log.d(TAG, "prepareList: in: " + inList.toString());
+        List<Favourite> outList = new LinkedList<>();
+        String tempRequest = "";
+        for (Favourite fav : inList) {
+            String searchRequest = fav.getSearchRequest();
+            if (!searchRequest.equals(tempRequest)) {
+                outList.add(new Favourite(mUserId, searchRequest, "", ""));
+            }
+            outList.add(fav);
+            tempRequest = searchRequest;
+        }
+        return outList;
+    }
 
     public interface RepositoryCallback<T> {
         void onComplete(Result<T> result);

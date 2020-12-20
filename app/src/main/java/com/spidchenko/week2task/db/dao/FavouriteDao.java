@@ -1,11 +1,8 @@
 package com.spidchenko.week2task.db.dao;
 
-import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Update;
 
 import com.spidchenko.week2task.db.models.Favourite;
 
@@ -17,19 +14,13 @@ public interface FavouriteDao {
     @Insert
     void addFavourite(Favourite favourite);
 
-    @Query("SELECT * FROM favourites WHERE id = :id")
-    Favourite getFavourite(int id);
-
-    @Query()
+    @Query("SELECT * FROM favourites WHERE user_id = :user AND url LIKE :url")
     Favourite getFavourite(int user, String url);
 
-    @Query()
-    LiveData<List<Favourite>> getAllFavourites(int user, String searchRequest);
+    @Query("SELECT * FROM favourites WHERE user_id = :user ORDER BY search_string ASC")
+    List<Favourite> getAllFavourites(int user);
 
-    @Update()
-    int updateFavourite(Favourite favourite);
-
-    @Delete
-    void deleteFavourite(Favourite favourite);
+    @Query("DELETE FROM favourites WHERE user_id = :user AND url LIKE :url")
+    void deleteFavourite(int user, String url);
 
 }

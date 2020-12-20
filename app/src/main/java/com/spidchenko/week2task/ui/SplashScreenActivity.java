@@ -8,7 +8,6 @@ import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.ui.LoginActivity;
 
 import java.util.Objects;
 

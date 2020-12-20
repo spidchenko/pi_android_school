@@ -18,15 +18,14 @@ import com.spidchenko.week2task.network.Result;
 public class ImageViewerActivityViewModel extends AndroidViewModel {
     private static final String TAG = "ImageViewerVM.LOG_TAG";
 
-    private final CurrentUser mCurrentUser;
     private final FavouriteRepository mFavouriteRepository;
     private final MutableLiveData<Boolean> mInFavourites = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
     public ImageViewerActivityViewModel(@NonNull Application application) {
         super(application);
-        mCurrentUser = CurrentUser.getInstance();
-        mFavouriteRepository = new FavouriteRepository(application, mCurrentUser.getUser().getId());
+        CurrentUser currentUser = CurrentUser.getInstance();
+        mFavouriteRepository = new FavouriteRepository(application, currentUser.getUser().getId());
     }
 
     public SingleLiveEvent<Integer> getSnackBarMessage() {
@@ -51,7 +50,7 @@ public class ImageViewerActivityViewModel extends AndroidViewModel {
 
 
     public void toggleFavourite(Favourite favourite) {
-        if (mInFavourites.getValue()) {
+        if ((mInFavourites.getValue() != null) && (mInFavourites.getValue())) {
             mFavouriteRepository.deleteFavourite(favourite, result -> {
                 if (result instanceof Result.Success) {
                     setMessage(R.string.removed_from_favourites);

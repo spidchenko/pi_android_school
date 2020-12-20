@@ -96,7 +96,7 @@ public class MainActivityViewModel extends AndroidViewModel {
     }
 
     private void handleError(Result.Error<List<Image>> error) {
-        Log.d(TAG, "handleError: Error Returned From Repo: " + error.throwable.getMessage());
+        Log.d(TAG, "handleError: Error Returned From Repo: " + error.throwable);
         String errorMessage = error.throwable.getMessage();
         if (errorMessage != null) {
             switch (errorMessage) {

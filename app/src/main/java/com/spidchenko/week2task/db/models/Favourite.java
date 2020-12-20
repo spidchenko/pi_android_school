@@ -3,28 +3,25 @@ package com.spidchenko.week2task.db.models;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "favourites")
 public class Favourite {
 
     @PrimaryKey(autoGenerate = true)
-    @NonNull
     @ColumnInfo(name = "id")
     int mId;
 
-    @NonNull
     @ColumnInfo(name = "user_id")
     int mUser;
 
-    @NonNull
     @ColumnInfo(name = "search_string")
     String mSearchRequest;
 
     @ColumnInfo(name = "title")
     String mTitle;
 
-    @NonNull
     @ColumnInfo(name = "url")
     String mUrl;
 
@@ -32,14 +29,8 @@ public class Favourite {
     public Favourite() {
     }
 
-    public Favourite(int id, int user, String searchRequest, String title, String url) {
-        this.mId = id;
-        this.mUser = user;
-        this.mSearchRequest = searchRequest;
-        this.mTitle = title;
-        this.mUrl = url;
-    }
 
+    @Ignore
     public Favourite(int user, String searchRequest, String title, String url) {
         this.mUser = user;
         this.mSearchRequest = searchRequest;
@@ -88,6 +79,7 @@ public class Favourite {
         this.mUrl = url;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Favourite{" +

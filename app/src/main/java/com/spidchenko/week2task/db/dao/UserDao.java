@@ -11,9 +11,9 @@ import com.spidchenko.week2task.db.models.User;
 public interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    public void addUser(User user);
+    void addUser(User user);
 
     @Query("SELECT * FROM users WHERE login LIKE :login")
-    public User getUser(String login);
+    User getUser(String login);
 
 }

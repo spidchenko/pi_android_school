@@ -53,11 +53,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         return mImages.size();
     }
 
-//    @Override
-//    public void onItemDismiss(int position) {
-//        mImages.remove(position);
-//        notifyItemRemoved(position);
-//    }
 
     public void setImages(List<Image> images) {
         mImages = images;
@@ -70,11 +65,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     public Image getImageAtPosition(int position) {
         return mImages.get(position);
     }
-
-//    public void setSearchString(String searchString) {
-//        mSearchString = searchString;
-//    }
-
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

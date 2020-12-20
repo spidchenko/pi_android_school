@@ -13,17 +13,19 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.db.CurrentUser;
-import com.spidchenko.week2task.db.DatabaseHelper;
-import com.spidchenko.week2task.db.models.User;
 import com.spidchenko.week2task.SharedPreferencesRepository;
+import com.spidchenko.week2task.db.CurrentUser;
+import com.spidchenko.week2task.db.FlickrRoomDatabase;
+import com.spidchenko.week2task.db.dao.UserDao;
+import com.spidchenko.week2task.db.models.User;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity.LOG_TAG";
 
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
-    private DatabaseHelper mDb;
+    //    private DatabaseHelper mDb;
+    private UserDao mUserDao;
     private String mUsername;
     private SharedPreferencesRepository mSharedPreferences;
     private EditText mEtUsername;
@@ -36,6 +38,8 @@ public class LoginActivity extends AppCompatActivity {
         mSharedPreferences = SharedPreferencesRepository.init(this);
         mEtUsername = findViewById(R.id.username);
         mBtnSignIn = findViewById(R.id.btn_sign_in);
+        FlickrRoomDatabase mDb = FlickrRoomDatabase.getDatabase(this);
+        mUserDao = mDb.userDao();
     }
 
     public void actionSignIn(View view) {
@@ -49,15 +53,13 @@ public class LoginActivity extends AppCompatActivity {
 
             new Thread(() -> {
                 Log.d(TAG, "actionSignIn: on Worker Thread." + Thread.currentThread().getName());
-                mDb = DatabaseHelper.getInstance(this);
-                User user = mDb.getUser(mUsername);
+                User user = mUserDao.getUser(mUsername);
                 if (user == null) {
-                    mDb.addUser(new User(mUsername));
-                    user = mDb.getUser(mUsername);
+                    mUserDao.addUser(new User(mUsername));
+                    user = mUserDao.getUser(mUsername);
                 }
                 CurrentUser currentUser = CurrentUser.getInstance();
                 currentUser.setUser(user);
-                mDb.close();
 
                 mUiHandler.post(() -> {
                     Log.d(TAG, "actionSignIn: on UI Thread." + Thread.currentThread().getName());

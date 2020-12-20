@@ -66,7 +66,7 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
     }
 
     private void initRecyclerView() {
-        mRecyclerAdapter = new FavouritesListAdapter(this, null, this, this);
+        mRecyclerAdapter = new FavouritesListAdapter(null, this, this);
         mRvFavouriteImages.setAdapter(mRecyclerAdapter);
         mRvFavouriteImages.setLayoutManager(new LinearLayoutManager(this));
 

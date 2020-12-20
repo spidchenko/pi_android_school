@@ -21,13 +21,12 @@ public class FavouritesActivityViewModel extends AndroidViewModel {
     private final FavouriteRepository mFavouriteRepository;
     private final LiveData<List<Favourite>> mFavourites;
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
-    private final CurrentUser mCurrentUser;
 
 
     public FavouritesActivityViewModel(@NonNull Application application) {
         super(application);
-        mCurrentUser = CurrentUser.getInstance();
-        mFavouriteRepository = new FavouriteRepository(application, mCurrentUser.getUser().getId());
+        CurrentUser currentUser = CurrentUser.getInstance();
+        mFavouriteRepository = new FavouriteRepository(application, currentUser.getUser().getId());
         mFavourites = mFavouriteRepository.getAllFavourites();
         Log.d(TAG, "FavouritesActivityViewModel: Created");
     }

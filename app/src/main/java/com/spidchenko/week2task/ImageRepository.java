@@ -5,7 +5,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.spidchenko.week2task.db.DatabaseHelper;
+import com.spidchenko.week2task.db.FlickrRoomDatabase;
+import com.spidchenko.week2task.db.dao.SearchRequestDao;
 import com.spidchenko.week2task.db.models.SearchRequest;
 import com.spidchenko.week2task.network.FlickrApi;
 import com.spidchenko.week2task.network.Result;
@@ -24,12 +25,13 @@ public class ImageRepository {
     private static final String TAG = "ImageRepository.LOG_TAG";
     public static final String RESULT_EMPTY_RESPONSE = "com.spidchenko.week2task.extras.RESULT_EMPTY_RESPONSE";
     public static final String RESULT_TIMEOUT = "com.spidchenko.week2task.extras.RESULT_TIMEOUT";
-    private final DatabaseHelper mDb;
+    private final SearchRequestDao mSearchRequestDao;
     private final int mUserId;
 
 
     public ImageRepository(@NonNull Application application, int userId) {
-        mDb = DatabaseHelper.getInstance(application);
+        FlickrRoomDatabase database = FlickrRoomDatabase.getDatabase(application);
+        mSearchRequestDao = database.searchRequestDao();
         mUserId = userId;
     }
 
@@ -53,9 +55,8 @@ public class ImageRepository {
 
     private void saveCurrentSearchInDb(String searchString) {
         new Thread(() -> {
-            mDb.addSearchRequest(new SearchRequest(mUserId, searchString));
-            mDb.close();
-            Log.d(TAG, "saveCurrentSearch: Worker thread finished saving. String: " + searchString);
+            long newId = mSearchRequestDao.addSearchRequest(new SearchRequest(mUserId, searchString));
+            Log.d(TAG, "saveCurrentSearch: Worker thread finished saving. String: " + searchString + ".id = " + newId);
         }).start();
     }
 

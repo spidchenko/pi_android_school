@@ -24,12 +24,12 @@ public class ServiceGenerator {
 
     static OkHttpClient client = myHttpClient.build();
 
-    private static Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
+    private static final Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create());
-    private static Retrofit retrofit = retrofitBuilder.build();
-    private static FlickrApi flickrApi = retrofit.create(FlickrApi.class);
+    private static final Retrofit retrofit = retrofitBuilder.build();
+    private static final FlickrApi flickrApi = retrofit.create(FlickrApi.class);
 
     public static FlickrApi getFlickrApi() {
         return flickrApi;

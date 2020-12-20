@@ -1,8 +1,6 @@
 package com.spidchenko.week2task.db.dao;
 
-import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -14,15 +12,9 @@ import java.util.List;
 public interface SearchRequestDao {
 
     @Insert
-    void addSearchRequest(SearchRequest searchRequest);
+    long addSearchRequest(SearchRequest searchRequest);
 
-    @Query()
-    SearchRequest getLastSearchRequest(int userId);
-
-    @Query()
-    LiveData<List<SearchRequest>> getAllSearchRequests(int userId);
-
-    @Delete
-    void deleteSearchRequest(SearchRequest searchRequest);
+    @Query("SELECT * FROM searches WHERE user_id = :userId ORDER BY id DESC")
+    List<SearchRequest> getAllSearchRequests(int userId);
 
 }
