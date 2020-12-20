@@ -1,17 +1,23 @@
 package com.spidchenko.week2task.ui;
 
+import android.Manifest;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -20,6 +26,8 @@ import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.viewmodel.ImageViewerActivityViewModel;
+
+import java.io.File;
 
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
@@ -54,7 +62,7 @@ public class ImageViewerActivity extends AppCompatActivity {
 
 
         mFavourite = new Favourite(currentUser.getUser().getId(),
-                intentExtraSearchString, "", mIntentExtraUrl);
+                intentExtraSearchString, mIntentExtraUrl);
 
         mViewModel.getInFavourites(mFavourite).observe(this, inFavourites -> {
             if (inFavourites != null) {

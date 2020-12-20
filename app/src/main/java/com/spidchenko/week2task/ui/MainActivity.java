@@ -119,6 +119,11 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         startActivityForResult(intent, ACTION_GET_COORDS);
     }
 
+    public void startGalleryActivity(MenuItem item) {
+        Intent intent = new Intent(this, GalleryActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

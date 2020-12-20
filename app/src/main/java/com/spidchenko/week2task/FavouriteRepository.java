@@ -91,7 +91,7 @@ public class FavouriteRepository {
         for (Favourite fav : inList) {
             String searchRequest = fav.getSearchRequest();
             if (!searchRequest.equals(tempRequest)) {
-                outList.add(new Favourite(mUserId, searchRequest, "", ""));
+                outList.add(new Favourite(mUserId, searchRequest, ""));
             }
             outList.add(fav);
             tempRequest = searchRequest;

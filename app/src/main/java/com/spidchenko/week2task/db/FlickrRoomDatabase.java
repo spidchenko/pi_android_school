@@ -16,7 +16,7 @@ import com.spidchenko.week2task.db.models.User;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {User.class, Favourite.class, SearchRequest.class}, version = 3, exportSchema = false)
+@Database(entities = {User.class, Favourite.class, SearchRequest.class}, version = 4, exportSchema = false)
 public abstract class FlickrRoomDatabase extends RoomDatabase {
 
     private static final String DB_FILE_NAME = "com.spidchenko.week2task.db";

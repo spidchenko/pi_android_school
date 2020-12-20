@@ -23,7 +23,7 @@ android {
         }
 
         // Inject the Maps API key into the manifest
-        manifestPlaceholders = [ mapsApiKey : properties.getProperty("MAPS_API_KEY", "") ]
+        manifestPlaceholders = [mapsApiKey: properties.getProperty("MAPS_API_KEY", "")]
 
     }
 
@@ -44,10 +44,21 @@ dependencies {
     def lifecycle_version = "2.2.0"
     def room_version = "2.2.6"
     def glide_version = "4.11.0"
+    def camerax_version = "1.0.0-rc01"
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
+
+    // CameraX core library using camera2 implementation
+    implementation "androidx.camera:camera-camera2:$camerax_version"
+
+    // CameraX Lifecycle Library
+    implementation "androidx.camera:camera-lifecycle:$camerax_version"
+
+    // CameraX View class
+    implementation "androidx.camera:camera-view:1.0.0-alpha20"
 
     //Google Maps
     implementation 'com.google.android.gms:play-services-maps:17.0.0'

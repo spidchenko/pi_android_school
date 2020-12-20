@@ -9,6 +9,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/menuGallery"
+        android:onClick="startGalleryActivity"
+        android:title="@string/action_gallery"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menuSearchHistory"
         android:onClick="startSearchHistoryActivity"
         android:title="@string/action_search_history"

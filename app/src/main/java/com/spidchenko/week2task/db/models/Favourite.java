@@ -19,9 +19,6 @@ public class Favourite {
     @ColumnInfo(name = "search_string")
     String mSearchRequest;
 
-    @ColumnInfo(name = "title")
-    String mTitle;
-
     @ColumnInfo(name = "url")
     String mUrl;
 
@@ -31,10 +28,9 @@ public class Favourite {
 
 
     @Ignore
-    public Favourite(int user, String searchRequest, String title, String url) {
+    public Favourite(int user, String searchRequest, String url) {
         this.mUser = user;
         this.mSearchRequest = searchRequest;
-        this.mTitle = title;
         this.mUrl = url;
     }
 
@@ -63,14 +59,6 @@ public class Favourite {
         this.mSearchRequest = searchRequest;
     }
 
-    public String getTitle() {
-        return this.mTitle;
-    }
-
-    public void setTitle(String title) {
-        this.mTitle = title;
-    }
-
     public String getUrl() {
         return this.mUrl;
     }
@@ -86,7 +74,6 @@ public class Favourite {
                 "id=" + mId +
                 ", user=" + mUser +
                 ", searchRequest='" + mSearchRequest + '\'' +
-                ", title='" + mTitle + '\'' +
                 ", url='" + mUrl + '\'' +
                 '}';
     }
