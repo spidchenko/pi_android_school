@@ -26,4 +26,6 @@
     <string name="select_point_message">Select point to search photos near</string>
     <string name="error_undefined_location">Can\'t find your current location now</string>
     <string name="action_gallery">Gallery</string>
+    <string name="need_photo_permission">This feature requires your permission to take photos</string>
+    <string name="need_storage_permission">This feature requires your permission to save images</string>
 </resources>

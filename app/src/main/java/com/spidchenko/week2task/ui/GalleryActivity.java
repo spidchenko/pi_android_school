@@ -9,11 +9,13 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,29 +27,34 @@ import com.spidchenko.week2task.adapter.GalleryAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static android.os.Environment.DIRECTORY_PICTURES;
 
 public class GalleryActivity extends AppCompatActivity {
     private static final String TAG = "GalleryActivity.LOG_TAG";
-    private static final int REQUEST_CODE_PERMISSIONS = 10;
-    private static final int REQUEST_IMAGE_CAPTURE = 30;
-    private static final String[] REQUIRED_PERMISSIONS = new String[]{Manifest.permission.CAMERA};
 
     private RecyclerView mRvImages;
     private GalleryAdapter mRecyclerAdapter;
 
+    ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                Log.d(TAG, "Permission callback! = " + isGranted);
+                if (isGranted) {
+                    enableCamera();
+                } else {
+                    Toast.makeText(this, getString(R.string.need_photo_permission), Toast.LENGTH_LONG).show();
+                }
+            });
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: Created");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
-
         mRvImages = findViewById(R.id.rv_gallery_images);
-
         initRecyclerView();
         insertData();
-
     }
 
     //Save parent activity state on up home navigation
@@ -79,47 +86,57 @@ public class GalleryActivity extends AppCompatActivity {
                 Log.d(TAG, "ViewHolder Swiped! Position= " + position);
 //                mViewModel.deleteFileAtPosition(position);
                 mRecyclerAdapter.dismiss(position);
-                deletePhotoFile(mRecyclerAdapter.getFileAtPosition(position));
+                deleteFile(mRecyclerAdapter.getFileAtPosition(position));
             }
         });
     }
 
 
     public void actionTakePhoto(View view) {
-        if (hasCameraPermission()) {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             enableCamera();
         } else {
-            requestPermission();
+            Log.d(TAG, "actionTakePhoto: Permission not granted! Trying to ask for...");
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
         }
     }
 
-    private void requestPermission() {
-        ActivityCompat.requestPermissions(
-                this,
-                REQUIRED_PERMISSIONS,
-                REQUEST_CODE_PERMISSIONS
-        );
-    }
 
-    //TODO need to click second time, check this
     private void enableCamera() {
-        Log.d(TAG, "enableCamera: Permissions granted");
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
     }
 
-    private void getPublicDirectory() {
-        File pictureFolder = Environment.getExternalStoragePublicDirectory(
-                DIRECTORY_PICTURES);
+    //TODO FileRepository
+    private File getPublicDirectory() {
+        File pictureFolder = new File(Environment.getExternalStoragePublicDirectory(
+                DIRECTORY_PICTURES), "Simple flickr client");
         if (!pictureFolder.exists()) {
             if (!pictureFolder.mkdir()) {
-                Log.e(TAG, "Failed to create directory: " + pictureFolder);
+                Log.e(TAG, "Failed to create public directory: " + pictureFolder);
             }
         }
+        return pictureFolder;
     }
 
     //TODO FileRepository
-    ArrayList<File> getPhotoFiles() {
+    ArrayList<File> getPublicImageFiles() {
+        File dirWithOurPhotos = getPublicDirectory();
+        if (dirWithOurPhotos != null) {
+            File[] files = dirWithOurPhotos.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    Log.d(TAG, "onCreate: We have photos! - " + dirWithOurPhotos + file.getName());
+                }
+                return new ArrayList<>(Arrays.asList(files));
+            }
+        }
+        return null;
+    }
+
+    //TODO FileRepository
+    ArrayList<File> getCameraPhotoFiles() {
         File dirWithOurPhotos = getAppSpecificAlbumStorageDir(this);
         if (dirWithOurPhotos != null) {
             File[] files = dirWithOurPhotos.listFiles();
@@ -134,16 +151,8 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
     //TODO FileRepository
-    private void deletePhotoFile(File file) {
+    private void deleteFile(File file) {
         file.delete();
-    }
-
-    private boolean hasCameraPermission() {
-        boolean result = true;
-        for (String perm : REQUIRED_PERMISSIONS) {
-            result = result && (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED);
-        }
-        return result;
     }
 
     @Nullable
@@ -161,15 +170,16 @@ public class GalleryActivity extends AppCompatActivity {
     private void initRecyclerView() {
         mRecyclerAdapter = new GalleryAdapter(null);
         mRvImages.setAdapter(mRecyclerAdapter);
-
-        int orientation = this.getResources().getConfiguration().orientation;
         mRvImages.setLayoutManager(new LinearLayoutManager(this));
         ItemTouchHelper helper = getSwipeToDismissTouchHelper();
         helper.attachToRecyclerView(mRvImages);
     }
 
     private void insertData() {
-        mRecyclerAdapter.setImages(getPhotoFiles());
+        ArrayList<File> filesToShow = getCameraPhotoFiles();
+        filesToShow.addAll(getPublicImageFiles());
+
+        mRecyclerAdapter.setImages(filesToShow);
         mRecyclerAdapter.notifyDataSetChanged();
     }
 

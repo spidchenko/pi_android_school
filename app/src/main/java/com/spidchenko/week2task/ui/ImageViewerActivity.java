@@ -2,10 +2,8 @@ package com.spidchenko.week2task.ui;
 
 import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,10 +12,12 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -26,8 +26,6 @@ import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.viewmodel.ImageViewerActivityViewModel;
-
-import java.io.File;
 
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
@@ -40,6 +38,16 @@ public class ImageViewerActivity extends AppCompatActivity {
     private Favourite mFavourite;
     private ImageViewerActivityViewModel mViewModel;
     private CheckBox cbToggleFavourite;
+
+    ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                Log.d(TAG, "Permission callback! = " + isGranted);
+                if (isGranted) {
+                    mViewModel.saveImage(mFavourite);
+                } else {
+                    Toast.makeText(this, getString(R.string.need_storage_permission), Toast.LENGTH_LONG).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +97,16 @@ public class ImageViewerActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void actionSaveImage(View view) {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            mViewModel.saveImage(mFavourite);
+        } else {
+            Log.d(TAG, "actionSaveImage: Permission not granted! Trying to ask for...");
+            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
     }
 
     public void toggleFavourite(View view) {

@@ -18,8 +18,7 @@
         <WebView
             android:id="@+id/webView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-        </WebView>
+            android:layout_height="match_parent"></WebView>
 
         <CheckBox
             android:id="@+id/cb_toggle_favourite"
@@ -36,6 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start|top"
             android:layout_margin="10dp"
+            android:onClick="actionSaveImage"
             app:srcCompat="@drawable/ic_save" />
 
     </FrameLayout>
