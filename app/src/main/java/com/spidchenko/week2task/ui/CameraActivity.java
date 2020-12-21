@@ -1,6 +1,8 @@
 package com.spidchenko.week2task.ui;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -24,6 +26,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.spidchenko.week2task.R;
+import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -87,6 +90,7 @@ public class CameraActivity extends AppCompatActivity {
                         Toast.makeText(CameraActivity.this,
                                 "Image Saved successfully",
                                 Toast.LENGTH_SHORT).show());
+                cropPhoto(Uri.fromFile(file), Uri.fromFile(file));
             }
 
             @Override
@@ -96,8 +100,26 @@ public class CameraActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            final Uri resultUri = UCrop.getOutput(data);
+            Log.d(TAG, "onActivityResult: RESULT_OK " + resultUri);
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            final Throwable cropError = UCrop.getError(data);
+            Log.d(TAG, "onActivityResult: RESULT_ERROR " + cropError);
+        }
+    }
+
+    private void cropPhoto(Uri sourceUri, Uri destinationUri) {
+        UCrop.of(sourceUri, destinationUri).start(this);
+    }
+
+
+    //TODO FileRepository
     @Nullable
-    File getAppSpecificAlbumStorageDir(Context context) {
+    private File getAppSpecificAlbumStorageDir(Context context) {
         // Get the pictures directory that's inside the app-specific directory on
         // external storage.
         File file = new File(context.getExternalFilesDir(
