@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+// TODO: 12/22/20 rework threading approach.
 public class FavouriteRepository {
     private static final String TAG = "FavRepository.LOG_TAG";
     private final MutableLiveData<List<Favourite>> mFavourites = new MutableLiveData<>();

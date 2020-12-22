@@ -44,6 +44,7 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
         mViewModel = new ViewModelProvider(this).get(FavouritesActivityViewModel.class);
 
         mViewModel.getAllFavourites().observe(this, favourites -> {
+            // TODO: 12/22/20 `notifyDataSetChanged` can be moved to `setFavourites`
             mRecyclerAdapter.setFavourites(favourites);
             mRecyclerAdapter.notifyDataSetChanged();
         });

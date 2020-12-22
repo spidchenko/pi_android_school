@@ -29,6 +29,7 @@ public class ImageRepository {
     private final int mUserId;
 
 
+    // TODO: 12/22/20 instead of passing application and accessing dao here - inject dao directly
     public ImageRepository(@NonNull Application application, int userId) {
         FlickrRoomDatabase database = FlickrRoomDatabase.getDatabase(application);
         mSearchRequestDao = database.searchRequestDao();
@@ -38,6 +39,7 @@ public class ImageRepository {
 
     public void updateImages(String searchRequest, RepositoryCallback<List<Image>> callback) {
         saveCurrentSearchInDb(searchRequest);
+        // TODO: 12/22/20 flickrapi should be injected in constructor
         FlickrApi mDataService = ServiceGenerator.getFlickrApi();
         Call<ImgSearchResult> call = mDataService.searchImages(searchRequest);
         getResultsFromNetwork(call, callback);
@@ -52,7 +54,7 @@ public class ImageRepository {
         getResultsFromNetwork(call, callback);
     }
 
-
+    // TODO: 12/22/20 review work with threads as discussed in skype
     private void saveCurrentSearchInDb(String searchString) {
         new Thread(() -> {
             long newId = mSearchRequestDao.addSearchRequest(new SearchRequest(mUserId, searchString));

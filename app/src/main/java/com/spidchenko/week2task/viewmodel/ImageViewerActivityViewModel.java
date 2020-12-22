@@ -44,6 +44,9 @@ public class ImageViewerActivityViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> mInFavourites = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
+    // TODO: 12/22/20
+    //  1 - leaking context object
+    //  2 - context should not be stored in viewModel
     Context mContext;
 
     public ImageViewerActivityViewModel(@NonNull Application application) {
@@ -131,6 +134,7 @@ public class ImageViewerActivityViewModel extends AndroidViewModel {
     }
 
     //TODO FileRepository
+    // TODO: 12/22/20 Move image saving into separate class
     private void saveImage(Bitmap bitmap, Context context, String folderName, String fileName) throws FileNotFoundException {
 
         if (android.os.Build.VERSION.SDK_INT >= 29) {

@@ -24,6 +24,10 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int TYPE_IMAGE = 1;
     private static final int TYPE_CATEGORY = 2;
 
+    // TODO: 12/22/20 you can replace 2 listeners with 1 
+    //  interface OnFavouritesListAdapterListener {
+    //      void onItemClick(int action, int position);
+    //  }
     private final OnCardListener mOnCardListener;
     private final OnDeleteClickListener mOnDeleteClickListener;
     private List<Favourite> mImageList;
@@ -49,6 +53,7 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_IMAGE) {
+            // TODO: 12/22/20 Review local variable naming everywhere (`m` prefix)
             View mItemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_favourite, parent, false);
             return new FavouriteViewHolder(mItemView, mOnCardListener, mOnDeleteClickListener);
         } else {

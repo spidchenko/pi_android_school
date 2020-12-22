@@ -33,6 +33,7 @@ public class MainActivityViewModel extends AndroidViewModel {
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
         CurrentUser user = CurrentUser.getInstance();
+        // TODO: 12/22/20 pass imageRepo instead of application class
         mImageRepository = new ImageRepository(application, user.getUser().getId());
 
         mSharedPrefRepository = SharedPreferencesRepository.init(application);

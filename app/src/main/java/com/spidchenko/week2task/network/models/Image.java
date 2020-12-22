@@ -2,6 +2,7 @@ package com.spidchenko.week2task.network.models;
 
 import com.google.gson.annotations.SerializedName;
 
+// TODO: 12/22/20 cleanup unused fields in all data classes
 public class Image {
     public static final String PIC_SIZE_MEDIUM = "z"; //z = medium 640 Longest edge (px)
     private static final String PIC_URL_TEMPLATE = "https://live.staticflickr.com/%s/%s_%s_%s.jpg"; ///{server-id}/{id}_{secret}_{size-suffix}.jpg

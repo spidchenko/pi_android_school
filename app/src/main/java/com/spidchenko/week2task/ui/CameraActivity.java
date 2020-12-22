@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+// TODO: 12/22/20 it is common practice to move work with camera into a separate class (e.g. CameraHelper)
 public class CameraActivity extends AppCompatActivity {
     private static final String TAG = "CameraActivity.LOG_TAG";
     private PreviewView previewView;
@@ -59,6 +60,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void bindImageAnalysis(@NonNull ProcessCameraProvider cameraProvider) {
+        // TODO: 12/22/20 why do you need this imageAnalysis?
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder().setTargetResolution(new Size(1280, 720))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();

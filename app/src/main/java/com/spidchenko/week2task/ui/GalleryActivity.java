@@ -30,9 +30,11 @@ import java.util.Arrays;
 
 import static android.os.Environment.DIRECTORY_PICTURES;
 
+// TODO: 12/22/20 don't forget to fix your todos
 public class GalleryActivity extends AppCompatActivity {
     private static final String TAG = "GalleryActivity.LOG_TAG";
 
+    // TODO: 12/22/20 Suggestion: Look into ButterKnife library. It is easy to use & integrate and it will simplify view bindings.
     private RecyclerView mRvImages;
     private GalleryAdapter mRecyclerAdapter;
 
@@ -70,6 +72,7 @@ public class GalleryActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // TODO: 12/22/20 can be moved to a separate class (to keep things clean)
     ItemTouchHelper getSwipeToDismissTouchHelper() {
         return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {

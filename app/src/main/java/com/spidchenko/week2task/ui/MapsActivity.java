@@ -67,6 +67,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void getLocation() {
+        // TODO: 12/22/20 you can access lat & lng from camera instance
+        //  e.g. mGoogleMap.getCameraPosition().target
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (mGoogleMap != null) {

@@ -26,6 +26,7 @@ public class FavouritesActivityViewModel extends AndroidViewModel {
     public FavouritesActivityViewModel(@NonNull Application application) {
         super(application);
         CurrentUser currentUser = CurrentUser.getInstance();
+        // TODO: 12/22/20 inject repository in viewModel (instead of application)
         mFavouriteRepository = new FavouriteRepository(application, currentUser.getUser().getId());
         mFavourites = mFavouriteRepository.getAllFavourites();
         Log.d(TAG, "FavouritesActivityViewModel: Created");
