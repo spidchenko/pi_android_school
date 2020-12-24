@@ -3,26 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menuFavourites"
-        android:onClick="startFavouritesActivity"
+        android:id="@+id/menu_toggle_night_mode"
+        android:checked="true"
+        android:title="Set night mode"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_favourites"
         android:title="@string/action_favourites"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/menuGallery"
-        android:onClick="startGalleryActivity"
+        android:id="@+id/menu_gallery"
         android:title="@string/action_gallery"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/menuSearchHistory"
-        android:onClick="startSearchHistoryActivity"
+        android:id="@+id/menu_search_history"
         android:title="@string/action_search_history"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/menuMaps"
-        android:onClick="startMapsActivity"
+        android:id="@+id/menu_maps"
         android:title="@string/action_map"
         app:showAsAction="never" />
 </menu>

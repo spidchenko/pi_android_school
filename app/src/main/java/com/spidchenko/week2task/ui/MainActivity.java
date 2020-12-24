@@ -84,7 +84,12 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
             mBtnSearch.setClickable(!loadingState);
         });
 
+        mViewModel.getIsNightMode().observe(this, isNightMode -> {
+            invalidateOptionsMenu();
+        });
+
         mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
+        Log.d(TAG, "onCreate: Created");
     }
 
     public void actionSearch(View view) {
@@ -104,24 +109,60 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void startFavouritesActivity(MenuItem item) {
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case (R.id.menu_toggle_night_mode):
+                actionToggleNightMode(item);
+                break;
+            case (R.id.menu_favourites):
+                startFavouritesActivity();
+                break;
+            case (R.id.menu_gallery):
+                startGalleryActivity();
+                break;
+            case (R.id.menu_search_history):
+                startSearchHistoryActivity();
+                break;
+            case (R.id.menu_maps):
+                startMapsActivity();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    private void startFavouritesActivity() {
         Intent intent = new Intent(this, FavouritesActivity.class);
         startActivity(intent);
     }
 
-    public void startSearchHistoryActivity(MenuItem item) {
+    private void startSearchHistoryActivity() {
         Intent intent = new Intent(this, SearchHistoryActivity.class);
         startActivity(intent);
     }
 
-    public void startMapsActivity(MenuItem item) {
+    private void startMapsActivity() {
         Intent intent = new Intent(this, MapsActivity.class);
         startActivityForResult(intent, ACTION_GET_COORDS);
     }
 
-    public void startGalleryActivity(MenuItem item) {
+    private void startGalleryActivity() {
         Intent intent = new Intent(this, GalleryActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem nightMode = menu.findItem(R.id.menu_toggle_night_mode);
+        Boolean isNightMode = mViewModel.getIsNightMode().getValue();
+        nightMode.setIcon(isNightMode ? R.drawable.ic_moon : R.drawable.ic_sun);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void actionToggleNightMode(MenuItem item) {
+        mViewModel.toggleNightMode();
     }
 
     @Override

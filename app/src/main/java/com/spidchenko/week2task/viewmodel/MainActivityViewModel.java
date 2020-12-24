@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -28,6 +29,8 @@ public class MainActivityViewModel extends AndroidViewModel {
     private final MutableLiveData<String> mLastSearchString = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mIsLoading = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
+    private final MutableLiveData<Boolean> mIsNightMode = new SingleLiveEvent<>();
+
     private final SharedPreferencesRepository mSharedPrefRepository;
 
     public MainActivityViewModel(@NonNull Application application) {
@@ -38,7 +41,7 @@ public class MainActivityViewModel extends AndroidViewModel {
 
         mSharedPrefRepository = SharedPreferencesRepository.init(application);
         mLastSearchString.setValue(mSharedPrefRepository.getLastSearch());
-
+        mIsNightMode.setValue(false);
         Log.d(TAG, "MainActivityViewModel: Created");
     }
 
@@ -90,6 +93,22 @@ public class MainActivityViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> getLoadingState() {
         return mIsLoading;
+    }
+
+    public LiveData<Boolean> getIsNightMode() {
+        return mIsNightMode;
+    }
+
+    public void toggleNightMode() {
+        Boolean wasNightMode = mIsNightMode.getValue();
+        mIsNightMode.setValue(!wasNightMode);
+        if (wasNightMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            mSnackBarMessage.postValue(R.string.night_mode_off);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            mSnackBarMessage.postValue(R.string.night_mode_on);
+        }
     }
 
     public SingleLiveEvent<Integer> getSnackBarMessage() {
