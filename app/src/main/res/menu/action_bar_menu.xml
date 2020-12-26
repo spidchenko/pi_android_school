@@ -5,7 +5,7 @@
     <item
         android:id="@+id/menu_toggle_night_mode"
         android:checked="true"
-        android:title="Set night mode"
+        android:title="@string/toggle_night_mode"
         app:showAsAction="ifRoom" />
 
     <item

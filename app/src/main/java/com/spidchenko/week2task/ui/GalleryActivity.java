@@ -27,6 +27,7 @@ import com.spidchenko.week2task.adapter.GalleryAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static android.os.Environment.DIRECTORY_PICTURES;
 
@@ -55,21 +56,21 @@ public class GalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
         mRvImages = findViewById(R.id.rv_gallery_images);
+        initAppBar();
         initRecyclerView();
         insertData();
     }
 
-    //Save parent activity state on up home navigation
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d(TAG, "Options item selected");
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            onBackPressed();
-            Log.d(TAG, "Pressed Back UP button");
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    private void initAppBar() {
+        setSupportActionBar(findViewById(R.id.toolbar));
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     // TODO: 12/22/20 can be moved to a separate class (to keep things clean)
@@ -126,14 +127,12 @@ public class GalleryActivity extends AppCompatActivity {
     //TODO FileRepository
     ArrayList<File> getPublicImageFiles() {
         File dirWithOurPhotos = getPublicDirectory();
-        if (dirWithOurPhotos != null) {
-            File[] files = dirWithOurPhotos.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    Log.d(TAG, "onCreate: We have photos! - " + dirWithOurPhotos + file.getName());
-                }
-                return new ArrayList<>(Arrays.asList(files));
+        File[] files = dirWithOurPhotos.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                Log.d(TAG, "onCreate: We have photos! - " + dirWithOurPhotos + file.getName());
             }
+            return new ArrayList<>(Arrays.asList(files));
         }
         return null;
     }
@@ -164,7 +163,7 @@ public class GalleryActivity extends AppCompatActivity {
         // external storage.
         File file = new File(context.getExternalFilesDir(
                 DIRECTORY_PICTURES), getString(R.string.app_name));
-        if (file == null || !file.mkdirs()) {
+        if (!file.mkdirs()) {
             Log.e(TAG, "Directory not created");
         }
         return file;

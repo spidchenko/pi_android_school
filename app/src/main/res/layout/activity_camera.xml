@@ -6,29 +6,35 @@
     android:layout_height="match_parent"
     tools:context=".ui.CameraActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Widget.Week2Task.Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintBottom_toTopOf="@id/previewView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/app_name" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_take_shot"
-        android:onClick="actionTakeShot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="32dp"
         android:clickable="true"
+        android:contentDescription="@string/take_a_photo"
+        android:focusable="true"
+        android:onClick="actionTakeShot"
+        app:backgroundTint="?attr/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/container"
-        app:layout_constraintVertical_bias="0.9"
+        android:layout_margin="@dimen/fabMargin"
         app:srcCompat="@drawable/ic_add_a_photo" />
 
-    <FrameLayout
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/container">
-
-        <androidx.camera.view.PreviewView
-            android:id="@+id/previewView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </FrameLayout>
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

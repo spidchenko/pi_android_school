@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cv_search_request"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,8 +10,7 @@
         android:id="@+id/tv_item_search_request_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="18sp"
-        android:textStyle="bold|italic" />
+        tools:text="@tools:sample/cities"
+        style="@style/itemSearchString" />
 
 </androidx.cardview.widget.CardView>

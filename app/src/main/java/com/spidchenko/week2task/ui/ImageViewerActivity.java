@@ -27,6 +27,8 @@ import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.viewmodel.ImageViewerActivityViewModel;
 
+import java.util.Objects;
+
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
 
@@ -54,9 +56,8 @@ public class ImageViewerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_viewer);
         CurrentUser currentUser = CurrentUser.getInstance();
-
+        initAppBar();
         mViewModel = new ViewModelProvider(this).get(ImageViewerActivityViewModel.class);
-
         Intent intent = getIntent();
         mIntentExtraUrl = intent.getStringExtra(EXTRA_URL);
         String intentExtraSearchString = intent.getStringExtra(EXTRA_SEARCH_STRING);
@@ -85,18 +86,16 @@ public class ImageViewerActivity extends AppCompatActivity {
                 ". SearchString: " + intentExtraSearchString);
     }
 
+    private void initAppBar() {
+        setSupportActionBar(findViewById(R.id.toolbar));
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
-    //Save parent activity state on up home navigation
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d(TAG, "Options item selected");
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            onBackPressed();
-            Log.d(TAG, "Pressed Back UP button");
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     public void actionSaveImage(View view) {

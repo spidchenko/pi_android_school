@@ -29,7 +29,7 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryAdap
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.item_search_histrory, parent, false);
+                .inflate(R.layout.item_search_history, parent, false);
         return new ViewHolder(itemView);
     }
 

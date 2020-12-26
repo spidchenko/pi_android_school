@@ -32,6 +32,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 // TODO: 12/22/20 it is common practice to move work with camera into a separate class (e.g. CameraHelper)
@@ -47,6 +48,7 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         previewView = findViewById(R.id.previewView);
+        initAppBar();
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
             try {
@@ -57,6 +59,12 @@ public class CameraActivity extends AppCompatActivity {
             }
         }, ContextCompat.getMainExecutor(this));
 
+    }
+
+    private void initAppBar() {
+        setSupportActionBar(findViewById(R.id.toolbar));
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     private void bindImageAnalysis(@NonNull ProcessCameraProvider cameraProvider) {
@@ -118,6 +126,11 @@ public class CameraActivity extends AppCompatActivity {
         UCrop.of(sourceUri, destinationUri).start(this);
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 
     //TODO FileRepository
     @Nullable
@@ -126,7 +139,7 @@ public class CameraActivity extends AppCompatActivity {
         // external storage.
         File file = new File(context.getExternalFilesDir(
                 Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
-        if (file == null || !file.mkdirs()) {
+        if (!file.mkdirs()) {
             Log.e(TAG, "Directory not created");
         }
         Log.d(TAG, "getAppSpecificAlbumStorageDir: " + file);

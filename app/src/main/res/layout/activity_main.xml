@@ -6,43 +6,59 @@
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
 
-    <EditText
-        android:id="@+id/et_search_query"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Widget.Week2Task.Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/app_name" />
+
+    <com.google.android.material.textfield.TextInputLayout
+
+        android:id="@+id/search_input_layout"
+        style="@style/Widget.Week2Task.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:ems="10"
+        android:layout_margin="4dp"
         android:hint="@string/search_query_hint"
-        android:inputType="textPersonName"
-        android:textAlignment="center"
         app:layout_constraintEnd_toStartOf="@+id/btn_search"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-    <Button
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_search_query"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_search"
         android:layout_width="wrap_content"
+        style="@style/Widget.Week2Task.Button"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="@dimen/searchButtonMargin"
+        android:layout_marginTop="@dimen/searchButtonMargin"
+        android:layout_marginEnd="@dimen/searchButtonMargin"
         android:onClick="actionSearch"
         android:text="@string/action_search"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/et_search_query"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/search_input_layout"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_images"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/recyclerViewMargin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_search_query" />
+        app:layout_constraintTop_toBottomOf="@+id/search_input_layout"
+        tools:listitem="@layout/item_image_list" />
 
     <ProgressBar
         android:id="@+id/pbLoading"

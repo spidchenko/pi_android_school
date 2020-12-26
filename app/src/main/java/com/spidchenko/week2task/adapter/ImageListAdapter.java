@@ -35,7 +35,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.item_imagelist, parent, false);
+                .inflate(R.layout.item_image_list, parent, false);
         return new ViewHolder(itemView, mOnCardListener);
     }
 

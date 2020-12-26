@@ -4,9 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +17,7 @@ import com.spidchenko.week2task.db.dao.SearchRequestDao;
 import com.spidchenko.week2task.db.models.SearchRequest;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SearchHistoryActivity extends AppCompatActivity {
 
@@ -39,21 +38,21 @@ public class SearchHistoryActivity extends AppCompatActivity {
         mCurrentUser = CurrentUser.getInstance();
         FlickrRoomDatabase mDb = FlickrRoomDatabase.getDatabase(this);
         mSearchRequestDao = mDb.searchRequestDao();
+        initAppBar();
         initRecyclerView();
         insertSearches();
     }
 
-    //Save parent activity state on up home navigation
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d(TAG, "Options item selected");
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            onBackPressed();
-            Log.d(TAG, "Pressed Back UP button");
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    private void initAppBar() {
+        setSupportActionBar(findViewById(R.id.toolbar));
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     private void initRecyclerView() {

@@ -20,6 +20,8 @@ import com.spidchenko.week2task.adapter.FavouritesListAdapter;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.viewmodel.FavouritesActivityViewModel;
 
+import java.util.Objects;
+
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
 
@@ -37,33 +39,28 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favourites);
-
         mRvFavouriteImages = findViewById(R.id.rv_favourite_images);
+        initAppBar();
         initRecyclerView();
-
         mViewModel = new ViewModelProvider(this).get(FavouritesActivityViewModel.class);
-
         mViewModel.getAllFavourites().observe(this, favourites -> {
             // TODO: 12/22/20 `notifyDataSetChanged` can be moved to `setFavourites`
             mRecyclerAdapter.setFavourites(favourites);
             mRecyclerAdapter.notifyDataSetChanged();
         });
-
         mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
-
     }
 
-    //Save parent activity state on up home navigation
+    private void initAppBar() {
+        setSupportActionBar(findViewById(R.id.toolbar));
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d(TAG, "Options item selected");
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            onBackPressed();
-            Log.d(TAG, "Pressed Back UP button");
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void initRecyclerView() {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cv_favourite_card"
@@ -15,12 +15,14 @@
         <ImageView
             android:id="@+id/iv_favourite_image"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="@dimen/favouriteImageHeight"
             android:adjustViewBounds="false"
-            tools:srcCompat="@tools:sample/avatars" />
+            tools:srcCompat="@tools:sample/avatars"
+            android:contentDescription="@string/one_of_your_favorite_pictures" />
 
         <TextView
             android:id="@+id/tv_favourite_image_search_string"
+            style="@style/searchStringText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -32,6 +34,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|top"
-        app:srcCompat="@drawable/ic_remove_from_favourites" />
-
-</androidx.cardview.widget.CardView>
+        app:srcCompat="@drawable/ic_remove_from_favourites"
+        android:contentDescription="@string/remove_from_favourites" />
+</com.google.android.material.card.MaterialCardView>

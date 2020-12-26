@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         mBtnSearch = findViewById(R.id.btn_search);
         mPbLoading = findViewById(R.id.pbLoading);
 
+        setSupportActionBar(findViewById(R.id.toolbar));
+
         initRecyclerView();
 
         mViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
@@ -84,12 +87,18 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
             mBtnSearch.setClickable(!loadingState);
         });
 
-        mViewModel.getIsNightMode().observe(this, isNightMode -> {
-            invalidateOptionsMenu();
-        });
+        mViewModel.getIsNightMode().observe(this, isNightMode -> invalidateOptionsMenu());
 
         mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
         Log.d(TAG, "onCreate: Created");
+
+        mEtSearchQuery.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH){
+                actionSearch(null);
+                return true;
+            }
+            return false;
+        });
     }
 
     public void actionSearch(View view) {
@@ -113,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case (R.id.menu_toggle_night_mode):
-                actionToggleNightMode(item);
+                actionToggleNightMode();
                 break;
             case (R.id.menu_favourites):
                 startFavouritesActivity();
@@ -157,11 +166,13 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem nightMode = menu.findItem(R.id.menu_toggle_night_mode);
         Boolean isNightMode = mViewModel.getIsNightMode().getValue();
-        nightMode.setIcon(isNightMode ? R.drawable.ic_moon : R.drawable.ic_sun);
+        if(isNightMode != null){
+            nightMode.setIcon(isNightMode ? R.drawable.ic_moon : R.drawable.ic_sun);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private void actionToggleNightMode(MenuItem item) {
+    private void actionToggleNightMode() {
         mViewModel.toggleNightMode();
     }
 
