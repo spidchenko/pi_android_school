@@ -1,39 +1,34 @@
 package com.spidchenko.week2task.ui;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.GalleryAdapter;
+import com.spidchenko.week2task.viewmodel.GalleryActivityViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
-import static android.os.Environment.DIRECTORY_PICTURES;
-
-// TODO: 12/22/20 don't forget to fix your todos
 public class GalleryActivity extends AppCompatActivity {
     private static final String TAG = "GalleryActivity.LOG_TAG";
+    private GalleryActivityViewModel mViewModel;
 
     // TODO: 12/22/20 Suggestion: Look into ButterKnife library. It is easy to use & integrate and it will simplify view bindings.
     private RecyclerView mRvImages;
@@ -56,21 +51,18 @@ public class GalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
         mRvImages = findViewById(R.id.rv_gallery_images);
+
+        mViewModel = new ViewModelProvider(this).get(GalleryActivityViewModel.class);
+
         initAppBar();
         initRecyclerView();
-        insertData();
-    }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
+        mViewModel.getImageFiles().observe(this, files -> {
+            Log.d(TAG, "Observed LiveData: " + files);
+            mRecyclerAdapter.setImages((ArrayList<File>) files);
+            mRecyclerAdapter.notifyDataSetChanged();
+        });
 
-    private void initAppBar() {
-        setSupportActionBar(findViewById(R.id.toolbar));
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     // TODO: 12/22/20 can be moved to a separate class (to keep things clean)
@@ -88,13 +80,11 @@ public class GalleryActivity extends AppCompatActivity {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
                 Log.d(TAG, "ViewHolder Swiped! Position= " + position);
-//                mViewModel.deleteFileAtPosition(position);
-                mRecyclerAdapter.dismiss(position);
-                deleteFile(mRecyclerAdapter.getFileAtPosition(position));
+                mViewModel.deleteFile(getApplicationContext().getContentResolver(),
+                        mRecyclerAdapter.getFileAtPosition(position));
             }
         });
     }
-
 
     public void actionTakePhoto(View view) {
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
@@ -106,67 +96,21 @@ public class GalleryActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    private void initAppBar() {
+        setSupportActionBar(findViewById(R.id.toolbar));
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
     private void enableCamera() {
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
-    }
-
-    //TODO FileRepository
-    private File getPublicDirectory() {
-        File pictureFolder = new File(Environment.getExternalStoragePublicDirectory(
-                DIRECTORY_PICTURES), "Simple flickr client");
-        if (!pictureFolder.exists()) {
-            if (!pictureFolder.mkdir()) {
-                Log.e(TAG, "Failed to create public directory: " + pictureFolder);
-            }
-        }
-        return pictureFolder;
-    }
-
-    //TODO FileRepository
-    ArrayList<File> getPublicImageFiles() {
-        File dirWithOurPhotos = getPublicDirectory();
-        File[] files = dirWithOurPhotos.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                Log.d(TAG, "onCreate: We have photos! - " + dirWithOurPhotos + file.getName());
-            }
-            return new ArrayList<>(Arrays.asList(files));
-        }
-        return null;
-    }
-
-    //TODO FileRepository
-    ArrayList<File> getCameraPhotoFiles() {
-        File dirWithOurPhotos = getAppSpecificAlbumStorageDir(this);
-        if (dirWithOurPhotos != null) {
-            File[] files = dirWithOurPhotos.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    Log.d(TAG, "onCreate: We have photos! - " + dirWithOurPhotos + file.getName());
-                }
-                return new ArrayList<>(Arrays.asList(files));
-            }
-        }
-        return null;
-    }
-
-    //TODO FileRepository
-    private void deleteFile(File file) {
-        file.delete();
-    }
-
-    @Nullable
-    File getAppSpecificAlbumStorageDir(Context context) {
-        // Get the pictures directory that's inside the app-specific directory on
-        // external storage.
-        File file = new File(context.getExternalFilesDir(
-                DIRECTORY_PICTURES), getString(R.string.app_name));
-        if (!file.mkdirs()) {
-            Log.e(TAG, "Directory not created");
-        }
-        return file;
     }
 
     private void initRecyclerView() {
@@ -176,13 +120,4 @@ public class GalleryActivity extends AppCompatActivity {
         ItemTouchHelper helper = getSwipeToDismissTouchHelper();
         helper.attachToRecyclerView(mRvImages);
     }
-
-    private void insertData() {
-        ArrayList<File> filesToShow = getCameraPhotoFiles();
-        filesToShow.addAll(getPublicImageFiles());
-
-        mRecyclerAdapter.setImages(filesToShow);
-        mRecyclerAdapter.notifyDataSetChanged();
-    }
-
 }

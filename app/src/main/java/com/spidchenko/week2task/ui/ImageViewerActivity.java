@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.CheckBox;
@@ -14,12 +13,12 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
@@ -45,7 +44,9 @@ public class ImageViewerActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 Log.d(TAG, "Permission callback! = " + isGranted);
                 if (isGranted) {
-                    mViewModel.saveImage(mFavourite);
+                    mViewModel.saveImage(Glide.with(getApplicationContext()),
+                            getApplicationContext().getContentResolver(),
+                            mFavourite);
                 } else {
                     Toast.makeText(this, getString(R.string.need_storage_permission), Toast.LENGTH_LONG).show();
                 }
@@ -101,7 +102,9 @@ public class ImageViewerActivity extends AppCompatActivity {
     public void actionSaveImage(View view) {
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            mViewModel.saveImage(mFavourite);
+            mViewModel.saveImage(Glide.with(getApplicationContext()),
+                    getApplicationContext().getContentResolver(),
+                    mFavourite);
         } else {
             Log.d(TAG, "actionSaveImage: Permission not granted! Trying to ask for...");
             requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);

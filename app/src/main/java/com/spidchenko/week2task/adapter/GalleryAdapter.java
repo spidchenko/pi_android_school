@@ -43,7 +43,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        if (mImageFiles == null){
+        if (mImageFiles == null) {
             return 0;
         }
         return mImageFiles.size();
@@ -55,13 +55,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     public File getFileAtPosition(int position) {
         return mImageFiles.get(position);
-    }
-
-    public void dismiss(int position) {
-
-        Log.d(TAG, "dismiss:" +mImageFiles.get(position).getName());
-        mImageFiles.remove(position);
-        notifyItemRemoved(position);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

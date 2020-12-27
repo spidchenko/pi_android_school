@@ -2,8 +2,11 @@
   <dictionary name="User">
     <words>
       <w>binded</w>
+      <w>camerax</w>
       <w>flickr</w>
+      <w>hmmss</w>
       <w>nojsoncallback</w>
+      <w>stetho</w>
     </words>
   </dictionary>
 </component>
