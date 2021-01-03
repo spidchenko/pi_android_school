@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.provider.MediaStore;
@@ -14,6 +15,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -29,6 +31,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,13 +61,15 @@ public class FileRepository {
     public LiveData<List<File>> getImageFiles() {
         getUpdatedImageList();
 
-        if (mPhotosObserver == null) {
-            mPhotosObserver = new DirectoryChangeObserver(mPhotosDirectory.toString());
+        if ((mImagesObserver == null) && (mPhotosObserver == null)) {
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                mPhotosObserver = new DirectoryChangeObserver(mPhotosDirectory);
+                mImagesObserver = new DirectoryChangeObserver(mImagesDirectory);
+            } else {
+                mPhotosObserver = new DirectoryChangeObserver(mPhotosDirectory.toString());
+                mImagesObserver = new DirectoryChangeObserver(mImagesDirectory.toString());
+            }
             mPhotosObserver.startWatching();
-        }
-
-        if (mImagesObserver == null) {
-            mImagesObserver = new DirectoryChangeObserver(mImagesDirectory.toString());
             mImagesObserver.startWatching();
         }
 
@@ -196,7 +201,7 @@ public class FileRepository {
         return pictureFolder;
     }
 
-    @Nullable
+    @NonNull
     private File getAppSpecificAlbumStorageDir(@NonNull Context context) {
         File file = new File(context.getExternalFilesDir(
                 Environment.DIRECTORY_PICTURES), APP_FILES_DIR);
@@ -211,7 +216,7 @@ public class FileRepository {
         if (directory != null) {
             File[] files = directory.listFiles();
             if (files != null) {
-                Log.d(TAG, "getFilesInDirectory:  We have " + directory.listFiles().length + " files!");
+                Log.d(TAG, "getFilesInDirectory:  We have " + Objects.requireNonNull(directory.listFiles()).length + " files!");
                 return new ArrayList<>(Arrays.asList(files));
             }
         }
@@ -220,6 +225,13 @@ public class FileRepository {
 
 
     private class DirectoryChangeObserver extends FileObserver {
+
+        @RequiresApi(api = Build.VERSION_CODES.Q)
+        public DirectoryChangeObserver(@NonNull File path) {
+            super(path, CREATE | DELETE | MOVED_FROM | MOVED_TO);
+            Log.d(TAG, "DirectoryChangeObserver: created on " + path);
+        }
+
         public DirectoryChangeObserver(@NonNull String path) {
             super(path, CREATE | DELETE | MOVED_FROM | MOVED_TO);
             Log.d(TAG, "DirectoryChangeObserver: created on " + path);

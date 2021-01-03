@@ -1,9 +1,10 @@
 package com.spidchenko.week2task.ui;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,18 +17,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.spidchenko.week2task.BatteryLevelReceiver;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.network.models.Image;
@@ -40,17 +42,29 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
     private static final String TAG = "MainActivity.LOG_TAG";
     public static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
     public static final String EXTRA_SEARCH_STRING = "com.spidchenko.week2task.extras.EXTRA_SEARCH_STRING";
-    public static final int ACTION_GET_COORDS = 1;
 
     private String mCurrentSearchString;
     private ImageListAdapter mRecyclerAdapter;
     private MainActivityViewModel mViewModel;
+    private final BroadcastReceiver mBatteryLevelReceiver = new BatteryLevelReceiver();
 
     //UI
     private EditText mEtSearchQuery;
     private Button mBtnSearch;
     private RecyclerView mRvImages;
     private ProgressBar mPbLoading;
+
+    ActivityResultLauncher<Intent> mGetCoordinates =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                Intent data = result.getData();
+                if ((result.getResultCode() == Activity.RESULT_OK) && (result.getData() != null)) {
+                    String lat = data.getStringExtra(EXTRA_LATITUDE);
+                    String lon = data.getStringExtra(EXTRA_LONGITUDE);
+                    Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
+                    mViewModel.searchImagesByCoordinates(lat, lon);
+                    hideKeyboard(this);
+                }
+            });
 
 
     @Override
@@ -69,36 +83,29 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
 
         mViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
-        mViewModel.getSearchString().observe(this, lastSearch -> {
-            mCurrentSearchString = lastSearch;
-            mEtSearchQuery.setText(lastSearch);
-            mRecyclerAdapter.setSearchString(lastSearch);
-            mRecyclerAdapter.notifyDataSetChanged();
-        });
+        subscribeToModel();
 
-        mViewModel.getAllImages().observe(this, images -> {
-            mRecyclerAdapter.setImages(images);
-            mRecyclerAdapter.notifyDataSetChanged();
-        });
-
-        mViewModel.getLoadingState().observe(this, loadingState -> {
-            Log.d(TAG, "onCreate: isLoading: " + loadingState);
-            mPbLoading.setVisibility(loadingState ? View.VISIBLE : View.GONE);
-            mBtnSearch.setClickable(!loadingState);
-        });
-
-        mViewModel.getIsNightMode().observe(this, isNightMode -> invalidateOptionsMenu());
-
-        mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
         Log.d(TAG, "onCreate: Created");
 
         mEtSearchQuery.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH){
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 actionSearch(null);
                 return true;
             }
             return false;
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startReceivingBatteryLevelUpdates();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopReceivingBatteryLevelUpdates();
     }
 
     public void actionSearch(View view) {
@@ -154,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
 
     private void startMapsActivity() {
         Intent intent = new Intent(this, MapsActivity.class);
-        startActivityForResult(intent, ACTION_GET_COORDS);
+        mGetCoordinates.launch(intent);
     }
 
     private void startGalleryActivity() {
@@ -166,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem nightMode = menu.findItem(R.id.menu_toggle_night_mode);
         Boolean isNightMode = mViewModel.getIsNightMode().getValue();
-        if(isNightMode != null){
+        if (isNightMode != null) {
             nightMode.setIcon(isNightMode ? R.drawable.ic_moon : R.drawable.ic_sun);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -176,29 +183,10 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
         mViewModel.toggleNightMode();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if ((resultCode == Activity.RESULT_OK) && (requestCode == ACTION_GET_COORDS) && (data != null)) {
-            String lat = data.getStringExtra(EXTRA_LATITUDE);
-            String lon = data.getStringExtra(EXTRA_LONGITUDE);
-            Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
-            mViewModel.searchImagesByCoordinates(lat, lon);
-            hideKeyboard(this);
-        }
-    }
-
     private void initRecyclerView() {
         mRecyclerAdapter = new ImageListAdapter(null, this);
         mRvImages.setAdapter(mRecyclerAdapter);
-
-        int orientation = this.getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mRvImages.setLayoutManager(new LinearLayoutManager(this));
-        } else {
-            mRvImages.setLayoutManager(new GridLayoutManager(this, 3));
-        }
-
+        mRvImages.setLayoutManager(new LinearLayoutManager(this));
         ItemTouchHelper helper = getSwipeToDismissTouchHelper();
         helper.attachToRecyclerView(mRvImages);
     }
@@ -246,5 +234,39 @@ public class MainActivity extends AppCompatActivity implements ImageListAdapter.
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    private void startReceivingBatteryLevelUpdates() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        this.registerReceiver(mBatteryLevelReceiver, filter);
+    }
+
+    private void stopReceivingBatteryLevelUpdates() {
+        this.unregisterReceiver(mBatteryLevelReceiver);
+    }
+
+    private void subscribeToModel() {
+        mViewModel.getSearchString().observe(this, lastSearch -> {
+            mCurrentSearchString = lastSearch;
+            mEtSearchQuery.setText(lastSearch);
+            mRecyclerAdapter.setSearchString(lastSearch);
+            mRecyclerAdapter.notifyDataSetChanged();
+        });
+
+        mViewModel.getAllImages().observe(this, images -> {
+            mRecyclerAdapter.setImages(images);
+            mRecyclerAdapter.notifyDataSetChanged();
+        });
+
+        mViewModel.getLoadingState().observe(this, loadingState -> {
+            Log.d(TAG, "onCreate: isLoading: " + loadingState);
+            mPbLoading.setVisibility(loadingState ? View.VISIBLE : View.GONE);
+            mBtnSearch.setClickable(!loadingState);
+        });
+
+        mViewModel.getIsNightMode().observe(this, isNightMode -> invalidateOptionsMenu());
+
+        mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
     }
 }

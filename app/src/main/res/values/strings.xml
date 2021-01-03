@@ -14,7 +14,7 @@
     <string name="prompt_username">Username</string>
     <string name="action_sign_in">Sign in</string>
     <string name="welcome">"Welcome!"</string>
-    <string name="login_failed">"Login failed. Empty username."</string>
+    <string name="login_failed">Login failed. Empty username.</string>
 
     <string name="action_favourites">Favourites</string>
     <string name="removed_from_favourites">Removed from Favourites</string>
@@ -27,7 +27,7 @@
     <string name="action_map">Search on map</string>
     <string name="search_on_map">Search on map</string>
     <string name="select_point_message">Select point to search photos near</string>
-    <string name="error_undefined_location">Can\'t find your current location now</string>
+    <string name="error_undefined_location">Can not find your current location now</string>
     <string name="action_gallery">Gallery</string>
     <string name="need_photo_permission">This feature requires your permission to take photos</string>
     <string name="need_storage_permission">This feature requires your permission to save images</string>
