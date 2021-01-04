@@ -21,6 +21,7 @@ import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.spidchenko.week2task.R;
@@ -28,8 +29,11 @@ import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.viewmodel.MainActivityViewModel;
 
-import static com.spidchenko.week2task.ui.MapsActivity.EXTRA_LATITUDE;
-import static com.spidchenko.week2task.ui.MapsActivity.EXTRA_LONGITUDE;
+import java.util.Objects;
+
+import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LONGITUDE;
+import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LATITUDE;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,9 +47,11 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
     private String mCurrentSearchString;
     private ImageListAdapter mRecyclerAdapter;
     private MainActivityViewModel mViewModel;
+
     ActivityResultLauncher<Intent> mGetCoordinates =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 Intent data = result.getData();
@@ -54,7 +60,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
                     String lon = data.getStringExtra(EXTRA_LONGITUDE);
                     Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
                     mViewModel.searchImagesByCoordinates(lat, lon);
-//                    hideKeyboard(this);
+                    hideKeyboard(requireActivity());
                 }
             });
     //UI
@@ -109,11 +115,12 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//        mRvImages = findViewById(R.id.rv_images);
-//        mEtSearchQuery = findViewById(R.id.et_search_query);
-//        mBtnSearch = findViewById(R.id.btn_search);
-//        mPbLoading = findViewById(R.id.pbLoading);
+        final View rootView =  inflater.inflate(R.layout.fragment_search, container, false);
 
+        mRvImages = rootView.findViewById(R.id.rv_images);
+        mEtSearchQuery = rootView.findViewById(R.id.et_search_query);
+        mBtnSearch = rootView.findViewById(R.id.btn_search);
+        mPbLoading = rootView.findViewById(R.id.pbLoading);
 
         initRecyclerView();
 
@@ -123,32 +130,34 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
         Log.d(TAG, "onCreate: Created");
 
+        // Perform Flickr search on soft keyboard event
         mEtSearchQuery.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                actionSearch(null);
+                mBtnSearch.callOnClick();
                 return true;
             }
             return false;
         });
 
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        // Perform Flickr search
+        mBtnSearch.setOnClickListener( view -> {
+            hideKeyboard(requireActivity());
+            String searchString = mEtSearchQuery.getText().toString().trim();
+            if (searchString.isEmpty()) {
+                ((MainActivity)requireActivity()).showSnackBarMessage(R.string.error_empty_search);
+            } else {
+                mViewModel.searchImages(searchString);
+            }
+        });
+
+        return rootView;
     }
 
-    public void actionSearch(View view) {
-//        hideKeyboard(this);
-        String searchString = mEtSearchQuery.getText().toString().trim();
-        if (searchString.isEmpty()) {
-            showSnackBarMessage(R.string.error_empty_search);
-        } else {
-            mViewModel.searchImages(searchString);
-        }
-    }
 
     private void initRecyclerView() {
         mRecyclerAdapter = new ImageListAdapter(null, this);
         mRvImages.setAdapter(mRecyclerAdapter);
-//        mRvImages.setLayoutManager(new LinearLayoutManager(this));
+        mRvImages.setLayoutManager(new LinearLayoutManager(requireActivity()));
         ItemTouchHelper helper = getSwipeToDismissTouchHelper();
         helper.attachToRecyclerView(mRvImages);
     }
@@ -184,12 +193,6 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         });
     }
 
-    private void showSnackBarMessage(@StringRes int resourceId) {
-//        Snackbar.make(findViewById(android.R.id.content),
-//                resourceId,
-//                BaseTransientBottomBar.LENGTH_LONG).show();
-    }
-
     private void subscribeToModel() {
         mViewModel.getSearchString().observe(getViewLifecycleOwner(), lastSearch -> {
             mCurrentSearchString = lastSearch;
@@ -211,8 +214,8 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
 //        mViewModel.getIsNightMode().observe(getViewLifecycleOwner(), isNightMode -> invalidateOptionsMenu());
 
-        mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
+        mViewModel.getSnackBarMessage().observe(this,
+                message -> ((MainActivity)requireActivity()).showSnackBarMessage(message));
     }
-
 
 }

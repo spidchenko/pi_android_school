@@ -36,4 +36,5 @@
     <string name="add_photo">Add photo</string>
     <string name="remove_from_favourites">Tap to remove from favourites</string>
     <string name="one_of_your_favorite_pictures">One of your favorite pictures</string>
+    <string name="image_saved">Image Saved successfully</string>
 </resources>

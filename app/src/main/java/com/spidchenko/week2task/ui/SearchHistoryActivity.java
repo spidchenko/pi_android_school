@@ -22,25 +22,13 @@ import java.util.Objects;
 public class SearchHistoryActivity extends AppCompatActivity {
 
     private static final String TAG = "SearchHistAct.LOG_TAG";
-    private final Handler mUiHandler = new Handler(Looper.getMainLooper());
-    private SearchRequestDao mSearchRequestDao;
-    private CurrentUser mCurrentUser;
 
-    RecyclerView mRvSearchHistory;
-    SearchHistoryAdapter mRecyclerAdapter;
-    ArrayList<SearchRequest> mSearches = new ArrayList<>();
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_history);
-        mCurrentUser = CurrentUser.getInstance();
-        FlickrRoomDatabase mDb = FlickrRoomDatabase.getDatabase(this);
-        mSearchRequestDao = mDb.searchRequestDao();
-        initAppBar();
-        initRecyclerView();
-        insertSearches();
+
     }
 
     @Override
@@ -55,21 +43,5 @@ public class SearchHistoryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
-    private void initRecyclerView() {
-        mRvSearchHistory = findViewById(R.id.rv_search_history);
-        mRecyclerAdapter = new SearchHistoryAdapter(mSearches);
-        mRvSearchHistory.setAdapter(mRecyclerAdapter);
-        mRvSearchHistory.setLayoutManager(new LinearLayoutManager(this));
-    }
 
-    private void insertSearches() {
-        new Thread(() -> {
-            mSearches.addAll(mSearchRequestDao.getAllSearchRequests(mCurrentUser.getUser().getId()));
-            Log.d(TAG, "insertSearches: " + mSearchRequestDao.getAllSearchRequests(mCurrentUser.getUser().getId()));
-            mUiHandler.post(() -> {
-                mRecyclerAdapter.notifyDataSetChanged();
-                Log.d(TAG, "Data set Changed!");
-            });
-        }).start();
-    }
 }

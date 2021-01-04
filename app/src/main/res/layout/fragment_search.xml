@@ -35,7 +35,6 @@
         android:layout_marginStart="@dimen/searchButtonMargin"
         android:layout_marginTop="@dimen/searchButtonMargin"
         android:layout_marginEnd="@dimen/searchButtonMargin"
-        android:onClick="actionSearch"
         android:text="@string/action_search"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/search_input_layout"

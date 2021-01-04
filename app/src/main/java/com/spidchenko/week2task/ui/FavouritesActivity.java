@@ -25,30 +25,18 @@ import java.util.Objects;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
 
-public class FavouritesActivity extends AppCompatActivity implements FavouritesListAdapter.OnCardListener, FavouritesListAdapter.OnDeleteClickListener {
+public class FavouritesActivity extends AppCompatActivity {
 
     private static final String TAG = "Favourites.LOG_TAG";
 
-    private FavouritesActivityViewModel mViewModel;
 
-    private RecyclerView mRvFavouriteImages;
-    private FavouritesListAdapter mRecyclerAdapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favourites);
-        mRvFavouriteImages = findViewById(R.id.rv_favourite_images);
-        initAppBar();
-        initRecyclerView();
-        mViewModel = new ViewModelProvider(this).get(FavouritesActivityViewModel.class);
-        mViewModel.getAllFavourites().observe(this, favourites -> {
-            // TODO: 12/22/20 `notifyDataSetChanged` can be moved to `setFavourites`
-            mRecyclerAdapter.setFavourites(favourites);
-            mRecyclerAdapter.notifyDataSetChanged();
-        });
-        mViewModel.getSnackBarMessage().observe(this, this::showSnackBarMessage);
+
     }
 
     private void initAppBar() {
@@ -61,67 +49,6 @@ public class FavouritesActivity extends AppCompatActivity implements FavouritesL
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
-    }
-
-    private void initRecyclerView() {
-        mRecyclerAdapter = new FavouritesListAdapter(null, this, this);
-        mRvFavouriteImages.setAdapter(mRecyclerAdapter);
-        mRvFavouriteImages.setLayoutManager(new LinearLayoutManager(this));
-
-        ItemTouchHelper helper = getSwipeToDismissTouchHelper();
-        helper.attachToRecyclerView(mRvFavouriteImages);
-    }
-
-    @Override
-    public void onCardClick(int position) {
-        Log.d(TAG, "ViewHolder clicked! Position = " + position);
-        Favourite favourite = mRecyclerAdapter.getFavouriteAtPosition(position);
-        Intent intent = new Intent(this, ImageViewerActivity.class);
-        intent.putExtra(EXTRA_URL, favourite.getUrl());
-        intent.putExtra(EXTRA_SEARCH_STRING, favourite.getSearchRequest());
-        startActivity(intent);
-    }
-
-    @Override
-    public void onDeleteClick(int position) {
-        Log.d(TAG, "Activity - onDeleteClick: " + position);
-        Favourite favourite = mRecyclerAdapter.getFavouriteAtPosition(position);
-        mViewModel.deleteFavourite(favourite);
-    }
-
-    ItemTouchHelper getSwipeToDismissTouchHelper() {
-        return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public int getSwipeDirs(@NonNull RecyclerView recyclerView,
-                                    @NonNull RecyclerView.ViewHolder viewHolder) {
-                if (viewHolder instanceof FavouritesListAdapter.CategoryViewHolder)
-                    return 0;
-                return super.getSwipeDirs(recyclerView, viewHolder);
-            }
-
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-                int position = viewHolder.getAdapterPosition();
-                Log.d(TAG, "ViewHolder Swiped! Position= " + position);
-                Favourite favourite = mRecyclerAdapter.getFavouriteAtPosition(position);
-                mViewModel.deleteFavourite(favourite);
-            }
-        });
-    }
-
-    private void showSnackBarMessage(@StringRes int resourceId) {
-        Snackbar.make(findViewById(android.R.id.content),
-                resourceId,
-                BaseTransientBottomBar.LENGTH_LONG).show();
     }
 
 }

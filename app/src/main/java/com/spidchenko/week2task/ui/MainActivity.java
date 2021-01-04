@@ -9,8 +9,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.BatteryLevelReceiver;
 import com.spidchenko.week2task.R;
 
@@ -107,6 +110,11 @@ public class MainActivity extends AppCompatActivity {
 //        mViewModel.toggleNightMode();
 //    }
 
+    public void showSnackBarMessage(@StringRes int resourceId) {
+        Snackbar.make(findViewById(android.R.id.content),
+                resourceId,
+                BaseTransientBottomBar.LENGTH_LONG).show();
+    }
 
     private void startReceivingBatteryLevelUpdates() {
         IntentFilter filter = new IntentFilter();
