@@ -1,6 +1,7 @@
 package com.spidchenko.week2task.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,6 +36,8 @@ public class GalleryFragment extends Fragment {
 
     private static final String TAG = "GalleryFragment.LOG_TAG";
     private GalleryActivityViewModel mViewModel;
+
+    OnFragmentInteractionListener mListener;
 
     // TODO: 12/22/20 Suggestion: Look into ButterKnife library. It is easy to use & integrate and it will simplify view bindings.
     private RecyclerView mRvImages;
@@ -79,6 +82,17 @@ public class GalleryFragment extends Fragment {
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + getResources().getString(R.string.exception_message));
+        }
     }
 
     @Override
@@ -139,8 +153,7 @@ public class GalleryFragment extends Fragment {
     }
 
     private void enableCamera() {
-//        Intent intent = new Intent(this, CameraActivity.class);
-//        startActivity(intent);
+        mListener.onTakePhotosAction();
     }
 
     private void initRecyclerView() {
@@ -157,6 +170,10 @@ public class GalleryFragment extends Fragment {
             mRecyclerAdapter.setImages((ArrayList<File>) files);
             mRecyclerAdapter.notifyDataSetChanged();
         });
+    }
+
+    interface OnFragmentInteractionListener {
+        void onTakePhotosAction();
     }
 
 }

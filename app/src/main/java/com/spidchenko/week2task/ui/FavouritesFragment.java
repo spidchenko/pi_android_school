@@ -1,6 +1,6 @@
 package com.spidchenko.week2task.ui;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,9 +19,6 @@ import com.spidchenko.week2task.adapter.FavouritesListAdapter;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.viewmodel.FavouritesActivityViewModel;
 
-import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
-import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link FavouritesFragment#newInstance} factory method to
@@ -30,6 +27,8 @@ import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
 public class FavouritesFragment extends Fragment implements FavouritesListAdapter.OnCardListener, FavouritesListAdapter.OnDeleteClickListener {
 
     private static final String TAG = "FavFragment.LOG_TAG";
+
+    OnFragmentInteractionListener mListener;
 
     private FavouritesActivityViewModel mViewModel;
     private RecyclerView mRvFavouriteImages;
@@ -64,6 +63,17 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + getResources().getString(R.string.exception_message));
+        }
     }
 
     @Override
@@ -156,6 +166,10 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
 
         ItemTouchHelper helper = getSwipeToDismissTouchHelper();
         helper.attachToRecyclerView(mRvFavouriteImages);
+    }
+
+    interface OnFragmentInteractionListener {
+        void onOpenFavouriteAction();
     }
 
 }

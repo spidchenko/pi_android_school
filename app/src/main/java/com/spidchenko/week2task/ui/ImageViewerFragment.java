@@ -24,16 +24,13 @@ import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.viewmodel.ImageViewerActivityViewModel;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ImageViewerFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
+import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
+
 public class ImageViewerFragment extends Fragment {
 
     private static final String TAG = "ImgViewFragment.LOG_TAG";
 
-    private String mIntentExtraUrl;
     private Favourite mFavourite;
     private ImageViewerActivityViewModel mViewModel;
     private CheckBox cbToggleFavourite;
@@ -50,43 +47,17 @@ public class ImageViewerFragment extends Fragment {
                 }
             });
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public ImageViewerFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ImageViewerFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ImageViewerFragment newInstance(String param1, String param2) {
-        ImageViewerFragment fragment = new ImageViewerFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private String mExtraUrl;
+    private String mExtraSearchString;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mExtraUrl = getArguments().getString(EXTRA_URL);
+            mExtraSearchString = getArguments().getString(EXTRA_SEARCH_STRING);
+            Log.d(TAG, "onCreate: url:" + mExtraUrl + ". string:" + mExtraSearchString);
         }
     }
 
@@ -97,30 +68,23 @@ public class ImageViewerFragment extends Fragment {
 
         CurrentUser currentUser = CurrentUser.getInstance();
 
-
-//        Intent intent = getIntent();
-//        mIntentExtraUrl = intent.getStringExtra(EXTRA_URL);
-        mIntentExtraUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/RUEDA_DE_PRENSA_CONJUNTA_ENTRE_CANCILLER_RICARDO_PATI%C3%91O_Y_JULIAN_ASSANGE_-_14953880621.jpg/800px-RUEDA_DE_PRENSA_CONJUNTA_ENTRE_CANCILLER_RICARDO_PATI%C3%91O_Y_JULIAN_ASSANGE_-_14953880621.jpg";
-        String intentExtraSearchString = "TODO";
-//        intentExtraSearchString = intent.getStringExtra(EXTRA_SEARCH_STRING);
-
         WebView webView = rootView.findViewById(R.id.webView);
         TextView tvSearchString = rootView.findViewById(R.id.tv_search_string);
         cbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
-        tvSearchString.setText(intentExtraSearchString);
+        tvSearchString.setText(mExtraSearchString);
 
         initWebView(webView);
 
 
         mFavourite = new Favourite(currentUser.getUser().getId(),
-                intentExtraSearchString, mIntentExtraUrl);
+                mExtraSearchString, mExtraUrl);
 
         mViewModel = new ViewModelProvider(this).get(ImageViewerActivityViewModel.class);
 
         subscribeToModel();
 
-        Log.d(TAG, "Intent received. Image Url: " + mIntentExtraUrl +
-                ". SearchString: " + intentExtraSearchString);
+        Log.d(TAG, "Intent received. Image Url: " + mExtraUrl +
+                ". SearchString: " + mExtraSearchString);
 
         CheckBox cbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
         // Check/Uncheck current image as favourite and save choice to local Database
@@ -167,7 +131,7 @@ public class ImageViewerFragment extends Fragment {
         view.getSettings().setUseWideViewPort(true);
         //This line will prevent random Fatal signal 11 (SIGSEGV) error on emulator:
         view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        view.loadUrl(mIntentExtraUrl);
+        view.loadUrl(mExtraUrl);
     }
 
 

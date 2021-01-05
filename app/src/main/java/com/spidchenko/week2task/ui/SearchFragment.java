@@ -1,23 +1,17 @@
 package com.spidchenko.week2task.ui;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -29,10 +23,8 @@ import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.viewmodel.MainActivityViewModel;
 
-import java.util.Objects;
-
-import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LONGITUDE;
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LATITUDE;
+import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LONGITUDE;
 
 
 /**
@@ -43,62 +35,46 @@ import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LATITUDE;
 public class SearchFragment extends Fragment implements ImageListAdapter.OnCardListener {
 
     private static final String TAG = "SearchFragment.LOG_TAG";
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+
 
     private String mCurrentSearchString;
     private ImageListAdapter mRecyclerAdapter;
     private MainActivityViewModel mViewModel;
 
-    ActivityResultLauncher<Intent> mGetCoordinates =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                Intent data = result.getData();
-                if ((result.getResultCode() == Activity.RESULT_OK) && (result.getData() != null)) {
-                    String lat = data.getStringExtra(EXTRA_LATITUDE);
-                    String lon = data.getStringExtra(EXTRA_LONGITUDE);
-                    Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
-                    mViewModel.searchImagesByCoordinates(lat, lon);
-                    hideKeyboard(requireActivity());
-                }
-            });
+    OnFragmentInteractionListener mListener;
+
+    //    ActivityResultLauncher<Intent> mGetCoordinates =
+//            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+//                Intent data = result.getData();
+//                if ((result.getResultCode() == Activity.RESULT_OK) && (result.getData() != null)) {
+//                    String lat = data.getStringExtra(EXTRA_LATITUDE);
+//                    String lon = data.getStringExtra(EXTRA_LONGITUDE);
+//                    Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
+//                    mViewModel.searchImagesByCoordinates(lat, lon);
+//                    ((MainActivity) requireActivity()).hideKeyboard();
+//                }
+//            });
     //UI
     private EditText mEtSearchQuery;
     private Button mBtnSearch;
     private RecyclerView mRvImages;
     private ProgressBar mPbLoading;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+
+    private String mSearchLatitude;
+    private String mSearchLongitude;
 
     public SearchFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance(String param1, String param2) {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    private static void hideKeyboard(Activity activity) {
-        View view = activity.findViewById(android.R.id.content);
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + getResources().getString(R.string.exception_message));
         }
     }
 
@@ -106,8 +82,9 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mSearchLatitude = getArguments().getString(EXTRA_LATITUDE);
+            mSearchLongitude = getArguments().getString(EXTRA_LONGITUDE);
+            Log.d(TAG, "onCreate: lat:" + mSearchLatitude + ". lon:" + mSearchLongitude);
         }
     }
 
@@ -115,7 +92,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View rootView =  inflater.inflate(R.layout.fragment_search, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_search, container, false);
 
         mRvImages = rootView.findViewById(R.id.rv_images);
         mEtSearchQuery = rootView.findViewById(R.id.et_search_query);
@@ -140,15 +117,21 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         });
 
         // Perform Flickr search
-        mBtnSearch.setOnClickListener( view -> {
-            hideKeyboard(requireActivity());
+        mBtnSearch.setOnClickListener(view -> {
+            ((MainActivity) requireActivity()).hideKeyboard();
             String searchString = mEtSearchQuery.getText().toString().trim();
             if (searchString.isEmpty()) {
-                ((MainActivity)requireActivity()).showSnackBarMessage(R.string.error_empty_search);
+                ((MainActivity) requireActivity()).showSnackBarMessage(R.string.error_empty_search);
             } else {
                 mViewModel.searchImages(searchString);
             }
         });
+
+        // Perform Flickr search by coordinates
+        if (getArguments() != null) {
+            mViewModel.searchImagesByCoordinates(mSearchLatitude, mSearchLongitude);
+            ((MainActivity) requireActivity()).hideKeyboard();
+        }
 
         return rootView;
     }
@@ -165,13 +148,8 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     @Override
     public void onCardClick(int position) {
         Log.d(TAG, "ViewHolder clicked! Position = " + position);
-
         Image image = mRecyclerAdapter.getImageAtPosition(position);
-
-//        Intent intent = new Intent(this, ImageViewerActivity.class);
-//        intent.putExtra(EXTRA_URL, image.getUrl(Image.PIC_SIZE_MEDIUM));
-//        intent.putExtra(EXTRA_SEARCH_STRING, mCurrentSearchString);
-//        this.startActivity(intent);
+        mListener.onImageClick(image, mCurrentSearchString);
     }
 
     ItemTouchHelper getSwipeToDismissTouchHelper() {
@@ -215,7 +193,11 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 //        mViewModel.getIsNightMode().observe(getViewLifecycleOwner(), isNightMode -> invalidateOptionsMenu());
 
         mViewModel.getSnackBarMessage().observe(this,
-                message -> ((MainActivity)requireActivity()).showSnackBarMessage(message));
+                message -> ((MainActivity) requireActivity()).showSnackBarMessage(message));
+    }
+
+    interface OnFragmentInteractionListener {
+        void onImageClick(Image image, String searchString);
     }
 
 }

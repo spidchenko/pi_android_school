@@ -41,6 +41,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mGoogleMap;
     private Marker mMarker;
 
+    OnFragmentInteractionListener mListener;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -73,6 +75,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + getResources().getString(R.string.exception_message));
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
@@ -95,11 +108,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             } else {
                 Log.d(TAG, "actionSearchByCoordinates: " + mMarker.getPosition().toString());
                 LatLng coordinates = mMarker.getPosition();
-//            Intent replyIntent = new Intent();
-//            replyIntent.putExtra(EXTRA_LATITUDE, Double.toString(coordinates.latitude));
-//            replyIntent.putExtra(EXTRA_LONGITUDE, Double.toString(coordinates.longitude));
-//            setResult(RESULT_OK, replyIntent);
-//            finish();
+
+                mListener.onSearchByCoordinatesAction(
+                        Double.toString(coordinates.latitude),
+                        Double.toString(coordinates.longitude));
+
             }
         });
 
@@ -184,6 +197,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Log.d(TAG, "onRequestPermissionsResult: permission denied!");
             }
         }
+    }
+
+    interface OnFragmentInteractionListener {
+        void onSearchByCoordinatesAction(String lat, String lon);
     }
 
 }

@@ -23,6 +23,9 @@
     <string name="night_mode_on">Night mode activated</string>
     <string name="night_mode_off">Day mode activated</string>
 
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
     <string name="action_search_history">Search history</string>
     <string name="action_map">Search on map</string>
     <string name="search_on_map">Search on map</string>
@@ -37,4 +40,5 @@
     <string name="remove_from_favourites">Tap to remove from favourites</string>
     <string name="one_of_your_favorite_pictures">One of your favorite pictures</string>
     <string name="image_saved">Image Saved successfully</string>
+    <string name="exception_message">Must implement OnFragmentInteractionListener</string>
 </resources>

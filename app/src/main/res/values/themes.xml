@@ -6,6 +6,7 @@
         <item name="android:textColorPrimary">@color/brown_900</item>
         <item name="colorAccent">@color/lime_200</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="Widget.Week2Task.Toolbar" parent="Widget.AppCompat.Toolbar">

@@ -1,6 +1,6 @@
 package com.spidchenko.week2task.ui;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,14 +23,11 @@ import com.spidchenko.week2task.db.FlickrRoomDatabase;
 import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.db.models.User;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link LoginFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class LoginFragment extends Fragment {
 
     private static final String TAG = "LoginFragment.LOG_TAG";
+
+    OnFragmentInteractionListener mListener;
 
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
     private UserDao mUserDao;
@@ -40,43 +37,14 @@ public class LoginFragment extends Fragment {
     private EditText mEtUsername;
     private Button mBtnSignIn;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public LoginFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LoginFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static LoginFragment newInstance(String param1, String param2) {
-        LoginFragment fragment = new LoginFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + getResources().getString(R.string.exception_message));
         }
     }
 
@@ -94,6 +62,7 @@ public class LoginFragment extends Fragment {
 
         // Sign in action
         mBtnSignIn.setOnClickListener(view -> {
+            ((MainActivity) requireActivity()).hideKeyboard();
             mUsername = mEtUsername.getText().toString().trim();
             if (!isLoginValid(mUsername)) {
                 mTlUsername.setError(getString(R.string.login_failed));
@@ -114,6 +83,7 @@ public class LoginFragment extends Fragment {
                     mUiHandler.post(() -> {
                         Log.d(TAG, "actionSignIn: on UI Thread." + Thread.currentThread().getName());
                         mSharedPreferences.saveLogin(mUsername);
+                        mListener.onLogIn();
 //                        startActivity(new Intent(this, MainActivity.class));
 //                        finish();
                     });
@@ -123,7 +93,7 @@ public class LoginFragment extends Fragment {
         });
 
         mEtUsername.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE){
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 Log.d(TAG, "onCreateView: IME_ACTION_DONE");
                 mBtnSignIn.callOnClick();
                 return true;
@@ -137,6 +107,11 @@ public class LoginFragment extends Fragment {
 
     private boolean isLoginValid(@Nullable String text) {
         return text != null && text.length() > 0;
+    }
+
+
+    interface OnFragmentInteractionListener {
+        void onLogIn();
     }
 
 }
