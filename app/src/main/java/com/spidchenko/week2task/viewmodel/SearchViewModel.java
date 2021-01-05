@@ -4,7 +4,6 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -21,7 +20,7 @@ import java.util.List;
 import static com.spidchenko.week2task.ImageRepository.RESULT_EMPTY_RESPONSE;
 import static com.spidchenko.week2task.ImageRepository.RESULT_TIMEOUT;
 
-public class MainActivityViewModel extends AndroidViewModel {
+public class SearchViewModel extends AndroidViewModel {
     private static final String TAG = "MainAcViewModel.LOG_TAG";
 
     private final ImageRepository mImageRepository;
@@ -29,11 +28,10 @@ public class MainActivityViewModel extends AndroidViewModel {
     private final MutableLiveData<String> mLastSearchString = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mIsLoading = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
-    private final MutableLiveData<Boolean> mIsNightMode = new SingleLiveEvent<>();
 
     private final SharedPreferencesRepository mSharedPrefRepository;
 
-    public MainActivityViewModel(@NonNull Application application) {
+    public SearchViewModel(@NonNull Application application) {
         super(application);
         CurrentUser user = CurrentUser.getInstance();
         // TODO: 12/22/20 pass imageRepo instead of application class
@@ -41,8 +39,7 @@ public class MainActivityViewModel extends AndroidViewModel {
 
         mSharedPrefRepository = SharedPreferencesRepository.init(application);
         mLastSearchString.setValue(mSharedPrefRepository.getLastSearch());
-        mIsNightMode.setValue(false);
-        Log.d(TAG, "MainActivityViewModel: Created");
+        Log.d(TAG, "SearchViewModel: Created");
     }
 
     public LiveData<List<Image>> getAllImages() {
@@ -93,22 +90,6 @@ public class MainActivityViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> getLoadingState() {
         return mIsLoading;
-    }
-
-    public LiveData<Boolean> getIsNightMode() {
-        return mIsNightMode;
-    }
-
-    public void toggleNightMode() {
-        Boolean wasNightMode = mIsNightMode.getValue();
-        mIsNightMode.setValue(!wasNightMode);
-        if (wasNightMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            mSnackBarMessage.postValue(R.string.night_mode_off);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            mSnackBarMessage.postValue(R.string.night_mode_on);
-        }
     }
 
     public SingleLiveEvent<Integer> getSnackBarMessage() {

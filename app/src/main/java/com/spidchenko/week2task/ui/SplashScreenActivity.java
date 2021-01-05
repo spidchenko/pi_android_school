@@ -25,7 +25,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         //Start timer only once
         if (savedInstanceState == null) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                startActivity(new Intent(this, LoginActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 finish();
             }, SPLASH_SCREEN_DELAY);
         }

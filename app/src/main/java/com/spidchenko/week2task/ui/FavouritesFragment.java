@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.FavouritesListAdapter;
 import com.spidchenko.week2task.db.models.Favourite;
-import com.spidchenko.week2task.viewmodel.FavouritesActivityViewModel;
+import com.spidchenko.week2task.viewmodel.FavouritesViewModel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,7 +30,7 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
 
     OnFragmentInteractionListener mListener;
 
-    private FavouritesActivityViewModel mViewModel;
+    private FavouritesViewModel mViewModel;
     private RecyclerView mRvFavouriteImages;
     private FavouritesListAdapter mRecyclerAdapter;
 
@@ -66,7 +66,7 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
@@ -95,7 +95,7 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
 
         initRecyclerView();
 
-        mViewModel = new ViewModelProvider(this).get(FavouritesActivityViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(FavouritesViewModel.class);
 
         subscribeToModel();
 
@@ -135,10 +135,7 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
     public void onCardClick(int position) {
         Log.d(TAG, "ViewHolder clicked! Position = " + position);
         Favourite favourite = mRecyclerAdapter.getFavouriteAtPosition(position);
-//        Intent intent = new Intent(this, ImageViewerActivity.class);
-//        intent.putExtra(EXTRA_URL, favourite.getUrl());
-//        intent.putExtra(EXTRA_SEARCH_STRING, favourite.getSearchRequest());
-//        startActivity(intent);
+        mListener.onOpenFavouriteAction(favourite);
     }
 
     @Override
@@ -169,7 +166,7 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
     }
 
     interface OnFragmentInteractionListener {
-        void onOpenFavouriteAction();
+        void onOpenFavouriteAction(Favourite favourite);
     }
 
 }

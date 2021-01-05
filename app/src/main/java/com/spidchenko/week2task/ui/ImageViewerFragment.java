@@ -22,7 +22,7 @@ import com.bumptech.glide.Glide;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
-import com.spidchenko.week2task.viewmodel.ImageViewerActivityViewModel;
+import com.spidchenko.week2task.viewmodel.ImageViewerViewModel;
 
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_URL;
@@ -32,7 +32,7 @@ public class ImageViewerFragment extends Fragment {
     private static final String TAG = "ImgViewFragment.LOG_TAG";
 
     private Favourite mFavourite;
-    private ImageViewerActivityViewModel mViewModel;
+    private ImageViewerViewModel mViewModel;
     private CheckBox cbToggleFavourite;
 
     ActivityResultLauncher<String> requestPermissionLauncher =
@@ -79,7 +79,7 @@ public class ImageViewerFragment extends Fragment {
         mFavourite = new Favourite(currentUser.getUser().getId(),
                 mExtraSearchString, mExtraUrl);
 
-        mViewModel = new ViewModelProvider(this).get(ImageViewerActivityViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(ImageViewerViewModel.class);
 
         subscribeToModel();
 
@@ -88,9 +88,7 @@ public class ImageViewerFragment extends Fragment {
 
         CheckBox cbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
         // Check/Uncheck current image as favourite and save choice to local Database
-        cbToggleFavourite.setOnClickListener(view -> {
-            mViewModel.toggleFavourite(mFavourite);
-        });
+        cbToggleFavourite.setOnClickListener(view -> mViewModel.toggleFavourite(mFavourite));
 
         ImageView ivSaveImage = rootView.findViewById(R.id.img_save);
         // Save current image to Media folder

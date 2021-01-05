@@ -8,24 +8,4 @@
         android:icon="@drawable/ic_moon"
         android:title="@string/toggle_night_mode"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/menu_favourites"
-        android:title="@string/action_favourites"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_gallery"
-        android:title="@string/action_gallery"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_search_history"
-        android:title="@string/action_search_history"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_maps"
-        android:title="@string/action_map"
-        app:showAsAction="never" />
 </menu>

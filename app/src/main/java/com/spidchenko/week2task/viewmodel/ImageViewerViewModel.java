@@ -18,7 +18,7 @@ import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.network.Result;
 
-public class ImageViewerActivityViewModel extends AndroidViewModel {
+public class ImageViewerViewModel extends AndroidViewModel {
     private static final String TAG = "ImageViewerVM.LOG_TAG";
 
     private final FavouriteRepository mFavouriteRepository;
@@ -26,7 +26,7 @@ public class ImageViewerActivityViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> mInFavourites = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
-    public ImageViewerActivityViewModel(@NonNull Application application) {
+    public ImageViewerViewModel(@NonNull Application application) {
         super(application);
         CurrentUser currentUser = CurrentUser.getInstance();
         mFavouriteRepository = new FavouriteRepository(application, currentUser.getUser().getId());

@@ -21,17 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.network.models.Image;
-import com.spidchenko.week2task.viewmodel.MainActivityViewModel;
+import com.spidchenko.week2task.viewmodel.SearchViewModel;
 
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LATITUDE;
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LONGITUDE;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SearchFragment extends Fragment implements ImageListAdapter.OnCardListener {
 
     private static final String TAG = "SearchFragment.LOG_TAG";
@@ -39,7 +33,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
     private String mCurrentSearchString;
     private ImageListAdapter mRecyclerAdapter;
-    private MainActivityViewModel mViewModel;
+    private SearchViewModel mViewModel;
 
     OnFragmentInteractionListener mListener;
 
@@ -68,7 +62,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
@@ -101,7 +95,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
         initRecyclerView();
 
-        mViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
 
         subscribeToModel();
 

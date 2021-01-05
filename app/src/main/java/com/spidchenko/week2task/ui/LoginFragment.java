@@ -12,6 +12,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -38,7 +39,7 @@ public class LoginFragment extends Fragment {
     private Button mBtnSignIn;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
@@ -84,8 +85,6 @@ public class LoginFragment extends Fragment {
                         Log.d(TAG, "actionSignIn: on UI Thread." + Thread.currentThread().getName());
                         mSharedPreferences.saveLogin(mUsername);
                         mListener.onLogIn();
-//                        startActivity(new Intent(this, MainActivity.class));
-//                        finish();
                     });
 
                 }).start();

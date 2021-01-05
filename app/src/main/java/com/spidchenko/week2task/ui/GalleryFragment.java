@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.GalleryAdapter;
-import com.spidchenko.week2task.viewmodel.GalleryActivityViewModel;
+import com.spidchenko.week2task.viewmodel.GalleryViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 public class GalleryFragment extends Fragment {
 
     private static final String TAG = "GalleryFragment.LOG_TAG";
-    private GalleryActivityViewModel mViewModel;
+    private GalleryViewModel mViewModel;
 
     OnFragmentInteractionListener mListener;
 
@@ -85,7 +85,7 @@ public class GalleryFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
@@ -112,7 +112,7 @@ public class GalleryFragment extends Fragment {
         mRvImages = rootView.findViewById(R.id.rv_gallery_images);
         FloatingActionButton btnMakePhoto = rootView.findViewById(R.id.btn_make_photo);
 
-        mViewModel = new ViewModelProvider(this).get(GalleryActivityViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(GalleryViewModel.class);
         subscribeToModel();
 
         initRecyclerView();

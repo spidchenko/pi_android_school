@@ -12,11 +12,11 @@ import com.spidchenko.week2task.FileRepository;
 import java.io.File;
 import java.util.List;
 
-public class GalleryActivityViewModel extends AndroidViewModel {
+public class GalleryViewModel extends AndroidViewModel {
 
     FileRepository mFileRepository;
 
-    public GalleryActivityViewModel(@NonNull Application application) {
+    public GalleryViewModel(@NonNull Application application) {
         super(application);
         mFileRepository = new FileRepository(application);
     }

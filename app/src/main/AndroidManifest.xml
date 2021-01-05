@@ -33,23 +33,8 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity
-            android:name=".ui.CameraActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.GalleryActivity"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.MapsActivity"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".ui.SplashScreenActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.LoginActivity"
-            android:screenOrientation="portrait">
-        </activity>
         <activity
             android:name=".ui.MainActivity"
             android:screenOrientation="portrait"
@@ -60,18 +45,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.SearchHistoryActivity"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.FavouritesActivity"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.ImageViewerActivity"
-            android:parentActivityName=".ui.MainActivity"
-            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

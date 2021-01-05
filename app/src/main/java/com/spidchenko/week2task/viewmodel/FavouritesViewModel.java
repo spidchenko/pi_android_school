@@ -16,20 +16,20 @@ import com.spidchenko.week2task.network.Result;
 
 import java.util.List;
 
-public class FavouritesActivityViewModel extends AndroidViewModel {
+public class FavouritesViewModel extends AndroidViewModel {
     private static final String TAG = "FavouritesActivityViewM";
     private final FavouriteRepository mFavouriteRepository;
     private final LiveData<List<Favourite>> mFavourites;
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
 
-    public FavouritesActivityViewModel(@NonNull Application application) {
+    public FavouritesViewModel(@NonNull Application application) {
         super(application);
         CurrentUser currentUser = CurrentUser.getInstance();
         // TODO: 12/22/20 inject repository in viewModel (instead of application)
         mFavouriteRepository = new FavouriteRepository(application, currentUser.getUser().getId());
         mFavourites = mFavouriteRepository.getAllFavourites();
-        Log.d(TAG, "FavouritesActivityViewModel: Created");
+        Log.d(TAG, "FavouritesViewModel: Created");
     }
 
     public LiveData<List<Favourite>> getAllFavourites() {
