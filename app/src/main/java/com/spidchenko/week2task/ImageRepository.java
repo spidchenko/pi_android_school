@@ -1,11 +1,9 @@
 package com.spidchenko.week2task;
 
-import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.spidchenko.week2task.db.FlickrRoomDatabase;
 import com.spidchenko.week2task.db.dao.SearchRequestDao;
 import com.spidchenko.week2task.db.models.SearchRequest;
 import com.spidchenko.week2task.network.FlickrApi;
@@ -27,20 +25,18 @@ public class ImageRepository {
     public static final String RESULT_TIMEOUT = "com.spidchenko.week2task.extras.RESULT_TIMEOUT";
     private final SearchRequestDao mSearchRequestDao;
     private final int mUserId;
+    private final FlickrApi mDataService;
 
 
-    // TODO: 12/22/20 instead of passing application and accessing dao here - inject dao directly
-    public ImageRepository(@NonNull Application application, int userId) {
-        FlickrRoomDatabase database = FlickrRoomDatabase.getDatabase(application);
-        mSearchRequestDao = database.searchRequestDao();
+    public ImageRepository(SearchRequestDao dao, FlickrApi dataService, int userId) {
+        mSearchRequestDao = dao;
+        mDataService = dataService;
         mUserId = userId;
     }
 
 
     public void updateImages(String searchRequest, RepositoryCallback<List<Image>> callback) {
         saveCurrentSearchInDb(searchRequest);
-        // TODO: 12/22/20 flickrapi should be injected in constructor
-        FlickrApi mDataService = ServiceGenerator.getFlickrApi();
         Call<ImgSearchResult> call = mDataService.searchImages(searchRequest);
         getResultsFromNetwork(call, callback);
     }
@@ -54,12 +50,9 @@ public class ImageRepository {
         getResultsFromNetwork(call, callback);
     }
 
-    // TODO: 12/22/20 review work with threads as discussed in skype
+
     private void saveCurrentSearchInDb(String searchString) {
-        new Thread(() -> {
-            long newId = mSearchRequestDao.addSearchRequest(new SearchRequest(mUserId, searchString));
-            Log.d(TAG, "saveCurrentSearch: Worker thread finished saving. String: " + searchString + ".id = " + newId);
-        }).start();
+        mSearchRequestDao.addSearchRequest(new SearchRequest(mUserId, searchString));
     }
 
 

@@ -156,11 +156,15 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    public interface OnCardListener {
-        void onCardClick(int position);
-    }
+//    public interface OnCardListener {
+//        void onCardClick(int position);
+//    }
+//
+//    public interface OnDeleteClickListener {
+//        void onDeleteClick(int position);
+//    }
 
-    public interface OnDeleteClickListener {
-        void onDeleteClick(int position);
+    interface OnFavouritesListAdapterListener {
+        void onItemClick(int action, int position);
     }
 }

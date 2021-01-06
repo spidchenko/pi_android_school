@@ -104,7 +104,6 @@ public class FileRepository {
         }
     }
 
-    //TODO FileRepository. Check if file already downloaded, show message on success
     public void saveImage(RequestManager glide, ContentResolver contentResolver, Favourite favourite) {
 
         String fileName = "_";
