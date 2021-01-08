@@ -13,8 +13,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.bumptech.glide.RequestManager;
 import com.spidchenko.week2task.FavouriteRepository;
 import com.spidchenko.week2task.FileRepository;
+import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
+import com.spidchenko.week2task.db.FlickrRoomDatabase;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.network.Result;
 
@@ -29,7 +31,10 @@ public class ImageViewerViewModel extends AndroidViewModel {
     public ImageViewerViewModel(@NonNull Application application) {
         super(application);
         CurrentUser currentUser = CurrentUser.getInstance();
-        mFavouriteRepository = new FavouriteRepository(application, currentUser.getUser().getId());
+
+        mFavouriteRepository = new FavouriteRepository(FlickrRoomDatabase.getDatabase(application).favouriteDao(),
+                ((MyApplication) getApplication()).executorService,
+                currentUser.getUser().getId());
         mFileRepository = new FileRepository(application);
     }
 

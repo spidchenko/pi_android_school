@@ -7,9 +7,6 @@ public class ImgSearchResult {
     @SerializedName("photos")
     private ImageContainer mImageContainer;
 
-    @SerializedName("stat")
-    private String mStat;
-
     public ImageContainer getImageContainer() {
         return mImageContainer;
     }

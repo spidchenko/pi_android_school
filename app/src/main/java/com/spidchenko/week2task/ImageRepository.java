@@ -14,6 +14,7 @@ import com.spidchenko.week2task.network.models.ImgSearchResult;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,33 +27,35 @@ public class ImageRepository {
     private final SearchRequestDao mSearchRequestDao;
     private final int mUserId;
     private final FlickrApi mDataService;
+    private final Executor mExecutor;
 
 
-    public ImageRepository(SearchRequestDao dao, FlickrApi dataService, int userId) {
+    public ImageRepository(SearchRequestDao dao, FlickrApi dataService, Executor executor, int userId) {
         mSearchRequestDao = dao;
         mDataService = dataService;
+        mExecutor = executor;
         mUserId = userId;
     }
 
 
-    public void updateImages(String searchRequest, RepositoryCallback<List<Image>> callback) {
-        saveCurrentSearchInDb(searchRequest);
-        Call<ImgSearchResult> call = mDataService.searchImages(searchRequest);
+    public void updateImages(String searchString, RepositoryCallback<List<Image>> callback) {
+        saveCurrentSearchInDb(mSearchRequestDao, new SearchRequest(mUserId, searchString));
+        Call<ImgSearchResult> call = mDataService.searchImages(searchString);
         getResultsFromNetwork(call, callback);
     }
 
 
     public void updateImagesByCoordinates(String lat, String lon, String geoSearchString,
                                           RepositoryCallback<List<Image>> callback) {
-        saveCurrentSearchInDb(geoSearchString);
+        saveCurrentSearchInDb(mSearchRequestDao, new SearchRequest(mUserId, geoSearchString));
         FlickrApi mDataService = ServiceGenerator.getFlickrApi();
         Call<ImgSearchResult> call = mDataService.searchImagesByCoordinates(lat, lon);
         getResultsFromNetwork(call, callback);
     }
 
 
-    private void saveCurrentSearchInDb(String searchString) {
-        mSearchRequestDao.addSearchRequest(new SearchRequest(mUserId, searchString));
+    private void saveCurrentSearchInDb(final SearchRequestDao dao, final SearchRequest request) {
+        mExecutor.execute(() -> dao.addSearchRequest(request));
     }
 
 

@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.spidchenko.week2task.R;
+import com.spidchenko.week2task.SwipeHelper;
 import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.viewmodel.SearchViewModel;
@@ -37,17 +38,6 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
     OnFragmentInteractionListener mListener;
 
-    //    ActivityResultLauncher<Intent> mGetCoordinates =
-//            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-//                Intent data = result.getData();
-//                if ((result.getResultCode() == Activity.RESULT_OK) && (result.getData() != null)) {
-//                    String lat = data.getStringExtra(EXTRA_LATITUDE);
-//                    String lon = data.getStringExtra(EXTRA_LONGITUDE);
-//                    Log.d(TAG, "onReceiveGeoIntent: lat= " + lat + ". lon = " + lon);
-//                    mViewModel.searchImagesByCoordinates(lat, lon);
-//                    ((MainActivity) requireActivity()).hideKeyboard();
-//                }
-//            });
     //UI
     private EditText mEtSearchQuery;
     private Button mBtnSearch;
@@ -135,7 +125,9 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         mRecyclerAdapter = new ImageListAdapter(null, this);
         mRvImages.setAdapter(mRecyclerAdapter);
         mRvImages.setLayoutManager(new LinearLayoutManager(requireActivity()));
-        ItemTouchHelper helper = getSwipeToDismissTouchHelper();
+        ItemTouchHelper helper = SwipeHelper.getSwipeToDismissTouchHelper(position -> {
+            mViewModel.deleteImageAtPosition(position);
+        });
         helper.attachToRecyclerView(mRvImages);
     }
 
@@ -144,25 +136,6 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         Log.d(TAG, "ViewHolder clicked! Position = " + position);
         Image image = mRecyclerAdapter.getImageAtPosition(position);
         mListener.onImageClick(image, mCurrentSearchString);
-    }
-
-    ItemTouchHelper getSwipeToDismissTouchHelper() {
-        return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                Log.d(TAG, "ViewHolder Swiped! Position= " + position);
-                mViewModel.deleteImageAtPosition(position);
-            }
-        });
     }
 
     private void subscribeToModel() {
@@ -183,8 +156,6 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
             mPbLoading.setVisibility(loadingState ? View.VISIBLE : View.GONE);
             mBtnSearch.setClickable(!loadingState);
         });
-
-//        mViewModel.getIsNightMode().observe(getViewLifecycleOwner(), isNightMode -> invalidateOptionsMenu());
 
         mViewModel.getSnackBarMessage().observe(this,
                 message -> ((MainActivity) requireActivity()).showSnackBarMessage(message));

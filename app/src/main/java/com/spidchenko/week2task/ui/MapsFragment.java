@@ -43,12 +43,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     OnFragmentInteractionListener mListener;
 
-    // TODO: Rename parameter arguments, choose names that match
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
+
     private String mParam1;
     private String mParam2;
 
@@ -64,7 +64,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
      * @param param2 Parameter 2.
      * @return A new instance of fragment MapsFragment.
      */
-    // TODO: Rename and change types and number of parameters
+
     public static MapsFragment newInstance(String param1, String param2) {
         MapsFragment fragment = new MapsFragment();
         Bundle args = new Bundle();
@@ -75,7 +75,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;

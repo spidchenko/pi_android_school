@@ -2,7 +2,6 @@ package com.spidchenko.week2task.network.models;
 
 import com.google.gson.annotations.SerializedName;
 
-// TODO: 12/22/20 cleanup unused fields in all data classes
 public class Image {
     public static final String PIC_SIZE_MEDIUM = "z"; //z = medium 640 Longest edge (px)
     private static final String PIC_URL_TEMPLATE = "https://live.staticflickr.com/%s/%s_%s_%s.jpg"; ///{server-id}/{id}_{secret}_{size-suffix}.jpg
@@ -10,29 +9,11 @@ public class Image {
     @SerializedName("id")
     private String mId;
 
-    @SerializedName("owner")
-    private String mOwner;
-
     @SerializedName("secret")
     private String mSecret;
 
     @SerializedName("server")
     private String mServer;
-
-    @SerializedName("farm")
-    private int mFarm;
-
-    @SerializedName("title")
-    private String mTitle;
-
-    @SerializedName("ispublic")
-    private int mIsPublic;
-
-    @SerializedName("isfriend")
-    private int mIsFriend;
-
-    @SerializedName("isfamily")
-    private int mIsFamily;
 
     public String getUrl(String imageSize) {
         return String.format(PIC_URL_TEMPLATE,
@@ -44,14 +25,6 @@ public class Image {
 
     public void setId(String mId) {
         this.mId = mId;
-    }
-
-    public void setSecret(String mSecret) {
-        this.mSecret = mSecret;
-    }
-
-    public void setServer(String mServer) {
-        this.mServer = mServer;
     }
 
     public String getId() {

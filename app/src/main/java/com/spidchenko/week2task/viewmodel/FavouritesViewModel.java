@@ -9,8 +9,10 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.spidchenko.week2task.FavouriteRepository;
+import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
+import com.spidchenko.week2task.db.FlickrRoomDatabase;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.network.Result;
 
@@ -27,7 +29,10 @@ public class FavouritesViewModel extends AndroidViewModel {
         super(application);
         CurrentUser currentUser = CurrentUser.getInstance();
         // TODO: 12/22/20 inject repository in viewModel (instead of application)
-        mFavouriteRepository = new FavouriteRepository(application, currentUser.getUser().getId());
+        FlickrRoomDatabase database = FlickrRoomDatabase.getDatabase(application);
+        mFavouriteRepository = new FavouriteRepository(database.favouriteDao(),
+                ((MyApplication) getApplication()).executorService,
+                currentUser.getUser().getId());
         mFavourites = mFavouriteRepository.getAllFavourites();
         Log.d(TAG, "FavouritesViewModel: Created");
     }

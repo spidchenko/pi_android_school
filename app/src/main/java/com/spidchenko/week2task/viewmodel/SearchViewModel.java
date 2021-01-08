@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.spidchenko.week2task.ImageRepository;
+import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.SharedPreferencesRepository;
 import com.spidchenko.week2task.db.CurrentUser;
@@ -40,6 +41,7 @@ public class SearchViewModel extends AndroidViewModel {
 
         mImageRepository = new ImageRepository(database.searchRequestDao(),
                 ServiceGenerator.getFlickrApi(),
+                ((MyApplication) getApplication()).executorService,
                 user.getUser().getId());
 
         mSharedPrefRepository = SharedPreferencesRepository.init(application);

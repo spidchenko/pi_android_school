@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.spidchenko.week2task.R;
+import com.spidchenko.week2task.SwipeHelper;
 import com.spidchenko.week2task.adapter.GalleryAdapter;
 import com.spidchenko.week2task.viewmodel.GalleryViewModel;
 
@@ -49,16 +50,14 @@ public class GalleryFragment extends Fragment {
                 if (isGranted) {
                     enableCamera();
                 } else {
-                    ((MainActivity)requireActivity()).showSnackBarMessage(R.string.need_photo_permission);
+                    ((MainActivity) requireActivity()).showSnackBarMessage(R.string.need_photo_permission);
                 }
             });
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -74,7 +73,6 @@ public class GalleryFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment GalleryFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static GalleryFragment newInstance(String param1, String param2) {
         GalleryFragment fragment = new GalleryFragment();
         Bundle args = new Bundle();
@@ -131,27 +129,6 @@ public class GalleryFragment extends Fragment {
         return rootView;
     }
 
-    // TODO: 12/22/20 can be moved to a separate class (to keep things clean)
-    ItemTouchHelper getSwipeToDismissTouchHelper() {
-        return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                Log.d(TAG, "ViewHolder Swiped! Position= " + position);
-                mViewModel.deleteFile(requireActivity().getApplicationContext().getContentResolver(),
-                        mRecyclerAdapter.getFileAtPosition(position));
-            }
-        });
-    }
-
     private void enableCamera() {
         mListener.onTakePhotosAction();
     }
@@ -160,7 +137,12 @@ public class GalleryFragment extends Fragment {
         mRecyclerAdapter = new GalleryAdapter(null);
         mRvImages.setAdapter(mRecyclerAdapter);
         mRvImages.setLayoutManager(new LinearLayoutManager(requireActivity()));
-        ItemTouchHelper helper = getSwipeToDismissTouchHelper();
+
+        ItemTouchHelper helper = SwipeHelper.getSwipeToDismissTouchHelper(position -> {
+            mViewModel.deleteFile(requireActivity().getApplicationContext().getContentResolver(),
+                    mRecyclerAdapter.getFileAtPosition(position));
+        });
+
         helper.attachToRecyclerView(mRvImages);
     }
 

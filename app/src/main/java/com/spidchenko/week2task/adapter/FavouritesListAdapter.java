@@ -24,19 +24,15 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int TYPE_IMAGE = 1;
     private static final int TYPE_CATEGORY = 2;
 
-    // TODO: 12/22/20 you can replace 2 listeners with 1 
-    //  interface OnFavouritesListAdapterListener {
-    //      void onItemClick(int action, int position);
-    //  }
-    private final OnCardListener mOnCardListener;
-    private final OnDeleteClickListener mOnDeleteClickListener;
+    public static final int ACTION_DELETE = 1;
+    public static final int ACTION_OPEN_IMAGE = 2;
+
+    private final OnFavouritesListAdapterListener mListener;
     private List<Favourite> mImageList;
 
     public FavouritesListAdapter(ArrayList<Favourite> imageList,
-                                 OnCardListener onCardListener,
-                                 OnDeleteClickListener onDeleteClickListener) {
-        this.mOnCardListener = onCardListener;
-        this.mOnDeleteClickListener = onDeleteClickListener;
+                                 OnFavouritesListAdapterListener listener) {
+        this.mListener = listener;
         this.mImageList = imageList;
     }
 
@@ -53,12 +49,11 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_IMAGE) {
-            // TODO: 12/22/20 Review local variable naming everywhere (`m` prefix)
-            View mItemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_favourite, parent, false);
-            return new FavouriteViewHolder(mItemView, mOnCardListener, mOnDeleteClickListener);
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_favourite, parent, false);
+            return new FavouriteViewHolder(itemView, mListener);
         } else {
-            View mItemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category, parent, false);
-            return new CategoryViewHolder(mItemView);
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category, parent, false);
+            return new CategoryViewHolder(itemView);
         }
 
     }
@@ -85,6 +80,7 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public void setFavourites(List<Favourite> favourites) {
         this.mImageList = favourites;
+        this.notifyDataSetChanged();
     }
 
     public Favourite getFavouriteAtPosition(int position) {
@@ -109,30 +105,32 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
 
+    public interface OnFavouritesListAdapterListener {
+        void onItemClick(int action, int position);
+    }
+
     public static class FavouriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView imageSurface;
         TextView imageSearchString;
         ImageView ivRemove;
         CardView cvFavouriteCard;
-        OnCardListener onCardListener;
-        OnDeleteClickListener onDeleteClickListener;
+        OnFavouritesListAdapterListener listener;
 
 
-        public FavouriteViewHolder(@NonNull View itemView, OnCardListener onCardListener, OnDeleteClickListener onDeleteClickListener) {
+        public FavouriteViewHolder(@NonNull View itemView, OnFavouritesListAdapterListener listener) {
             super(itemView);
             imageSurface = itemView.findViewById(R.id.iv_favourite_image);
             imageSearchString = itemView.findViewById(R.id.tv_favourite_image_search_string);
             ivRemove = itemView.findViewById(R.id.iv_remove_from_favourites);
             cvFavouriteCard = itemView.findViewById(R.id.cv_favourite_card);
 
-            this.onCardListener = onCardListener;
-            this.onDeleteClickListener = onDeleteClickListener;
+            this.listener = listener;
 
             itemView.setOnClickListener(this);
 
             ivRemove.setOnClickListener((view) -> {
                 if (getAdapterPosition() != RecyclerView.NO_POSITION) {
-                    onDeleteClickListener.onDeleteClick(getAdapterPosition());
+                    listener.onItemClick(ACTION_DELETE, getAdapterPosition());
                 } else {
                     Log.d(TAG, "Clicked on NO_POSITION!");
                 }
@@ -144,7 +142,7 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         @Override
         public void onClick(View v) {
-            onCardListener.onCardClick(getAdapterPosition());
+            listener.onItemClick(ACTION_OPEN_IMAGE, getAdapterPosition());
         }
 
         private void bindView(Favourite favourite) {
@@ -154,17 +152,5 @@ public class FavouritesListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     .into(imageSurface);
             Log.d(TAG, "Image Binded! " + favourite.getId());
         }
-    }
-
-//    public interface OnCardListener {
-//        void onCardClick(int position);
-//    }
-//
-//    public interface OnDeleteClickListener {
-//        void onDeleteClick(int position);
-//    }
-
-    interface OnFavouritesListAdapterListener {
-        void onItemClick(int action, int position);
     }
 }
