@@ -12,8 +12,8 @@ import com.spidchenko.week2task.ImageRepository;
 import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.SharedPreferencesRepository;
+import com.spidchenko.week2task.db.AppDatabase;
 import com.spidchenko.week2task.db.CurrentUser;
-import com.spidchenko.week2task.db.FlickrRoomDatabase;
 import com.spidchenko.week2task.network.Result;
 import com.spidchenko.week2task.network.ServiceGenerator;
 import com.spidchenko.week2task.network.models.Image;
@@ -37,7 +37,7 @@ public class SearchViewModel extends AndroidViewModel {
     public SearchViewModel(@NonNull Application application) {
         super(application);
         CurrentUser user = CurrentUser.getInstance();
-        FlickrRoomDatabase database = FlickrRoomDatabase.getDatabase(application);
+        AppDatabase database = AppDatabase.getInstance(application);
 
         mImageRepository = new ImageRepository(database.searchRequestDao(),
                 ServiceGenerator.getFlickrApi(),

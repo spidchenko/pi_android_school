@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -46,10 +47,6 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
     private String mSearchLatitude;
     private String mSearchLongitude;
-
-    public SearchFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -89,8 +86,6 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
         subscribeToModel();
 
-        Log.d(TAG, "onCreate: Created");
-
         // Perform Flickr search on soft keyboard event
         mEtSearchQuery.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -102,10 +97,10 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
         // Perform Flickr search
         mBtnSearch.setOnClickListener(view -> {
-            ((MainActivity) requireActivity()).hideKeyboard();
+            mListener.hideKeyboard();
             String searchString = mEtSearchQuery.getText().toString().trim();
             if (searchString.isEmpty()) {
-                ((MainActivity) requireActivity()).showSnackBarMessage(R.string.error_empty_search);
+                mListener.showMessage(R.string.error_empty_search);
             } else {
                 mViewModel.searchImages(searchString);
             }
@@ -114,7 +109,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         // Perform Flickr search by coordinates
         if (getArguments() != null) {
             mViewModel.searchImagesByCoordinates(mSearchLatitude, mSearchLongitude);
-            ((MainActivity) requireActivity()).hideKeyboard();
+            mListener.hideKeyboard();
         }
 
         return rootView;
@@ -125,9 +120,10 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         mRecyclerAdapter = new ImageListAdapter(null, this);
         mRvImages.setAdapter(mRecyclerAdapter);
         mRvImages.setLayoutManager(new LinearLayoutManager(requireActivity()));
-        ItemTouchHelper helper = SwipeHelper.getSwipeToDismissTouchHelper(position -> {
-            mViewModel.deleteImageAtPosition(position);
-        });
+
+        ItemTouchHelper helper = SwipeHelper.getSwipeToDismissTouchHelper(position ->
+                mViewModel.deleteImageAtPosition(position));
+
         helper.attachToRecyclerView(mRvImages);
     }
 
@@ -158,11 +154,14 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         });
 
         mViewModel.getSnackBarMessage().observe(this,
-                message -> ((MainActivity) requireActivity()).showSnackBarMessage(message));
+                message -> mListener.showMessage(message));
     }
 
     interface OnFragmentInteractionListener {
         void onImageClick(Image image, String searchString);
-    }
 
+        void showMessage(@StringRes int resourceId);
+
+        void hideKeyboard();
+    }
 }

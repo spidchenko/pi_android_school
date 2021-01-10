@@ -9,6 +9,8 @@ import androidx.annotation.StringRes;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.RequestManager;
 import com.spidchenko.week2task.FavouriteRepository;
@@ -16,7 +18,6 @@ import com.spidchenko.week2task.FileRepository;
 import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
-import com.spidchenko.week2task.db.FlickrRoomDatabase;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.network.Result;
 
@@ -28,13 +29,15 @@ public class ImageViewerViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> mInFavourites = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
-    public ImageViewerViewModel(@NonNull Application application) {
+    public ImageViewerViewModel(@NonNull Application application, FavouriteRepository repository) {
         super(application);
         CurrentUser currentUser = CurrentUser.getInstance();
 
-        mFavouriteRepository = new FavouriteRepository(FlickrRoomDatabase.getDatabase(application).favouriteDao(),
-                ((MyApplication) getApplication()).executorService,
-                currentUser.getUser().getId());
+        mFavouriteRepository = repository;
+
+//        mFavouriteRepository = new FavouriteRepository(AppDatabase.getInstance(application).favouriteDao(),
+//                ((MyApplication) getApplication()).executorService,
+//                currentUser.getUser().getId());
         mFileRepository = new FileRepository(application);
     }
 
@@ -96,4 +99,27 @@ public class ImageViewerViewModel extends AndroidViewModel {
     private void setMessage(@StringRes int resId) {
         mSnackBarMessage.postValue(resId);
     }
+
+
+    public static class Factory extends ViewModelProvider.NewInstanceFactory {
+
+        @NonNull
+        private final Application mApplication;
+
+        private final FavouriteRepository mRepository;
+
+        public Factory(@NonNull Application application) {
+            mApplication = application;
+            mRepository = ((MyApplication) application).getFavouriteRepository();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        @NonNull
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            return (T) new ImageViewerViewModel(mApplication, mRepository);
+        }
+    }
+
+
 }

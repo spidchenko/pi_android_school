@@ -17,26 +17,26 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Database(entities = {User.class, Favourite.class, SearchRequest.class}, version = 4, exportSchema = false)
-public abstract class FlickrRoomDatabase extends RoomDatabase {
+public abstract class AppDatabase extends RoomDatabase {
 
     private static final String DB_FILE_NAME = "com.spidchenko.week2task.db";
     private static final int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-    private static volatile FlickrRoomDatabase INSTANCE;
+    private static volatile AppDatabase sInstance;
 
-    public static FlickrRoomDatabase getDatabase(final Context context) {
-        if (INSTANCE == null) {
-            synchronized (FlickrRoomDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            FlickrRoomDatabase.class, DB_FILE_NAME)
+    public static AppDatabase getInstance(final Context context) {
+        if (sInstance == null) {
+            synchronized (AppDatabase.class) {
+                if (sInstance == null) {
+                    sInstance = Room.databaseBuilder(context.getApplicationContext(),
+                            AppDatabase.class, DB_FILE_NAME)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
             }
         }
-        return INSTANCE;
+        return sInstance;
     }
 
     public abstract UserDao userDao();

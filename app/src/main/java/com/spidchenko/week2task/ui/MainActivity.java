@@ -41,22 +41,21 @@ public class MainActivity extends AppCompatActivity
         SearchFragment.OnFragmentInteractionListener,
         MapsFragment.OnFragmentInteractionListener,
         GalleryFragment.OnFragmentInteractionListener,
-        FavouritesFragment.OnFragmentInteractionListener {
+        FavouritesFragment.OnFragmentInteractionListener,
+        ImageViewerFragment.OnFragmentInteractionListener,
+        CameraFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity.LOG_TAG";
     public static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
     public static final String EXTRA_SEARCH_STRING = "com.spidchenko.week2task.extras.EXTRA_SEARCH_STRING";
 
     private final BroadcastReceiver mBatteryLevelReceiver = new BatteryLevelReceiver();
-
+    private final Boolean mIsNightMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
+    private Boolean mIsOnLoginScreen;
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
-
     private ActionBarDrawerToggle drawerToggle;
-
     private FragmentManager mFragmentManager;
-
-    Boolean mIsNightMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +64,10 @@ public class MainActivity extends AppCompatActivity
 
         mFragmentManager = getSupportFragmentManager();
 
+        mIsOnLoginScreen = (Objects.requireNonNull(mFragmentManager.findFragmentById(R.id.content)).getClass() != LoginFragment.class);
+
         // ActionBar on login screen disabled
-        if (Objects.requireNonNull(mFragmentManager.findFragmentById(R.id.content)).getClass() != LoginFragment.class) {
+        if (!mIsOnLoginScreen) {
             initActionBar();
         }
     }
@@ -119,26 +120,20 @@ public class MainActivity extends AppCompatActivity
     public void selectDrawerItem(MenuItem menuItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
-        Class fragmentClass;
-        switch (menuItem.getItemId()) {
-            case R.id.nav_search:
-                fragmentClass = SearchFragment.class;
-                break;
-            case R.id.nav_favourites:
-                fragmentClass = FavouritesFragment.class;
-                break;
-            case R.id.nav_gallery:
-                fragmentClass = GalleryFragment.class;
-                break;
-            case R.id.nav_search_history:
-                fragmentClass = SearchHistoryFragment.class;
-                break;
-            case R.id.nav_maps:
-                fragmentClass = MapsFragment.class;
-                break;
-
-            default:
-                fragmentClass = SearchFragment.class;
+        Class<?> fragmentClass;
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.nav_search) {
+            fragmentClass = SearchFragment.class;
+        } else if (itemId == R.id.nav_favourites) {
+            fragmentClass = FavouritesFragment.class;
+        } else if (itemId == R.id.nav_gallery) {
+            fragmentClass = GalleryFragment.class;
+        } else if (itemId == R.id.nav_search_history) {
+            fragmentClass = SearchHistoryFragment.class;
+        } else if (itemId == R.id.nav_maps) {
+            fragmentClass = MapsFragment.class;
+        } else {
+            fragmentClass = SearchFragment.class;
         }
 
         try {
@@ -148,9 +143,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
         if (fragment != null) {
-            fragmentManager.beginTransaction().replace(R.id.content, fragment).commit();
+            mFragmentManager.beginTransaction().replace(R.id.content, fragment).commit();
         } else {
             Log.e(TAG, "selectDrawerItem: fragment is NULL");
         }
@@ -248,7 +242,7 @@ public class MainActivity extends AppCompatActivity
                 .setReorderingAllowed(true)
                 .replace(R.id.content, SearchFragment.class, null)
                 .commit();
-
+        mIsOnLoginScreen = false;
         initActionBar();
     }
 
@@ -265,6 +259,12 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.content, ImageViewerFragment.class, bundle)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    // Messages from fragments
+    @Override
+    public void showMessage(int resourceId) {
+        showSnackBarMessage(resourceId);
     }
 
     @Override

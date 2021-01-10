@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,18 +29,11 @@ import com.spidchenko.week2task.viewmodel.GalleryViewModel;
 import java.io.File;
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link GalleryFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class GalleryFragment extends Fragment {
 
     private static final String TAG = "GalleryFragment.LOG_TAG";
     private GalleryViewModel mViewModel;
-
     OnFragmentInteractionListener mListener;
-
     // TODO: 12/22/20 Suggestion: Look into ButterKnife library. It is easy to use & integrate and it will simplify view bindings.
     private RecyclerView mRvImages;
     private GalleryAdapter mRecyclerAdapter;
@@ -50,37 +44,9 @@ public class GalleryFragment extends Fragment {
                 if (isGranted) {
                     enableCamera();
                 } else {
-                    ((MainActivity) requireActivity()).showSnackBarMessage(R.string.need_photo_permission);
+                    mListener.showMessage(R.string.need_photo_permission);
                 }
             });
-
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
-
-    public GalleryFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment GalleryFragment.
-     */
-    public static GalleryFragment newInstance(String param1, String param2) {
-        GalleryFragment fragment = new GalleryFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -90,15 +56,6 @@ public class GalleryFragment extends Fragment {
         } else {
             throw new ClassCastException(context.toString()
                     + getResources().getString(R.string.exception_message));
-        }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -138,10 +95,9 @@ public class GalleryFragment extends Fragment {
         mRvImages.setAdapter(mRecyclerAdapter);
         mRvImages.setLayoutManager(new LinearLayoutManager(requireActivity()));
 
-        ItemTouchHelper helper = SwipeHelper.getSwipeToDismissTouchHelper(position -> {
-            mViewModel.deleteFile(requireActivity().getApplicationContext().getContentResolver(),
-                    mRecyclerAdapter.getFileAtPosition(position));
-        });
+        ItemTouchHelper helper = SwipeHelper.getSwipeToDismissTouchHelper(position ->
+                mViewModel.deleteFile(requireActivity().getApplicationContext().getContentResolver(),
+                        mRecyclerAdapter.getFileAtPosition(position)));
 
         helper.attachToRecyclerView(mRvImages);
     }
@@ -156,6 +112,7 @@ public class GalleryFragment extends Fragment {
 
     interface OnFragmentInteractionListener {
         void onTakePhotosAction();
-    }
 
+        void showMessage(@StringRes int resourceId);
+    }
 }

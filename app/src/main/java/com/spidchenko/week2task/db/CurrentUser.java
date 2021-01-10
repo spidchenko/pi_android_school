@@ -8,18 +8,18 @@ import com.spidchenko.week2task.db.models.User;
 
 public class CurrentUser {
     private static final String TAG = "CurrentUser.LOG_TAG";
-    private static CurrentUser INSTANCE;
+    private static CurrentUser sInstance;
     private User mUser;
 
     private CurrentUser() {
     }
 
     public static CurrentUser getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new CurrentUser();
+        if (sInstance == null) {
+            sInstance = new CurrentUser();
             Log.d(TAG, "getInstance: Created");
         }
-        return INSTANCE;
+        return sInstance;
     }
 
     public User getUser() {

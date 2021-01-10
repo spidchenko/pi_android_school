@@ -14,18 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.SearchHistoryAdapter;
+import com.spidchenko.week2task.db.AppDatabase;
 import com.spidchenko.week2task.db.CurrentUser;
-import com.spidchenko.week2task.db.FlickrRoomDatabase;
 import com.spidchenko.week2task.db.dao.SearchRequestDao;
 import com.spidchenko.week2task.db.models.SearchRequest;
 
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchHistoryFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SearchHistoryFragment extends Fragment {
 
     private static final String TAG = "SearchHistFrag.LOG_TAG";
@@ -38,46 +33,6 @@ public class SearchHistoryFragment extends Fragment {
     SearchHistoryAdapter mRecyclerAdapter;
     ArrayList<SearchRequest> mSearches = new ArrayList<>();
 
-
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-
-    private String mParam1;
-    private String mParam2;
-
-    public SearchHistoryFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchHistoryFragment.
-     */
-
-    public static SearchHistoryFragment newInstance(String param1, String param2) {
-        SearchHistoryFragment fragment = new SearchHistoryFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -86,7 +41,7 @@ public class SearchHistoryFragment extends Fragment {
         mRvSearchHistory = rootView.findViewById(R.id.rv_search_history);
 
         mCurrentUser = CurrentUser.getInstance();
-        FlickrRoomDatabase mDb = FlickrRoomDatabase.getDatabase(requireContext());
+        AppDatabase mDb = AppDatabase.getInstance(requireContext());
         mSearchRequestDao = mDb.searchRequestDao();
 
         initRecyclerView();

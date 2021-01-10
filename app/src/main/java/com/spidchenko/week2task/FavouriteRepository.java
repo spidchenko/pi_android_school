@@ -5,6 +5,8 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.spidchenko.week2task.db.AppDatabase;
+import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.dao.FavouriteDao;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.network.Result;
@@ -12,20 +14,41 @@ import com.spidchenko.week2task.network.Result;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FavouriteRepository {
     private static final String TAG = "FavRepository.LOG_TAG";
     private final MutableLiveData<List<Favourite>> mFavourites = new MutableLiveData<>();
     private final FavouriteDao mFavouriteDao;
-    private final Executor mExecutor;
+    private static volatile FavouriteRepository sInstance;
     private final int mUserId;
+    private final ExecutorService mExecutor;
 
-    public FavouriteRepository(FavouriteDao dao, Executor executor, int userId) {
-        mUserId = userId;
-        mExecutor = executor;
-        mFavouriteDao = dao;
+
+    private FavouriteRepository(final AppDatabase database,
+                                final CurrentUser user,
+                                final AppExecutors executors) {
+//    FavouriteDao dao, Executor executor, int userId) {
+        mUserId = user.getUser().getId();
+//        mExecutor = executors;
+        mExecutor = Executors.newFixedThreadPool(4);
+        mFavouriteDao = database.favouriteDao();
         updateFavouritesLiveData();
+        Log.d(TAG, "FavouriteRepository: userId=" + mUserId + ". dao=" + mFavouriteDao);
+    }
+
+    public static FavouriteRepository getInstance(final AppDatabase database,
+                                                  final CurrentUser user,
+                                                  final AppExecutors executors) {
+        if (sInstance == null) {
+            synchronized (FavouriteRepository.class) {
+                if (sInstance == null) {
+                    sInstance = new FavouriteRepository(database, user, executors);
+                }
+            }
+        }
+        return sInstance;
     }
 
     public LiveData<List<Favourite>> getAllFavourites() {

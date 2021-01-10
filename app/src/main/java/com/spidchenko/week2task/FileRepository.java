@@ -134,6 +134,7 @@ public class FileRepository {
                 });
     }
 
+    @SuppressWarnings("deprecation")
     private void saveImage(ContentResolver contentResolver, Bitmap bitmap, String fileName) throws FileNotFoundException {
 
         if (android.os.Build.VERSION.SDK_INT >= 29) {
@@ -185,7 +186,7 @@ public class FileRepository {
         mImageFiles.postValue(imageFiles);
     }
 
-
+    @SuppressWarnings("deprecation")
     @NonNull
     private File getPublicDirectory() {
         // getExternalStorageDirectory is deprecated in API 29
@@ -231,6 +232,7 @@ public class FileRepository {
             Log.d(TAG, "DirectoryChangeObserver: created on " + path);
         }
 
+        @SuppressWarnings("deprecation")
         public DirectoryChangeObserver(@NonNull String path) {
             super(path, CREATE | DELETE | MOVED_FROM | MOVED_TO);
             Log.d(TAG, "DirectoryChangeObserver: created on " + path);

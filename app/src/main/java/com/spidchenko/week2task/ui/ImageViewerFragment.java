@@ -1,6 +1,7 @@
 package com.spidchenko.week2task.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -35,6 +38,8 @@ public class ImageViewerFragment extends Fragment {
     private ImageViewerViewModel mViewModel;
     private CheckBox cbToggleFavourite;
 
+    OnFragmentInteractionListener mListener;
+
     ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 Log.d(TAG, "Permission callback! = " + isGranted);
@@ -43,13 +48,24 @@ public class ImageViewerFragment extends Fragment {
                             requireContext().getApplicationContext().getContentResolver(),
                             mFavourite);
                 } else {
-                    ((MainActivity) requireActivity()).showSnackBarMessage(R.string.need_storage_permission);
+                    mListener.showMessage(R.string.need_storage_permission);
                 }
             });
 
 
     private String mExtraUrl;
     private String mExtraSearchString;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + getResources().getString(R.string.exception_message));
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,7 +95,10 @@ public class ImageViewerFragment extends Fragment {
         mFavourite = new Favourite(currentUser.getUser().getId(),
                 mExtraSearchString, mExtraUrl);
 
-        mViewModel = new ViewModelProvider(this).get(ImageViewerViewModel.class);
+        ImageViewerViewModel.Factory factory =
+                new ImageViewerViewModel.Factory(requireActivity().getApplication());
+
+        mViewModel = new ViewModelProvider(this, factory).get(ImageViewerViewModel.class);
 
         subscribeToModel();
 
@@ -118,7 +137,7 @@ public class ImageViewerFragment extends Fragment {
         });
 
         mViewModel.getSnackBarMessage().observe(this,
-                message -> ((MainActivity) requireActivity()).showSnackBarMessage(message));
+                message -> mListener.showMessage(message));
     }
 
     private void initWebView(WebView view) {
@@ -132,5 +151,7 @@ public class ImageViewerFragment extends Fragment {
         view.loadUrl(mExtraUrl);
     }
 
-
+    interface OnFragmentInteractionListener {
+        void showMessage(@StringRes int resourceId);
+    }
 }

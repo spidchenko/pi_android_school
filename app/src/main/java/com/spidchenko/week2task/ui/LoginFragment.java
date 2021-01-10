@@ -19,8 +19,8 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.textfield.TextInputLayout;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.SharedPreferencesRepository;
+import com.spidchenko.week2task.db.AppDatabase;
 import com.spidchenko.week2task.db.CurrentUser;
-import com.spidchenko.week2task.db.FlickrRoomDatabase;
 import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.db.models.User;
 
@@ -58,12 +58,12 @@ public class LoginFragment extends Fragment {
         mEtUsername = rootView.findViewById(R.id.username);
         mTlUsername = rootView.findViewById(R.id.username_input_layout);
         mBtnSignIn = rootView.findViewById(R.id.btn_sign_in);
-        FlickrRoomDatabase mDb = FlickrRoomDatabase.getDatabase(requireContext());
+        AppDatabase mDb = AppDatabase.getInstance(requireContext());
         mUserDao = mDb.userDao();
 
         // Sign in action
         mBtnSignIn.setOnClickListener(view -> {
-            ((MainActivity) requireActivity()).hideKeyboard();
+            mListener.hideKeyboard();
             mUsername = mEtUsername.getText().toString().trim();
             if (!isLoginValid(mUsername)) {
                 mTlUsername.setError(getString(R.string.login_failed));
@@ -111,6 +111,7 @@ public class LoginFragment extends Fragment {
 
     interface OnFragmentInteractionListener {
         void onLogIn();
-    }
 
+        void hideKeyboard();
+    }
 }
