@@ -20,8 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.SwipeHelper;
 import com.spidchenko.week2task.adapter.ImageListAdapter;
+import com.spidchenko.week2task.helpers.SwipeHelper;
 import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.viewmodel.SearchViewModel;
 
@@ -80,10 +80,12 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         mBtnSearch = rootView.findViewById(R.id.btn_search);
         mPbLoading = rootView.findViewById(R.id.pbLoading);
 
+        SearchViewModel.Factory factory =
+                new SearchViewModel.Factory(requireActivity().getApplication());
+
+        mViewModel = new ViewModelProvider(this, factory).get(SearchViewModel.class);
+
         initRecyclerView();
-
-        mViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
-
         subscribeToModel();
 
         // Perform Flickr search on soft keyboard event

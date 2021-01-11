@@ -2,6 +2,7 @@ package com.spidchenko.week2task.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +16,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.SwipeHelper;
 import com.spidchenko.week2task.adapter.FavouritesListAdapter;
 import com.spidchenko.week2task.db.models.Favourite;
+import com.spidchenko.week2task.helpers.SwipeHelper;
 import com.spidchenko.week2task.viewmodel.FavouritesViewModel;
 
 import static com.spidchenko.week2task.adapter.FavouritesListAdapter.ACTION_DELETE;
 import static com.spidchenko.week2task.adapter.FavouritesListAdapter.ACTION_OPEN_IMAGE;
 
 public class FavouritesFragment extends Fragment implements FavouritesListAdapter.OnFavouritesListAdapterListener {
+
+    private static final String TAG = "FavFragment.LOG_TAG";
 
     OnFragmentInteractionListener mListener;
     private FavouritesViewModel mViewModel;
@@ -73,8 +76,12 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
     }
 
     private void subscribeToModel() {
+        Log.d(TAG, "subscribeToModel: ");
         mViewModel.getAllFavourites().observe(getViewLifecycleOwner(),
-                favourites -> mRecyclerAdapter.setFavourites(favourites));
+                favourites -> {
+                    mRecyclerAdapter.setFavourites(favourites);
+                    Log.d(TAG, "subscribeToModel: favourites->" + favourites);
+                });
 
         mViewModel.getSnackBarMessage().observe(this,
                 message -> mListener.showMessage(message));

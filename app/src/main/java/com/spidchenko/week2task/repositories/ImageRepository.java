@@ -1,9 +1,12 @@
-package com.spidchenko.week2task;
+package com.spidchenko.week2task.repositories;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.spidchenko.week2task.FavouriteRepository;
+import com.spidchenko.week2task.db.AppDatabase;
+import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.dao.SearchRequestDao;
 import com.spidchenko.week2task.db.models.SearchRequest;
 import com.spidchenko.week2task.network.FlickrApi;
@@ -15,6 +18,7 @@ import com.spidchenko.week2task.network.models.ImgSearchResult;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,15 +32,26 @@ public class ImageRepository {
     private final int mUserId;
     private final FlickrApi mDataService;
     private final Executor mExecutor;
+    private static volatile ImageRepository sInstance;
 
 
-    public ImageRepository(SearchRequestDao dao, FlickrApi dataService, Executor executor, int userId) {
-        mSearchRequestDao = dao;
+    private ImageRepository(final AppDatabase database, final FlickrApi dataService, final CurrentUser user) {
+        mSearchRequestDao = database.searchRequestDao();
         mDataService = dataService;
-        mExecutor = executor;
-        mUserId = userId;
+        mExecutor = Executors.newFixedThreadPool(4);
+        mUserId = user.getUser().getId();
     }
 
+    public static ImageRepository getInstance(final AppDatabase database, final FlickrApi dataService, final CurrentUser user) {
+        if (sInstance == null) {
+            synchronized (FavouriteRepository.class) {
+                if (sInstance == null) {
+                    sInstance = new ImageRepository(database, dataService, user);
+                }
+            }
+        }
+        return sInstance;
+    }
 
     public void updateImages(String searchString, RepositoryCallback<List<Image>> callback) {
         saveCurrentSearchInDb(mSearchRequestDao, new SearchRequest(mUserId, searchString));

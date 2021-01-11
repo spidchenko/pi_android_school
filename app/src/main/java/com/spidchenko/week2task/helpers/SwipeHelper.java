@@ -1,4 +1,4 @@
-package com.spidchenko.week2task;
+package com.spidchenko.week2task.helpers;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;

@@ -5,6 +5,10 @@ import android.app.Application;
 import com.facebook.stetho.Stetho;
 import com.spidchenko.week2task.db.AppDatabase;
 import com.spidchenko.week2task.db.CurrentUser;
+import com.spidchenko.week2task.network.ServiceGenerator;
+import com.spidchenko.week2task.repositories.FileRepository;
+import com.spidchenko.week2task.repositories.ImageRepository;
+import com.spidchenko.week2task.repositories.SharedPrefRepository;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,13 +38,16 @@ public class MyApplication extends Application {
         return FavouriteRepository.getInstance(getDatabase(), getCurrentUser(), mAppExecutors);
     }
 
-// TODO
-//    public FileRepository getFileRepository() {
-//        return FileRepository.getInstance(this);
-//    }
-// TODO
-//    public ImageRepository getImageRepository() {
-//        return ImageRepository.getInstance(getDatabase(), mAppExecutors);
-//    }
+    public FileRepository getFileRepository() {
+        return FileRepository.getInstance(this);
+    }
+
+    public ImageRepository getImageRepository() {
+        return ImageRepository.getInstance(getDatabase(), ServiceGenerator.getFlickrApi(), getCurrentUser());
+    }
+
+    public SharedPrefRepository getSharedPreferencesRepository() {
+        return SharedPrefRepository.getInstance(this);
+    }
 
 }

@@ -22,8 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.SwipeHelper;
 import com.spidchenko.week2task.adapter.GalleryAdapter;
+import com.spidchenko.week2task.helpers.SwipeHelper;
 import com.spidchenko.week2task.viewmodel.GalleryViewModel;
 
 import java.io.File;
@@ -67,9 +67,12 @@ public class GalleryFragment extends Fragment {
         mRvImages = rootView.findViewById(R.id.rv_gallery_images);
         FloatingActionButton btnMakePhoto = rootView.findViewById(R.id.btn_make_photo);
 
-        mViewModel = new ViewModelProvider(this).get(GalleryViewModel.class);
-        subscribeToModel();
+        GalleryViewModel.Factory factory =
+                new GalleryViewModel.Factory(requireActivity().getApplication());
 
+        mViewModel = new ViewModelProvider(this, factory).get(GalleryViewModel.class);
+
+        subscribeToModel();
         initRecyclerView();
 
         // Open fragment to make new photo

@@ -6,7 +6,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -14,14 +13,14 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.RequestManager;
 import com.spidchenko.week2task.FavouriteRepository;
-import com.spidchenko.week2task.FileRepository;
 import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
+import com.spidchenko.week2task.helpers.SingleLiveEvent;
 import com.spidchenko.week2task.network.Result;
+import com.spidchenko.week2task.repositories.FileRepository;
 
-public class ImageViewerViewModel extends AndroidViewModel {
+public class ImageViewerViewModel extends ViewModel {
     private static final String TAG = "ImageViewerVM.LOG_TAG";
 
     private final FavouriteRepository mFavouriteRepository;
@@ -29,17 +28,13 @@ public class ImageViewerViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> mInFavourites = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
-    public ImageViewerViewModel(@NonNull Application application, FavouriteRepository repository) {
-        super(application);
-        CurrentUser currentUser = CurrentUser.getInstance();
+    private ImageViewerViewModel(FavouriteRepository favouriteRepository,
+                                 FileRepository fileRepository) {
 
-        mFavouriteRepository = repository;
-
-//        mFavouriteRepository = new FavouriteRepository(AppDatabase.getInstance(application).favouriteDao(),
-//                ((MyApplication) getApplication()).executorService,
-//                currentUser.getUser().getId());
-        mFileRepository = new FileRepository(application);
+        mFavouriteRepository = favouriteRepository;
+        mFileRepository = fileRepository;
     }
+
 
     public SingleLiveEvent<Integer> getSnackBarMessage() {
         return mSnackBarMessage;
@@ -104,22 +99,22 @@ public class ImageViewerViewModel extends AndroidViewModel {
     public static class Factory extends ViewModelProvider.NewInstanceFactory {
 
         @NonNull
-        private final Application mApplication;
-
-        private final FavouriteRepository mRepository;
+        private final Application application;
+        private final FavouriteRepository favouriteRepository;
+        private final FileRepository fileRepository;
 
         public Factory(@NonNull Application application) {
-            mApplication = application;
-            mRepository = ((MyApplication) application).getFavouriteRepository();
+            this.application = application;
+            favouriteRepository = ((MyApplication) application).getFavouriteRepository();
+            fileRepository = ((MyApplication) application).getFileRepository();
         }
 
         @SuppressWarnings("unchecked")
         @Override
         @NonNull
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new ImageViewerViewModel(mApplication, mRepository);
+            return (T) new ImageViewerViewModel(favouriteRepository, fileRepository);
         }
     }
-
 
 }

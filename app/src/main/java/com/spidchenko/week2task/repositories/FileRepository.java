@@ -1,5 +1,6 @@
-package com.spidchenko.week2task;
+package com.spidchenko.week2task.repositories;
 
+import android.app.Application;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -22,6 +23,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.spidchenko.week2task.FavouriteRepository;
 import com.spidchenko.week2task.db.models.Favourite;
 
 import java.io.File;
@@ -45,13 +47,24 @@ public class FileRepository {
     private final File mImagesDirectory;
     private DirectoryChangeObserver mImagesObserver;
     private DirectoryChangeObserver mPhotosObserver;
+    private static volatile FileRepository sInstance;
 
-    public FileRepository(Context context) {
 
-        Log.d(TAG, "FileRepository: created");
-
-        mPhotosDirectory = getAppSpecificAlbumStorageDir(context.getApplicationContext());
+    private FileRepository(Application application) {
+        mPhotosDirectory = getAppSpecificAlbumStorageDir(application);
         mImagesDirectory = getPublicDirectory();
+    }
+
+
+    public static FileRepository getInstance(final Application application) {
+        if (sInstance == null) {
+            synchronized (FavouriteRepository.class) {
+                if (sInstance == null) {
+                    sInstance = new FileRepository(application);
+                }
+            }
+        }
+        return sInstance;
     }
 
     public File getPhotosDirectory() {
@@ -102,6 +115,7 @@ public class FileRepository {
                 Log.d(TAG, "deleteFile: Deleted private photo");
             }
         }
+        getUpdatedImageList();
     }
 
     public void saveImage(RequestManager glide, ContentResolver contentResolver, Favourite favourite) {
@@ -179,7 +193,7 @@ public class FileRepository {
         }
     }
 
-    private void getUpdatedImageList() {
+    public void getUpdatedImageList() {
         Log.d(TAG, "getUpdatedImageList: UPDATING...");
         List<File> imageFiles = getFilesInDirectory(mPhotosDirectory);
         imageFiles.addAll(getFilesInDirectory(mImagesDirectory));

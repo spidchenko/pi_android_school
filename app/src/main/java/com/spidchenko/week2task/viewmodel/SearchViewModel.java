@@ -4,47 +4,41 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.spidchenko.week2task.ImageRepository;
 import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.SharedPreferencesRepository;
-import com.spidchenko.week2task.db.AppDatabase;
-import com.spidchenko.week2task.db.CurrentUser;
+import com.spidchenko.week2task.helpers.SingleLiveEvent;
 import com.spidchenko.week2task.network.Result;
-import com.spidchenko.week2task.network.ServiceGenerator;
 import com.spidchenko.week2task.network.models.Image;
+import com.spidchenko.week2task.repositories.ImageRepository;
+import com.spidchenko.week2task.repositories.SharedPrefRepository;
 
 import java.util.List;
 
-import static com.spidchenko.week2task.ImageRepository.RESULT_EMPTY_RESPONSE;
-import static com.spidchenko.week2task.ImageRepository.RESULT_TIMEOUT;
+import static com.spidchenko.week2task.repositories.ImageRepository.RESULT_EMPTY_RESPONSE;
+import static com.spidchenko.week2task.repositories.ImageRepository.RESULT_TIMEOUT;
 
-public class SearchViewModel extends AndroidViewModel {
+public class SearchViewModel extends ViewModel {
     private static final String TAG = "MainAcViewModel.LOG_TAG";
 
-    private final ImageRepository mImageRepository;
     private final MutableLiveData<List<Image>> mImages = new MutableLiveData<>();
     private final MutableLiveData<String> mLastSearchString = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mIsLoading = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
-    private final SharedPreferencesRepository mSharedPrefRepository;
+    private final ImageRepository mImageRepository;
+    private final SharedPrefRepository mSharedPrefRepository;
 
-    public SearchViewModel(@NonNull Application application) {
-        super(application);
-        CurrentUser user = CurrentUser.getInstance();
-        AppDatabase database = AppDatabase.getInstance(application);
 
-        mImageRepository = new ImageRepository(database.searchRequestDao(),
-                ServiceGenerator.getFlickrApi(),
-                ((MyApplication) getApplication()).executorService,
-                user.getUser().getId());
+    public SearchViewModel(ImageRepository imageRepository, SharedPrefRepository sharedPrefRepository) {
 
-        mSharedPrefRepository = SharedPreferencesRepository.init(application);
+        mImageRepository = imageRepository;
+        mSharedPrefRepository = sharedPrefRepository;
+
         mLastSearchString.setValue(mSharedPrefRepository.getLastSearch());
         Log.d(TAG, "SearchViewModel: Created");
     }
@@ -131,6 +125,26 @@ public class SearchViewModel extends AndroidViewModel {
     private void downloadStarted() {
         mIsLoading.postValue(true);
     }
+
+
+    public static class Factory extends ViewModelProvider.NewInstanceFactory {
+
+        private final ImageRepository imageRepository;
+        private final SharedPrefRepository sharedPrefRepository;
+
+        public Factory(@NonNull Application application) {
+            imageRepository = ((MyApplication) application).getImageRepository();
+            sharedPrefRepository = ((MyApplication) application).getSharedPreferencesRepository();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        @NonNull
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            return (T) new SearchViewModel(imageRepository, sharedPrefRepository);
+        }
+    }
+
 }
 
 

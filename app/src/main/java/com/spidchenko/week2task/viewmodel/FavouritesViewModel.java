@@ -5,7 +5,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -13,33 +12,30 @@ import androidx.lifecycle.ViewModelProvider;
 import com.spidchenko.week2task.FavouriteRepository;
 import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
+import com.spidchenko.week2task.helpers.SingleLiveEvent;
 import com.spidchenko.week2task.network.Result;
 
 import java.util.List;
 
-public class FavouritesViewModel extends AndroidViewModel {
-    private static final String TAG = "FavouritesActivityViewM";
+public class FavouritesViewModel extends ViewModel {
+
+    private static final String TAG = "FavViewModel.LOG_TAG";
+
     private final FavouriteRepository mFavouriteRepository;
     private final LiveData<List<Favourite>> mFavourites;
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
 
-    public FavouritesViewModel(@NonNull Application application, FavouriteRepository repository) {
-        super(application);
-        CurrentUser currentUser = CurrentUser.getInstance();
-        // TODO: 12/22/20 inject repository in viewModel (instead of application)
-//        AppDatabase database = AppDatabase.getInstance(application);
-//        mFavouriteRepository = new FavouriteRepository(database.favouriteDao(),
-//                ((MyApplication) getApplication()).executorService,
-//                currentUser.getUser().getId());
+    public FavouritesViewModel(FavouriteRepository repository) {
+
         mFavouriteRepository = repository;
         mFavourites = mFavouriteRepository.getAllFavourites();
-        Log.d(TAG, "FavouritesViewModel: Created ( repo=" + repository);
+        Log.d(TAG, "FavouritesViewModel: Created " + this + "( repo=" + repository + ")");
     }
 
     public LiveData<List<Favourite>> getAllFavourites() {
+        mFavouriteRepository.updateFavouritesLiveData();
         return mFavourites;
     }
 
@@ -72,23 +68,18 @@ public class FavouritesViewModel extends AndroidViewModel {
 
     public static class Factory extends ViewModelProvider.NewInstanceFactory {
 
-        @NonNull
-        private final Application mApplication;
-
-        private final FavouriteRepository mRepository;
+        private final FavouriteRepository favouriteRepository;
 
         public Factory(@NonNull Application application) {
-            mApplication = application;
-            mRepository = ((MyApplication) application).getFavouriteRepository();
+            favouriteRepository = ((MyApplication) application).getFavouriteRepository();
         }
 
         @SuppressWarnings("unchecked")
         @Override
         @NonNull
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new FavouritesViewModel(mApplication, mRepository);
+            return (T) new FavouritesViewModel(favouriteRepository);
         }
     }
-
 
 }

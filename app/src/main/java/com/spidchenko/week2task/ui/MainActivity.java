@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity
 
         mFragmentManager = getSupportFragmentManager();
 
-        mIsOnLoginScreen = (Objects.requireNonNull(mFragmentManager.findFragmentById(R.id.content)).getClass() != LoginFragment.class);
+        mIsOnLoginScreen = (Objects.requireNonNull(mFragmentManager.findFragmentById(R.id.content)).getClass() == LoginFragment.class);
 
         // ActionBar on login screen disabled
         if (!mIsOnLoginScreen) {
@@ -144,7 +144,11 @@ public class MainActivity extends AppCompatActivity
 
         // Insert the fragment by replacing any existing fragment
         if (fragment != null) {
-            mFragmentManager.beginTransaction().replace(R.id.content, fragment).commit();
+            mFragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragment)
+                    .addToBackStack(null)
+                    .commit();
         } else {
             Log.e(TAG, "selectDrawerItem: fragment is NULL");
         }

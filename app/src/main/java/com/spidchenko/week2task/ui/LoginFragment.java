@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.SharedPreferencesRepository;
 import com.spidchenko.week2task.db.AppDatabase;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.dao.UserDao;
@@ -33,7 +32,7 @@ public class LoginFragment extends Fragment {
     private final Handler mUiHandler = new Handler(Looper.getMainLooper());
     private UserDao mUserDao;
     private String mUsername;
-    private SharedPreferencesRepository mSharedPreferences;
+//    private SharedPrefRepository mSharedPreferences;
     private TextInputLayout mTlUsername;
     private EditText mEtUsername;
     private Button mBtnSignIn;
@@ -54,7 +53,7 @@ public class LoginFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_login, container, false);
 
-        mSharedPreferences = SharedPreferencesRepository.init(requireContext());
+//        mSharedPreferences = SharedPrefRepository.init(requireContext());
         mEtUsername = rootView.findViewById(R.id.username);
         mTlUsername = rootView.findViewById(R.id.username_input_layout);
         mBtnSignIn = rootView.findViewById(R.id.btn_sign_in);
@@ -83,7 +82,7 @@ public class LoginFragment extends Fragment {
 
                     mUiHandler.post(() -> {
                         Log.d(TAG, "actionSignIn: on UI Thread." + Thread.currentThread().getName());
-                        mSharedPreferences.saveLogin(mUsername);
+//                        mSharedPreferences.saveLogin(mUsername);
                         mListener.onLogIn();
                     });
 

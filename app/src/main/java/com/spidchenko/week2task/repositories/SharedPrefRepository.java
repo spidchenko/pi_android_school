@@ -1,26 +1,33 @@
-package com.spidchenko.week2task;
+package com.spidchenko.week2task.repositories;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-public class SharedPreferencesRepository {
+public class SharedPrefRepository {
     private static final String PREF_FILE_KEY = "com.spidchenko.week2task.PREF_FILE_KEY";
     private static final String PREF_LOGIN_KEY = "com.spidchenko.week2task.PREF_LOGIN_KEY";
     private static final String PREF_LAST_SEARCH_KEY = "com.spidchenko.week2task.PREF_LAST_SEARCH_KEY";
-    private static final String TAG = "SharedPreferencesHelper";
+    private static final String TAG = "SharedPrefRepo.LOG_TAG";
 
+    private static volatile SharedPrefRepository sInstance;
     private static SharedPreferences sSharedPreferences;
 
-    private SharedPreferencesRepository() {
+
+    private SharedPrefRepository(final Application application) {
+        sSharedPreferences = application.getSharedPreferences(PREF_FILE_KEY, Context.MODE_PRIVATE);
     }
 
-    public static SharedPreferencesRepository init(Context context) {
-        if (sSharedPreferences == null) {
-            sSharedPreferences = context.getSharedPreferences(PREF_FILE_KEY, Context.MODE_PRIVATE);
+    public static SharedPrefRepository getInstance(final Application application) {
+        if (sInstance == null) {
+            synchronized (SharedPrefRepository.class) {
+                if (sInstance == null) {
+                    sInstance = new SharedPrefRepository(application);
+                }
+            }
         }
-        Log.d(TAG, "init: Initialized");
-        return new SharedPreferencesRepository();
+        return sInstance;
     }
 
     public String getLogin() {

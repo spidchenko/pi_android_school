@@ -13,9 +13,9 @@ import androidx.camera.view.PreviewView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.spidchenko.week2task.CameraHelper;
-import com.spidchenko.week2task.FileRepository;
 import com.spidchenko.week2task.R;
+import com.spidchenko.week2task.helpers.CameraHelper;
+import com.spidchenko.week2task.repositories.FileRepository;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
@@ -47,8 +47,10 @@ public class CameraFragment extends Fragment {
         FloatingActionButton btnTakeShot = rootView.findViewById(R.id.btn_take_shot);
 
         PreviewView previewView = rootView.findViewById(R.id.previewView);
-        FileRepository fileRepository = new FileRepository(requireContext().getApplicationContext());
+
+        FileRepository fileRepository = FileRepository.getInstance(requireActivity().getApplication());
         photosDirectory = fileRepository.getPhotosDirectory();
+
         CameraHelper cameraHelper = new CameraHelper(requireContext(), getViewLifecycleOwner(), previewView);
 
         btnTakeShot.setOnClickListener(view -> {
