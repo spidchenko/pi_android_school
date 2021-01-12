@@ -109,7 +109,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         });
 
         // Perform Flickr search by coordinates
-        if (getArguments() != null) {
+        if ((getArguments() != null) && (savedInstanceState == null)) {
             mViewModel.searchImagesByCoordinates(mSearchLatitude, mSearchLongitude);
             mListener.hideKeyboard();
         }

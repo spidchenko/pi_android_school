@@ -28,11 +28,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.spidchenko.week2task.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link MapsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String TAG = "MapsFragment.LOG_TAG";
@@ -77,9 +72,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 mListener.showMessage(R.string.select_point_message);
             } else {
                 LatLng coordinates = mMarker.getPosition();
-                mListener.onSearchByCoordinatesAction(
-                        Double.toString(coordinates.latitude),
-                        Double.toString(coordinates.longitude));
+                if ((coordinates.latitude != 0) && (coordinates.longitude != 0)) {
+                    mListener.onSearchByCoordinatesAction(
+                            Double.toString(coordinates.latitude),
+                            Double.toString(coordinates.longitude));
+                } else
+                    Log.e(TAG, "onCreateView: lat/lon = 0");
             }
         });
 
