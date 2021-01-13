@@ -8,17 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.FavouritesListAdapter;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.helpers.SwipeHelper;
+import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.viewmodel.FavouritesViewModel;
 
 import static com.spidchenko.week2task.adapter.FavouritesListAdapter.ACTION_DELETE;
@@ -45,17 +47,24 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
+
+//        FavouritesViewModel.Factory factory =
+//                new FavouritesViewModel.Factory(requireActivity().getApplication());
+
+        mViewModel = new ViewModelProvider(this, factory).get(FavouritesViewModel.class);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_favourites, container, false);
         mRvFavouriteImages = rootView.findViewById(R.id.rv_favourite_images);
         initRecyclerView();
-
-        FavouritesViewModel.Factory factory =
-                new FavouritesViewModel.Factory(requireActivity().getApplication());
-
-        mViewModel = new ViewModelProvider(this, factory).get(FavouritesViewModel.class);
-
         subscribeToModel();
         return rootView;
     }
@@ -84,7 +93,8 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
                 });
 
         mViewModel.getSnackBarMessage().observe(this,
-                message -> mListener.showMessage(message));
+                message -> Snackbar.make(requireView(), message,
+                        BaseTransientBottomBar.LENGTH_LONG).show());
     }
 
     private void initRecyclerView() {
@@ -102,7 +112,5 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
 
     interface OnFragmentInteractionListener {
         void onOpenFavouriteAction(Favourite favourite);
-
-        void showMessage(@StringRes int resourceId);
     }
 }

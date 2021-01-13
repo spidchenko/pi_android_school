@@ -1,18 +1,17 @@
 package com.spidchenko.week2task.ui;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.camera.view.PreviewView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.helpers.CameraHelper;
 import com.spidchenko.week2task.repositories.FileRepository;
@@ -24,20 +23,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CameraFragment extends Fragment {
-
     private File photosDirectory;
-    OnFragmentInteractionListener mListener;
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new ClassCastException(context.toString()
-                    + getResources().getString(R.string.exception_message));
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,7 +43,8 @@ public class CameraFragment extends Fragment {
             SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
             File file = new File(photosDirectory, mDateFormat.format(new Date()) + ".jpg");
             cameraHelper.takePicture(requireContext(), file, () -> {
-                mListener.showMessage(R.string.image_saved);
+                Snackbar.make(requireView(), R.string.image_saved,
+                        BaseTransientBottomBar.LENGTH_LONG).show();
                 cropPhoto(Uri.fromFile(file), Uri.fromFile(file));
             });
         });
@@ -67,9 +54,5 @@ public class CameraFragment extends Fragment {
 
     private void cropPhoto(Uri sourceUri, Uri destinationUri) {
         UCrop.of(sourceUri, destinationUri).start(requireActivity());
-    }
-
-    interface OnFragmentInteractionListener {
-        void showMessage(@StringRes int resourceId);
     }
 }

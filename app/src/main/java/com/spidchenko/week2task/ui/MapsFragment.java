@@ -16,7 +16,6 @@ import android.widget.Button;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -26,6 +25,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
@@ -45,7 +46,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 if (isGranted) {
                     getLocation();
                 } else {
-                    mListener.showMessage(R.string.need_photo_permission);
+                    Snackbar.make(requireView(), R.string.need_photo_permission,
+                            BaseTransientBottomBar.LENGTH_LONG).show();
                 }
             });
 
@@ -69,7 +71,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         btnSearchOnMap.setOnClickListener(view -> {
             if (mMarker == null) {
-                mListener.showMessage(R.string.select_point_message);
+                Snackbar.make(requireView(), R.string.select_point_message,
+                        BaseTransientBottomBar.LENGTH_LONG).show();
             } else {
                 LatLng coordinates = mMarker.getPosition();
                 if ((coordinates.latitude != 0) && (coordinates.longitude != 0)) {
@@ -135,11 +138,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 setMarker(latLng);
             } else {
                 setMarker(mGoogleMap.getCameraPosition().target);
-                mListener.showMessage(R.string.error_undefined_location);
+                Snackbar.make(requireView(), R.string.error_undefined_location,
+                        BaseTransientBottomBar.LENGTH_LONG).show();
                 Log.d(TAG, "getLocation: Error");
             }
         } catch (Exception e) {
-            mListener.showMessage(R.string.error_default_message);
+            Snackbar.make(requireView(), R.string.error_default_message,
+                    BaseTransientBottomBar.LENGTH_LONG).show();
             Log.d(TAG, "getLocation: Exception " + e.getMessage());
         }
 
@@ -147,7 +152,5 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     interface OnFragmentInteractionListener {
         void onSearchByCoordinatesAction(String lat, String lon);
-
-        void showMessage(@StringRes int resourceId);
     }
 }

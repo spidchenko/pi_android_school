@@ -12,13 +12,14 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.helpers.SwipeHelper;
@@ -67,6 +68,17 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
             mSearchLongitude = getArguments().getString(EXTRA_LONGITUDE);
             Log.d(TAG, "onCreate: lat:" + mSearchLatitude + ". lon:" + mSearchLongitude);
         }
+
+        SearchViewModel.Factory factory =
+                new SearchViewModel.Factory(requireActivity().getApplication());
+
+        mViewModel = new ViewModelProvider(this, factory).get(SearchViewModel.class);
+
+        // Perform Flickr search by coordinates
+        if ((getArguments() != null) && (savedInstanceState == null)) {
+            mViewModel.searchImagesByCoordinates(mSearchLatitude, mSearchLongitude);
+            mListener.hideKeyboard();
+        }
     }
 
     @Override
@@ -79,11 +91,6 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         mEtSearchQuery = rootView.findViewById(R.id.et_search_query);
         mBtnSearch = rootView.findViewById(R.id.btn_search);
         mPbLoading = rootView.findViewById(R.id.pbLoading);
-
-        SearchViewModel.Factory factory =
-                new SearchViewModel.Factory(requireActivity().getApplication());
-
-        mViewModel = new ViewModelProvider(this, factory).get(SearchViewModel.class);
 
         initRecyclerView();
         subscribeToModel();
@@ -102,17 +109,12 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
             mListener.hideKeyboard();
             String searchString = mEtSearchQuery.getText().toString().trim();
             if (searchString.isEmpty()) {
-                mListener.showMessage(R.string.error_empty_search);
+                Snackbar.make(requireView(), R.string.error_empty_search,
+                        BaseTransientBottomBar.LENGTH_LONG).show();
             } else {
                 mViewModel.searchImages(searchString);
             }
         });
-
-        // Perform Flickr search by coordinates
-        if ((getArguments() != null) && (savedInstanceState == null)) {
-            mViewModel.searchImagesByCoordinates(mSearchLatitude, mSearchLongitude);
-            mListener.hideKeyboard();
-        }
 
         return rootView;
     }
@@ -156,13 +158,12 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         });
 
         mViewModel.getSnackBarMessage().observe(this,
-                message -> mListener.showMessage(message));
+                message -> Snackbar.make(requireView(), message,
+                        BaseTransientBottomBar.LENGTH_LONG).show());
     }
 
     interface OnFragmentInteractionListener {
         void onImageClick(Image image, String searchString);
-
-        void showMessage(@StringRes int resourceId);
 
         void hideKeyboard();
     }

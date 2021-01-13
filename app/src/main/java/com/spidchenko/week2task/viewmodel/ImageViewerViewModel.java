@@ -28,8 +28,8 @@ public class ImageViewerViewModel extends ViewModel {
     private final MutableLiveData<Boolean> mInFavourites = new MutableLiveData<>();
     private final SingleLiveEvent<Integer> mSnackBarMessage = new SingleLiveEvent<>();
 
-    private ImageViewerViewModel(FavouriteRepository favouriteRepository,
-                                 FileRepository fileRepository) {
+    public ImageViewerViewModel(FavouriteRepository favouriteRepository,
+                                FileRepository fileRepository) {
 
         mFavouriteRepository = favouriteRepository;
         mFileRepository = fileRepository;
@@ -99,12 +99,10 @@ public class ImageViewerViewModel extends ViewModel {
     public static class Factory extends ViewModelProvider.NewInstanceFactory {
 
         @NonNull
-        private final Application application;
         private final FavouriteRepository favouriteRepository;
         private final FileRepository fileRepository;
 
         public Factory(@NonNull Application application) {
-            this.application = application;
             favouriteRepository = ((MyApplication) application).getFavouriteRepository();
             fileRepository = ((MyApplication) application).getFileRepository();
         }

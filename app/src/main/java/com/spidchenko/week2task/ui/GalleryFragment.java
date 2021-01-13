@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,6 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.GalleryAdapter;
 import com.spidchenko.week2task.helpers.SwipeHelper;
@@ -44,7 +45,8 @@ public class GalleryFragment extends Fragment {
                 if (isGranted) {
                     enableCamera();
                 } else {
-                    mListener.showMessage(R.string.need_photo_permission);
+                    Snackbar.make(requireView(), R.string.need_photo_permission,
+                            BaseTransientBottomBar.LENGTH_LONG).show();
                 }
             });
 
@@ -60,21 +62,22 @@ public class GalleryFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        GalleryViewModel.Factory factory =
+                new GalleryViewModel.Factory(requireActivity().getApplication());
+        mViewModel = new ViewModelProvider(this, factory).get(GalleryViewModel.class);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
         mRvImages = rootView.findViewById(R.id.rv_gallery_images);
         FloatingActionButton btnMakePhoto = rootView.findViewById(R.id.btn_make_photo);
-
-        GalleryViewModel.Factory factory =
-                new GalleryViewModel.Factory(requireActivity().getApplication());
-
-        mViewModel = new ViewModelProvider(this, factory).get(GalleryViewModel.class);
-
         subscribeToModel();
         initRecyclerView();
-
         // Open fragment to make new photo
         btnMakePhoto.setOnClickListener(view -> {
             if (ContextCompat.checkSelfPermission(requireActivity().getApplicationContext(),
@@ -115,7 +118,5 @@ public class GalleryFragment extends Fragment {
 
     interface OnFragmentInteractionListener {
         void onTakePhotosAction();
-
-        void showMessage(@StringRes int resourceId);
     }
 }

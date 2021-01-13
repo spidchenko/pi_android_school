@@ -1,7 +1,6 @@
 package com.spidchenko.week2task.ui;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,13 +14,13 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
@@ -38,8 +37,6 @@ public class ImageViewerFragment extends Fragment {
     private ImageViewerViewModel mViewModel;
     private CheckBox cbToggleFavourite;
 
-    OnFragmentInteractionListener mListener;
-
     ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 Log.d(TAG, "Permission callback! = " + isGranted);
@@ -48,24 +45,14 @@ public class ImageViewerFragment extends Fragment {
                             requireContext().getApplicationContext().getContentResolver(),
                             mFavourite);
                 } else {
-                    mListener.showMessage(R.string.need_storage_permission);
+                    Snackbar.make(requireView(), R.string.need_storage_permission,
+                            BaseTransientBottomBar.LENGTH_LONG).show();
                 }
             });
 
 
     private String mExtraUrl;
     private String mExtraSearchString;
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new ClassCastException(context.toString()
-                    + getResources().getString(R.string.exception_message));
-        }
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +62,10 @@ public class ImageViewerFragment extends Fragment {
             mExtraSearchString = getArguments().getString(EXTRA_SEARCH_STRING);
             Log.d(TAG, "onCreate: url:" + mExtraUrl + ". string:" + mExtraSearchString);
         }
+
+        ImageViewerViewModel.Factory factory =
+                new ImageViewerViewModel.Factory(requireActivity().getApplication());
+        mViewModel = new ViewModelProvider(this, factory).get(ImageViewerViewModel.class);
     }
 
     @Override
@@ -88,23 +79,12 @@ public class ImageViewerFragment extends Fragment {
         TextView tvSearchString = rootView.findViewById(R.id.tv_search_string);
         cbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
         tvSearchString.setText(mExtraSearchString);
-
         initWebView(webView);
-
-
         mFavourite = new Favourite(currentUser.getUser().getId(),
                 mExtraSearchString, mExtraUrl);
-
-        ImageViewerViewModel.Factory factory =
-                new ImageViewerViewModel.Factory(requireActivity().getApplication());
-
-        mViewModel = new ViewModelProvider(this, factory).get(ImageViewerViewModel.class);
-
         subscribeToModel();
-
         Log.d(TAG, "Intent received. Image Url: " + mExtraUrl +
                 ". SearchString: " + mExtraSearchString);
-
         CheckBox cbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
         // Check/Uncheck current image as favourite and save choice to local Database
         cbToggleFavourite.setOnClickListener(view -> mViewModel.toggleFavourite(mFavourite));
@@ -137,7 +117,8 @@ public class ImageViewerFragment extends Fragment {
         });
 
         mViewModel.getSnackBarMessage().observe(this,
-                message -> mListener.showMessage(message));
+                message -> Snackbar.make(requireView(), message,
+                        BaseTransientBottomBar.LENGTH_LONG).show());
     }
 
     private void initWebView(WebView view) {
@@ -149,9 +130,5 @@ public class ImageViewerFragment extends Fragment {
         //This line will prevent random Fatal signal 11 (SIGSEGV) error on emulator:
         view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         view.loadUrl(mExtraUrl);
-    }
-
-    interface OnFragmentInteractionListener {
-        void showMessage(@StringRes int resourceId);
     }
 }

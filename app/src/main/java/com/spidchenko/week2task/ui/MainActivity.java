@@ -5,16 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -41,11 +45,8 @@ public class MainActivity extends AppCompatActivity
         SearchFragment.OnFragmentInteractionListener,
         MapsFragment.OnFragmentInteractionListener,
         GalleryFragment.OnFragmentInteractionListener,
-        FavouritesFragment.OnFragmentInteractionListener,
-        ImageViewerFragment.OnFragmentInteractionListener,
-        CameraFragment.OnFragmentInteractionListener {
+        FavouritesFragment.OnFragmentInteractionListener {
 
-    private static final String TAG = "MainActivity.LOG_TAG";
     public static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
     public static final String EXTRA_SEARCH_STRING = "com.spidchenko.week2task.extras.EXTRA_SEARCH_STRING";
 
@@ -56,6 +57,19 @@ public class MainActivity extends AppCompatActivity
     private Toolbar toolbar;
     private ActionBarDrawerToggle drawerToggle;
     private FragmentManager mFragmentManager;
+
+    ActivityResultLauncher<Intent> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (!Settings.canDrawOverlays(this)) {
+                        Snackbar.make(findViewById(android.R.id.content), R.string.need_alert_permission,
+                                BaseTransientBottomBar.LENGTH_LONG).show();
+                    } else {
+                        Snackbar.make(findViewById(android.R.id.content), R.string.alert_permission_ok,
+                                BaseTransientBottomBar.LENGTH_LONG).show();
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +84,12 @@ public class MainActivity extends AppCompatActivity
         if (!mIsOnLoginScreen) {
             initActionBar();
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !Settings.canDrawOverlays(this)) {
+            Toast.makeText(this, R.string.need_alert_permission, Toast.LENGTH_LONG).show();
+            requestPermissionToLaunchOnBoot();
+        }
+
     }
 
     @Override
@@ -118,9 +138,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void selectDrawerItem(MenuItem menuItem) {
-        // Create a new fragment and specify the fragment to show based on nav item clicked
-        Fragment fragment = null;
-        Class<?> fragmentClass;
+        Class<? extends Fragment> fragmentClass;
         int itemId = menuItem.getItemId();
         if (itemId == R.id.nav_search) {
             fragmentClass = SearchFragment.class;
@@ -136,22 +154,9 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = SearchFragment.class;
         }
 
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         // Insert the fragment by replacing any existing fragment
-        if (fragment != null) {
-            mFragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .replace(R.id.content, fragment)
-                    .addToBackStack(null)
-                    .commit();
-        } else {
-            Log.e(TAG, "selectDrawerItem: fragment is NULL");
-        }
+        replaceFragment(fragmentClass, null);
 
         // Highlight the selected item has been done by NavigationView
         menuItem.setChecked(true);
@@ -191,12 +196,6 @@ public class MainActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
-    public void showSnackBarMessage(@StringRes int resourceId) {
-        Snackbar.make(findViewById(android.R.id.content),
-                resourceId,
-                BaseTransientBottomBar.LENGTH_LONG).show();
-    }
-
     private void startReceivingBatteryLevelUpdates() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_BATTERY_CHANGED);
@@ -212,6 +211,14 @@ public class MainActivity extends AppCompatActivity
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private void requestPermissionToLaunchOnBoot() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            requestPermissionLauncher.launch(intent);
         }
     }
 
@@ -241,11 +248,7 @@ public class MainActivity extends AppCompatActivity
     // Action from login fragment
     @Override
     public void onLogIn() {
-        mFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(R.id.content, SearchFragment.class, null)
-                .commit();
+        replaceFragment(SearchFragment.class, null);
         mIsOnLoginScreen = false;
         initActionBar();
     }
@@ -256,19 +259,7 @@ public class MainActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_URL, image.getUrl(Image.PIC_SIZE_MEDIUM));
         bundle.putString(EXTRA_SEARCH_STRING, searchString);
-
-        mFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(R.id.content, ImageViewerFragment.class, bundle)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    // Messages from fragments
-    @Override
-    public void showMessage(int resourceId) {
-        showSnackBarMessage(resourceId);
+        replaceFragment(ImageViewerFragment.class, bundle);
     }
 
     @Override
@@ -276,23 +267,12 @@ public class MainActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_LATITUDE, lat);
         bundle.putString(EXTRA_LONGITUDE, lon);
-
-        mFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(R.id.content, SearchFragment.class, bundle)
-                .addToBackStack(null)
-                .commit();
+        replaceFragment(SearchFragment.class, bundle);
     }
 
     @Override
     public void onTakePhotosAction() {
-        mFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(R.id.content, CameraFragment.class, null)
-                .addToBackStack(null)
-                .commit();
+        replaceFragment(CameraFragment.class, null);
     }
 
     @Override
@@ -300,11 +280,14 @@ public class MainActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_URL, favourite.getUrl());
         bundle.putString(EXTRA_SEARCH_STRING, favourite.getSearchRequest());
+        replaceFragment(ImageViewerFragment.class, bundle);
+    }
 
+    private void replaceFragment(@NonNull Class<? extends Fragment> fragmentClass, Bundle bundle) {
         mFragmentManager
                 .beginTransaction()
                 .setReorderingAllowed(true)
-                .replace(R.id.content, ImageViewerFragment.class, bundle)
+                .replace(R.id.content, fragmentClass, bundle)
                 .addToBackStack(null)
                 .commit();
     }
