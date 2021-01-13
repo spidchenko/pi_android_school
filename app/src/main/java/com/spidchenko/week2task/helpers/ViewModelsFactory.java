@@ -14,6 +14,7 @@ import com.spidchenko.week2task.repositories.SharedPrefRepository;
 import com.spidchenko.week2task.viewmodel.FavouritesViewModel;
 import com.spidchenko.week2task.viewmodel.GalleryViewModel;
 import com.spidchenko.week2task.viewmodel.ImageViewerViewModel;
+import com.spidchenko.week2task.viewmodel.LoginViewModel;
 import com.spidchenko.week2task.viewmodel.SearchViewModel;
 
 public class ViewModelsFactory extends ViewModelProvider.NewInstanceFactory {
@@ -36,19 +37,19 @@ public class ViewModelsFactory extends ViewModelProvider.NewInstanceFactory {
     @NonNull
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
 
-        if (modelClass.getSimpleName().equals("FavouritesViewModel.class")) {
+        if (modelClass == FavouritesViewModel.class) {
             return (T) new FavouritesViewModel(favouriteRepository);
         }
 
-        if (modelClass.getSimpleName().equals("GalleryViewModel.class")) {
+        if (modelClass == GalleryViewModel.class) {
             return (T) new GalleryViewModel(fileRepository);
         }
 
-        if (modelClass.getSimpleName().equals("ImageViewerViewModel.class")) {
+        if (modelClass == ImageViewerViewModel.class) {
             return (T) new ImageViewerViewModel(favouriteRepository, fileRepository);
         }
 
-        if (modelClass.getSimpleName().equals("SearchViewModel.class")) {
+        if (modelClass == SearchViewModel.class) {
             return (T) new SearchViewModel(imageRepository, sharedPrefRepository);
         }
 

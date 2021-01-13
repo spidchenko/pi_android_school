@@ -23,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.helpers.SwipeHelper;
+import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.viewmodel.SearchViewModel;
 
@@ -69,9 +70,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
             Log.d(TAG, "onCreate: lat:" + mSearchLatitude + ". lon:" + mSearchLongitude);
         }
 
-        SearchViewModel.Factory factory =
-                new SearchViewModel.Factory(requireActivity().getApplication());
-
+        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
         mViewModel = new ViewModelProvider(this, factory).get(SearchViewModel.class);
 
         // Perform Flickr search by coordinates

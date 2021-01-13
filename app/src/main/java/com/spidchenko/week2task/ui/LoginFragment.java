@@ -15,27 +15,30 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.db.AppDatabase;
-import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.dao.UserDao;
-import com.spidchenko.week2task.db.models.User;
+import com.spidchenko.week2task.helpers.ViewModelsFactory;
+import com.spidchenko.week2task.viewmodel.LoginViewModel;
 
 public class LoginFragment extends Fragment {
 
     private static final String TAG = "LoginFragment.LOG_TAG";
 
-    OnFragmentInteractionListener mListener;
-
-    private final Handler mUiHandler = new Handler(Looper.getMainLooper());
-    private UserDao mUserDao;
-    private String mUsername;
-//    private SharedPrefRepository mSharedPreferences;
+    private OnFragmentInteractionListener mListener;
     private TextInputLayout mTlUsername;
     private EditText mEtUsername;
     private Button mBtnSignIn;
+    private LoginViewModel mViewModel;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        LoginViewModel.Factory factory = new LoginViewModel.Factory(requireActivity().getApplication());
+        mViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -53,40 +56,24 @@ public class LoginFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_login, container, false);
 
-//        mSharedPreferences = SharedPrefRepository.init(requireContext());
         mEtUsername = rootView.findViewById(R.id.username);
         mTlUsername = rootView.findViewById(R.id.username_input_layout);
         mBtnSignIn = rootView.findViewById(R.id.btn_sign_in);
-        AppDatabase mDb = AppDatabase.getInstance(requireContext());
-        mUserDao = mDb.userDao();
+
+        mViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
+            if (isLoggedIn) {
+                mListener.onLogIn();
+            }
+        });
 
         // Sign in action
         mBtnSignIn.setOnClickListener(view -> {
             mListener.hideKeyboard();
-            mUsername = mEtUsername.getText().toString().trim();
-            if (!isLoginValid(mUsername)) {
+            String userName = mEtUsername.getText().toString().trim();
+            if (!isLoginValid(userName)) {
                 mTlUsername.setError(getString(R.string.login_failed));
             } else {
-
-                mBtnSignIn.setClickable(false);
-
-                new Thread(() -> {
-                    Log.d(TAG, "actionSignIn: on Worker Thread." + Thread.currentThread().getName());
-                    User user = mUserDao.getUser(mUsername);
-                    if (user == null) {
-                        mUserDao.addUser(new User(mUsername));
-                        user = mUserDao.getUser(mUsername);
-                    }
-                    CurrentUser currentUser = CurrentUser.getInstance();
-                    currentUser.setUser(user);
-
-                    mUiHandler.post(() -> {
-                        Log.d(TAG, "actionSignIn: on UI Thread." + Thread.currentThread().getName());
-//                        mSharedPreferences.saveLogin(mUsername);
-                        mListener.onLogIn();
-                    });
-
-                }).start();
+                mViewModel.logIn(userName);
             }
         });
 
@@ -106,7 +93,6 @@ public class LoginFragment extends Fragment {
     private boolean isLoginValid(@Nullable String text) {
         return text != null && text.length() > 0;
     }
-
 
     interface OnFragmentInteractionListener {
         void onLogIn();

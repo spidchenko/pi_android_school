@@ -25,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.GalleryAdapter;
 import com.spidchenko.week2task.helpers.SwipeHelper;
+import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.viewmodel.GalleryViewModel;
 
 import java.io.File;
@@ -64,8 +65,7 @@ public class GalleryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GalleryViewModel.Factory factory =
-                new GalleryViewModel.Factory(requireActivity().getApplication());
+        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
         mViewModel = new ViewModelProvider(this, factory).get(GalleryViewModel.class);
     }
 

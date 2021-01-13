@@ -9,6 +9,7 @@ import com.spidchenko.week2task.network.ServiceGenerator;
 import com.spidchenko.week2task.repositories.FileRepository;
 import com.spidchenko.week2task.repositories.ImageRepository;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
+import com.spidchenko.week2task.repositories.UserRepository;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,5 +50,10 @@ public class MyApplication extends Application {
     public SharedPrefRepository getSharedPreferencesRepository() {
         return SharedPrefRepository.getInstance(this);
     }
+
+    public UserRepository getUserRepository(){
+        return UserRepository.getInstance(getDatabase());
+    }
+
 
 }

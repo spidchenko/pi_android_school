@@ -49,13 +49,7 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
-
-//        FavouritesViewModel.Factory factory =
-//                new FavouritesViewModel.Factory(requireActivity().getApplication());
-
         mViewModel = new ViewModelProvider(this, factory).get(FavouritesViewModel.class);
     }
 

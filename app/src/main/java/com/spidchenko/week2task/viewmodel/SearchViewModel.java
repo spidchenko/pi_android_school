@@ -1,15 +1,11 @@
 package com.spidchenko.week2task.viewmodel;
 
-import android.app.Application;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 
-import com.spidchenko.week2task.MyApplication;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.helpers.SingleLiveEvent;
 import com.spidchenko.week2task.network.Result;
@@ -125,26 +121,6 @@ public class SearchViewModel extends ViewModel {
     private void downloadStarted() {
         mIsLoading.postValue(true);
     }
-
-
-    public static class Factory extends ViewModelProvider.NewInstanceFactory {
-
-        private final ImageRepository imageRepository;
-        private final SharedPrefRepository sharedPrefRepository;
-
-        public Factory(@NonNull Application application) {
-            imageRepository = ((MyApplication) application).getImageRepository();
-            sharedPrefRepository = ((MyApplication) application).getSharedPreferencesRepository();
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        @NonNull
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new SearchViewModel(imageRepository, sharedPrefRepository);
-        }
-    }
-
 }
 
 

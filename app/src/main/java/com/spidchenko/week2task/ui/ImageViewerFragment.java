@@ -24,6 +24,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.models.Favourite;
+import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.viewmodel.ImageViewerViewModel;
 
 import static com.spidchenko.week2task.ui.MainActivity.EXTRA_SEARCH_STRING;
@@ -62,9 +63,7 @@ public class ImageViewerFragment extends Fragment {
             mExtraSearchString = getArguments().getString(EXTRA_SEARCH_STRING);
             Log.d(TAG, "onCreate: url:" + mExtraUrl + ". string:" + mExtraSearchString);
         }
-
-        ImageViewerViewModel.Factory factory =
-                new ImageViewerViewModel.Factory(requireActivity().getApplication());
+        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
         mViewModel = new ViewModelProvider(this, factory).get(ImageViewerViewModel.class);
     }
 
