@@ -18,7 +18,6 @@ import com.spidchenko.week2task.network.models.ImgSearchResult;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,18 +34,22 @@ public class ImageRepository {
     private static volatile ImageRepository sInstance;
 
 
-    private ImageRepository(final AppDatabase database, final FlickrApi dataService, final CurrentUser user) {
+    private ImageRepository(final AppDatabase database, final Executor executor,
+                            final FlickrApi dataService, final CurrentUser user) {
         mSearchRequestDao = database.searchRequestDao();
         mDataService = dataService;
-        mExecutor = Executors.newFixedThreadPool(4);
+        mExecutor = executor;
         mUserId = user.getUser().getId();
     }
 
-    public static ImageRepository getInstance(final AppDatabase database, final FlickrApi dataService, final CurrentUser user) {
+    public static ImageRepository getInstance(final AppDatabase database,
+                                              final Executor executor,
+                                              final FlickrApi dataService,
+                                              final CurrentUser user) {
         if (sInstance == null) {
             synchronized (FavouriteRepository.class) {
                 if (sInstance == null) {
-                    sInstance = new ImageRepository(database, dataService, user);
+                    sInstance = new ImageRepository(database, executor, dataService, user);
                 }
             }
         }

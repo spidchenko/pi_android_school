@@ -4,11 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +27,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.navigation.NavigationView;
@@ -47,15 +50,19 @@ public class MainActivity extends AppCompatActivity
         GalleryFragment.OnFragmentInteractionListener,
         FavouritesFragment.OnFragmentInteractionListener {
 
+    private static final String TAG = "MainActivity.LOG_TAG";
+
     public static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
     public static final String EXTRA_SEARCH_STRING = "com.spidchenko.week2task.extras.EXTRA_SEARCH_STRING";
 
     private final BroadcastReceiver mBatteryLevelReceiver = new BatteryLevelReceiver();
     private final Boolean mIsNightMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
     private Boolean mIsOnLoginScreen;
+    private Boolean mIsTabletMode = false;
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
     private ActionBarDrawerToggle drawerToggle;
+    private FragmentContainerView mDetailView;
     private FragmentManager mFragmentManager;
 
     ActivityResultLauncher<Intent> requestPermissionLauncher =
@@ -75,6 +82,16 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (findViewById(R.id.detail_content) != null) {
+            Log.d(TAG, "onCreate: Now in TABLET mode");
+            mIsTabletMode = true;
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            mDetailView = findViewById(R.id.detail_content);
+        } else {
+            Log.d(TAG, "onCreate: Now in PHONE mode");
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
         mFragmentManager = getSupportFragmentManager();
 
@@ -284,11 +301,35 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void replaceFragment(@NonNull Class<? extends Fragment> fragmentClass, Bundle bundle) {
+
+        int container;
+
+        if ((fragmentClass == ImageViewerFragment.class) && mIsTabletMode) {
+            container = R.id.detail_content;
+            showDetailView();
+        } else {
+            container = R.id.content;
+            hideDetailView();
+        }
+
         mFragmentManager
                 .beginTransaction()
                 .setReorderingAllowed(true)
-                .replace(R.id.content, fragmentClass, bundle)
+                .replace(container, fragmentClass, bundle)
                 .addToBackStack(null)
                 .commit();
     }
+
+    private void showDetailView() {
+        if (mDetailView != null) {
+            mDetailView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideDetailView() {
+        if (mDetailView != null) {
+            mDetailView.setVisibility(View.GONE);
+        }
+    }
+
 }

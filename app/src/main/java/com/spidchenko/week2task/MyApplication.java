@@ -11,13 +11,8 @@ import com.spidchenko.week2task.repositories.ImageRepository;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
 import com.spidchenko.week2task.repositories.UserRepository;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class MyApplication extends Application {
 
-    // TODO Delete this ExService
-    public ExecutorService executorService = Executors.newFixedThreadPool(4);
     private AppExecutors mAppExecutors;
 
     @Override
@@ -36,7 +31,7 @@ public class MyApplication extends Application {
     }
 
     public FavouriteRepository getFavouriteRepository() {
-        return FavouriteRepository.getInstance(getDatabase(), getCurrentUser(), mAppExecutors);
+        return FavouriteRepository.getInstance(getDatabase(), getCurrentUser(), mAppExecutors.diskIO());
     }
 
     public FileRepository getFileRepository() {
@@ -44,7 +39,7 @@ public class MyApplication extends Application {
     }
 
     public ImageRepository getImageRepository() {
-        return ImageRepository.getInstance(getDatabase(), ServiceGenerator.getFlickrApi(), getCurrentUser());
+        return ImageRepository.getInstance(getDatabase(), mAppExecutors.diskIO(), ServiceGenerator.getFlickrApi(), getCurrentUser());
     }
 
     public SharedPrefRepository getSharedPreferencesRepository() {
@@ -52,7 +47,7 @@ public class MyApplication extends Application {
     }
 
     public UserRepository getUserRepository(){
-        return UserRepository.getInstance(getDatabase());
+        return UserRepository.getInstance(getDatabase(), mAppExecutors.diskIO());
     }
 
 

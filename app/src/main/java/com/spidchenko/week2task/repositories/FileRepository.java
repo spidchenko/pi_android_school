@@ -89,16 +89,16 @@ public class FileRepository {
         return mImageFiles;
     }
 
-    private Uri getMediaUri(ContentResolver cr, String path) {
+    private Uri getMediaUri(ContentResolver contentResolver, String path) {
         Uri mediaUri = MediaStore.Files.getContentUri("external");
-        Cursor ca = cr.query(mediaUri, new String[]{MediaStore.MediaColumns._ID}, MediaStore.MediaColumns.DATA + "=?", new String[]{path}, null);
-        if (ca != null && ca.moveToFirst()) {
-            int id = ca.getInt(ca.getColumnIndex(MediaStore.MediaColumns._ID));
-            ca.close();
+        Cursor cursor = contentResolver.query(mediaUri, new String[]{MediaStore.MediaColumns._ID}, MediaStore.MediaColumns.DATA + "=?", new String[]{path}, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+            cursor.close();
             return MediaStore.Files.getContentUri("external", id);
         }
-        if (ca != null) {
-            ca.close();
+        if (cursor != null) {
+            cursor.close();
         }
         return null;
     }

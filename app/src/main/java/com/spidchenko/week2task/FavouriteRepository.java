@@ -14,8 +14,7 @@ import com.spidchenko.week2task.network.Result;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
 public class FavouriteRepository {
     private static final String TAG = "FavRepository.LOG_TAG";
@@ -23,16 +22,16 @@ public class FavouriteRepository {
     private final FavouriteDao mFavouriteDao;
     private static volatile FavouriteRepository sInstance;
     private final int mUserId;
-    private final ExecutorService mExecutor;
+    private final Executor mExecutor;
 
 
     private FavouriteRepository(final AppDatabase database,
                                 final CurrentUser user,
-                                final AppExecutors executors) {
+                                final Executor executor) {
 //    FavouriteDao dao, Executor executor, int userId) {
         mUserId = user.getUser().getId();
-//        mExecutor = executors;
-        mExecutor = Executors.newFixedThreadPool(4);
+        mExecutor = executor;
+//        mExecutor = Executors.newFixedThreadPool(4);
         mFavouriteDao = database.favouriteDao();
         updateFavouritesLiveData();
         Log.d(TAG, "FavouriteRepository: userId=" + mUserId + ". dao=" + mFavouriteDao);
@@ -40,11 +39,11 @@ public class FavouriteRepository {
 
     public static FavouriteRepository getInstance(final AppDatabase database,
                                                   final CurrentUser user,
-                                                  final AppExecutors executors) {
+                                                  final Executor executor) {
         if (sInstance == null) {
             synchronized (FavouriteRepository.class) {
                 if (sInstance == null) {
-                    sInstance = new FavouriteRepository(database, user, executors);
+                    sInstance = new FavouriteRepository(database, user, executor);
                 }
             }
         }
