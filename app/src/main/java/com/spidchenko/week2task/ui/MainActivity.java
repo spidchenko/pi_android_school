@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
     public static final String EXTRA_SEARCH_STRING = "com.spidchenko.week2task.extras.EXTRA_SEARCH_STRING";
+    private static final String BACK_STACK_ROOT_TAG = "com.spidchenko.week2task.extras.root_fragment";
 
     private final BroadcastReceiver mBatteryLevelReceiver = new BatteryLevelReceiver();
     private final Boolean mIsNightMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
@@ -171,6 +172,21 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = SearchFragment.class;
         }
 
+
+        // Pop off everything up to and including the current tab
+        try {
+            Fragment fragment = fragmentClass.newInstance();
+            mFragmentManager.popBackStack(BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            mFragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.content, fragment)
+                    .addToBackStack(BACK_STACK_ROOT_TAG)
+                    .commit();
+        } catch (IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+        }
+
+        hideDetailView();
 
         // Insert the fragment by replacing any existing fragment
         replaceFragment(fragmentClass, null);

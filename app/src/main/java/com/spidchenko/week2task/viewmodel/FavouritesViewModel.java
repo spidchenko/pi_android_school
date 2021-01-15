@@ -25,12 +25,11 @@ public class FavouritesViewModel extends ViewModel {
 
     public FavouritesViewModel(FavouriteRepository repository) {
         mFavouriteRepository = repository;
-        mFavourites = mFavouriteRepository.getAllFavourites();
+        mFavourites = mFavouriteRepository.getFavouritesWithCategories();
         Log.d(TAG, "FavouritesViewModel: Created " + this + "( repo=" + repository + ")");
     }
 
-    public LiveData<List<Favourite>> getAllFavourites() {
-        mFavouriteRepository.updateFavouritesLiveData();
+    public LiveData<List<Favourite>> getFavouritesWithCategories() {
         return mFavourites;
     }
 
@@ -43,7 +42,6 @@ public class FavouritesViewModel extends ViewModel {
             if (result instanceof Result.Success) {
                 Log.d(TAG, "toggleFavourite: Deleted from DB");
                 setMessage(R.string.removed_from_favourites);
-                mFavouriteRepository.updateFavouritesLiveData();
             } else {
                 handleError((Result.Error<Boolean>) result);
             }
@@ -52,7 +50,6 @@ public class FavouritesViewModel extends ViewModel {
 
     private void handleError(Result.Error<Boolean> error) {
         Log.d(TAG, "handleError: Error Returned From Repo: " + error.throwable.getMessage());
-        //can use switch-case here
         setMessage(R.string.error_default_message);
     }
 

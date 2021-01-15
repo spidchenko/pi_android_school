@@ -109,10 +109,8 @@ public class ImageViewerFragment extends Fragment {
     private void subscribeToModel() {
 
         mViewModel.getInFavourites(mFavourite).observe(getViewLifecycleOwner(), inFavourites -> {
-            if (inFavourites != null) {
-                cbToggleFavourite.setChecked(inFavourites);
-                Log.d(TAG, "onCreate: inFavourites = " + inFavourites);
-            }
+            Log.d(TAG, "onCreate: inFavouritesLiveData = " + inFavourites);
+            cbToggleFavourite.setChecked((inFavourites != null) && (!inFavourites.getUrl().isEmpty()));
         });
 
         mViewModel.getSnackBarMessage().observe(this,

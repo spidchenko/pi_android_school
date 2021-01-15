@@ -1,23 +1,23 @@
 package com.spidchenko.week2task.repositories;
 
-import android.util.Log;
-
 import com.spidchenko.week2task.db.AppDatabase;
 import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.db.models.User;
 import com.spidchenko.week2task.helpers.SingleLiveEvent;
 
+import java.util.concurrent.Executor;
+
 public class UserRepository {
-    private static final String TAG = "UserRepository.LOG_TAG";
     private final UserDao mUserDao;
-    private int mUserId;
     private final SingleLiveEvent<Boolean> isLoggedIn = new SingleLiveEvent<>();
     private static volatile UserRepository sInstance;
+    private final Executor mExecutor;
 
-    private UserRepository(final AppDatabase appDatabase) {
+    private UserRepository(final AppDatabase appDatabase, Executor executor) {
         mUserDao = appDatabase.userDao();
         isLoggedIn.setValue(false);
+        mExecutor = executor;
     }
 
     public SingleLiveEvent<Boolean> getIsLoggedIn() {
@@ -25,11 +25,11 @@ public class UserRepository {
     }
 
 
-    public static UserRepository getInstance(final AppDatabase appDatabase) {
+    public static UserRepository getInstance(final AppDatabase appDatabase, final Executor executor) {
         if (sInstance == null) {
             synchronized (UserRepository.class) {
                 if (sInstance == null) {
-                    sInstance = new UserRepository(appDatabase);
+                    sInstance = new UserRepository(appDatabase, executor);
                 }
             }
         }
@@ -38,8 +38,7 @@ public class UserRepository {
 
     public void logIn(final String userName) {
 
-        new Thread(() -> {
-            Log.d(TAG, "actionSignIn: on Worker Thread." + Thread.currentThread().getName());
+        mExecutor.execute(() -> {
             User user = mUserDao.getUser(userName);
             if (user == null) {
                 mUserDao.addUser(new User(userName));
@@ -48,16 +47,7 @@ public class UserRepository {
             CurrentUser currentUser = CurrentUser.getInstance();
             currentUser.setUser(user);
             isLoggedIn.postValue(true);
-        }).start();
+        });
     }
-
-    public int getUserId() {
-        return mUserId;
-    }
-
-//    public void setUser(User user) {
-//        this.mUser = user;
-//    }
-
 
 }

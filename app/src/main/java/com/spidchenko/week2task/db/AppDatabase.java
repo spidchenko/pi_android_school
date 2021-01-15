@@ -13,16 +13,10 @@ import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.db.models.SearchRequest;
 import com.spidchenko.week2task.db.models.User;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 @Database(entities = {User.class, Favourite.class, SearchRequest.class}, version = 4, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String DB_FILE_NAME = "com.spidchenko.week2task.db";
-    private static final int NUMBER_OF_THREADS = 4;
-    static final ExecutorService databaseWriteExecutor =
-            Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     private static volatile AppDatabase sInstance;
 
     public static AppDatabase getInstance(final Context context) {

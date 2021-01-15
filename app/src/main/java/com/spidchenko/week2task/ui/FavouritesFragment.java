@@ -80,7 +80,7 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
 
     private void subscribeToModel() {
         Log.d(TAG, "subscribeToModel: ");
-        mViewModel.getAllFavourites().observe(getViewLifecycleOwner(),
+        mViewModel.getFavouritesWithCategories().observe(getViewLifecycleOwner(),
                 favourites -> {
                     mRecyclerAdapter.setFavourites(favourites);
                     Log.d(TAG, "subscribeToModel: favourites->" + favourites);

@@ -1,9 +1,6 @@
 package com.spidchenko.week2task.ui;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.spidchenko.week2task.AppExecutors;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.SearchHistoryAdapter;
 import com.spidchenko.week2task.db.AppDatabase;
@@ -23,15 +21,12 @@ import java.util.ArrayList;
 
 public class SearchHistoryFragment extends Fragment {
 
-    private static final String TAG = "SearchHistFrag.LOG_TAG";
-
-    private final Handler mUiHandler = new Handler(Looper.getMainLooper());
+    private final AppExecutors mAppExecutors = new AppExecutors();
     private SearchRequestDao mSearchRequestDao;
     private CurrentUser mCurrentUser;
-
-    RecyclerView mRvSearchHistory;
-    SearchHistoryAdapter mRecyclerAdapter;
-    ArrayList<SearchRequest> mSearches = new ArrayList<>();
+    private final ArrayList<SearchRequest> mSearches = new ArrayList<>();
+    private RecyclerView mRvSearchHistory;
+    private SearchHistoryAdapter mRecyclerAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,14 +53,12 @@ public class SearchHistoryFragment extends Fragment {
     }
 
     private void insertSearches() {
-        new Thread(() -> {
+        mAppExecutors.diskIO().execute(() -> {
             mSearches.addAll(mSearchRequestDao.getAllSearchRequests(mCurrentUser.getUser().getId()));
-            Log.d(TAG, "insertSearches: " + mSearchRequestDao.getAllSearchRequests(mCurrentUser.getUser().getId()));
-            mUiHandler.post(() -> {
-                mRecyclerAdapter.notifyDataSetChanged();
-                Log.d(TAG, "Data set Changed!");
-            });
-        }).start();
+
+            mAppExecutors.mainThread().execute(() -> mRecyclerAdapter.notifyDataSetChanged());
+
+        });
     }
 
 }
