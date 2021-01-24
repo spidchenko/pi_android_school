@@ -1,22 +1,25 @@
-package com.spidchenko.week2task.repositories;
+package com.spidchenko.week2task.helpers;
 
 import com.spidchenko.week2task.db.AppDatabase;
-import com.spidchenko.week2task.db.CurrentUser;
 import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.db.models.User;
-import com.spidchenko.week2task.helpers.SingleLiveEvent;
+import com.spidchenko.week2task.repositories.SharedPrefRepository;
 
 import java.util.concurrent.Executor;
 
-public class UserRepository {
+public class LogInHelper {
     private final UserDao mUserDao;
     private final SingleLiveEvent<Boolean> isLoggedIn = new SingleLiveEvent<>();
-    private static volatile UserRepository sInstance;
+    private static volatile LogInHelper sInstance;
     private final Executor mExecutor;
+    private final SharedPrefRepository mSharedPrefRepository;
 
-    private UserRepository(final AppDatabase appDatabase, Executor executor) {
+    private LogInHelper(final AppDatabase appDatabase,
+                        final SharedPrefRepository sharedPrefRepository,
+                        final Executor executor) {
         mUserDao = appDatabase.userDao();
         isLoggedIn.setValue(false);
+        mSharedPrefRepository = sharedPrefRepository;
         mExecutor = executor;
     }
 
@@ -25,11 +28,13 @@ public class UserRepository {
     }
 
 
-    public static UserRepository getInstance(final AppDatabase appDatabase, final Executor executor) {
+    public static LogInHelper getInstance(final AppDatabase appDatabase,
+                                          final SharedPrefRepository sharedPrefRepository,
+                                          final Executor executor) {
         if (sInstance == null) {
-            synchronized (UserRepository.class) {
+            synchronized (LogInHelper.class) {
                 if (sInstance == null) {
-                    sInstance = new UserRepository(appDatabase, executor);
+                    sInstance = new LogInHelper(appDatabase, sharedPrefRepository, executor);
                 }
             }
         }
@@ -44,8 +49,8 @@ public class UserRepository {
                 mUserDao.addUser(new User(userName));
                 user = mUserDao.getUser(userName);
             }
-            CurrentUser currentUser = CurrentUser.getInstance();
-            currentUser.setUser(user);
+
+            mSharedPrefRepository.saveUserId(user.getId());
             isLoggedIn.postValue(true);
         });
     }

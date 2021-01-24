@@ -4,12 +4,13 @@ import android.app.Application;
 
 import com.facebook.stetho.Stetho;
 import com.spidchenko.week2task.db.AppDatabase;
-import com.spidchenko.week2task.db.CurrentUser;
+import com.spidchenko.week2task.helpers.LogInHelper;
 import com.spidchenko.week2task.network.ServiceGenerator;
+import com.spidchenko.week2task.repositories.FavouriteRepository;
 import com.spidchenko.week2task.repositories.FileRepository;
 import com.spidchenko.week2task.repositories.ImageRepository;
+import com.spidchenko.week2task.repositories.SearchRequestRepository;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
-import com.spidchenko.week2task.repositories.UserRepository;
 
 public class MyApplication extends Application {
 
@@ -26,12 +27,8 @@ public class MyApplication extends Application {
         return AppDatabase.getInstance(this);
     }
 
-    public CurrentUser getCurrentUser() {
-        return CurrentUser.getInstance();
-    }
-
     public FavouriteRepository getFavouriteRepository() {
-        return FavouriteRepository.getInstance(getDatabase(), getCurrentUser(), mAppExecutors.diskIO());
+        return FavouriteRepository.getInstance(getDatabase(), getSharedPrefRepository(), mAppExecutors.diskIO());
     }
 
     public FileRepository getFileRepository() {
@@ -39,16 +36,19 @@ public class MyApplication extends Application {
     }
 
     public ImageRepository getImageRepository() {
-        return ImageRepository.getInstance(getDatabase(), mAppExecutors.diskIO(), ServiceGenerator.getFlickrApi(), getCurrentUser());
+        return ImageRepository.getInstance(ServiceGenerator.getFlickrApi());
     }
 
-    public SharedPrefRepository getSharedPreferencesRepository() {
+    public SharedPrefRepository getSharedPrefRepository() {
         return SharedPrefRepository.getInstance(this);
     }
 
-    public UserRepository getUserRepository(){
-        return UserRepository.getInstance(getDatabase(), mAppExecutors.diskIO());
+    public LogInHelper getLogInHelper() {
+        return LogInHelper.getInstance(getDatabase(), getSharedPrefRepository(), mAppExecutors.diskIO());
     }
 
+    public SearchRequestRepository getSearchRequestRepository() {
+        return SearchRequestRepository.getInstance(getDatabase(), getSharedPrefRepository(), mAppExecutors.diskIO());
+    }
 
 }

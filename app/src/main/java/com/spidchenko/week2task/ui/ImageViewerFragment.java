@@ -22,8 +22,6 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.db.CurrentUser;
-import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.viewmodel.ImageViewerViewModel;
 
@@ -34,9 +32,11 @@ public class ImageViewerFragment extends Fragment {
 
     private static final String TAG = "ImgViewFragment.LOG_TAG";
 
-    private Favourite mFavourite;
     private ImageViewerViewModel mViewModel;
     private CheckBox cbToggleFavourite;
+
+    private String mExtraUrl;
+    private String mExtraSearchString;
 
     ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -44,16 +44,12 @@ public class ImageViewerFragment extends Fragment {
                 if (isGranted) {
                     mViewModel.saveImage(Glide.with(requireContext().getApplicationContext()),
                             requireContext().getApplicationContext().getContentResolver(),
-                            mFavourite);
+                            mExtraSearchString, mExtraUrl);
                 } else {
                     Snackbar.make(requireView(), R.string.need_storage_permission,
                             BaseTransientBottomBar.LENGTH_LONG).show();
                 }
             });
-
-
-    private String mExtraUrl;
-    private String mExtraSearchString;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,30 +68,29 @@ public class ImageViewerFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_image_viewer, container, false);
 
-        CurrentUser currentUser = CurrentUser.getInstance();
 
         WebView webView = rootView.findViewById(R.id.webView);
         TextView tvSearchString = rootView.findViewById(R.id.tv_search_string);
         cbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
         tvSearchString.setText(mExtraSearchString);
+        ImageView ivSaveImage = rootView.findViewById(R.id.img_save);
+
         initWebView(webView);
-        mFavourite = new Favourite(currentUser.getUser().getId(),
-                mExtraSearchString, mExtraUrl);
         subscribeToModel();
+
         Log.d(TAG, "Intent received. Image Url: " + mExtraUrl +
                 ". SearchString: " + mExtraSearchString);
-        CheckBox cbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
-        // Check/Uncheck current image as favourite and save choice to local Database
-        cbToggleFavourite.setOnClickListener(view -> mViewModel.toggleFavourite(mFavourite));
 
-        ImageView ivSaveImage = rootView.findViewById(R.id.img_save);
+        // Check/Uncheck current image as favourite and save choice to local Database
+        cbToggleFavourite.setOnClickListener(view -> mViewModel.toggleFavourite(mExtraSearchString, mExtraUrl));
+
         // Save current image to Media folder
         ivSaveImage.setOnClickListener(view -> {
             if (ContextCompat.checkSelfPermission(requireContext().getApplicationContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 mViewModel.saveImage(Glide.with(requireContext().getApplicationContext()),
                         requireContext().getApplicationContext().getContentResolver(),
-                        mFavourite);
+                        mExtraSearchString, mExtraUrl);
             } else {
                 Log.d(TAG, "actionSaveImage: Permission not granted! Trying to ask for...");
                 requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -108,7 +103,7 @@ public class ImageViewerFragment extends Fragment {
 
     private void subscribeToModel() {
 
-        mViewModel.getInFavourites(mFavourite).observe(getViewLifecycleOwner(), inFavourites -> {
+        mViewModel.getInFavourites(mExtraSearchString, mExtraUrl).observe(getViewLifecycleOwner(), inFavourites -> {
             Log.d(TAG, "onCreate: inFavouritesLiveData = " + inFavourites);
             cbToggleFavourite.setChecked((inFavourites != null) && (!inFavourites.getUrl().isEmpty()));
         });
@@ -121,11 +116,15 @@ public class ImageViewerFragment extends Fragment {
     private void initWebView(WebView view) {
         //Add zoom controls:
         view.getSettings().setBuiltInZoomControls(true);
+
         //Resize image to screen width:
         view.getSettings().setLoadWithOverviewMode(true);
+
         view.getSettings().setUseWideViewPort(true);
+
         //This line will prevent random Fatal signal 11 (SIGSEGV) error on emulator:
         view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+
         view.loadUrl(mExtraUrl);
     }
 }

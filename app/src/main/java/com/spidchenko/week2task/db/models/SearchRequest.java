@@ -13,7 +13,7 @@ public class SearchRequest {
     int mId;
 
     @ColumnInfo(name = "user_id")
-    int mUser;
+    int mUserId;
 
     @ColumnInfo(name = "search_string")
     String mSearchRequest;
@@ -22,8 +22,8 @@ public class SearchRequest {
     }
 
     @Ignore
-    public SearchRequest(int user, String searchRequest) {
-        this.mUser = user;
+    public SearchRequest(int userId, String searchRequest) {
+        this.mUserId = userId;
         this.mSearchRequest = searchRequest;
     }
 
@@ -35,12 +35,12 @@ public class SearchRequest {
         this.mId = id;
     }
 
-    public int getUser() {
-        return this.mUser;
+    public int getUserId() {
+        return this.mUserId;
     }
 
-    public void setUser(int user) {
-        this.mUser = user;
+    public void setUserId(int userId) {
+        this.mUserId = userId;
     }
 
     public String getSearchRequest() {

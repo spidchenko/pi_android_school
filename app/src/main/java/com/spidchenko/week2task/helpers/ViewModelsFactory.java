@@ -6,15 +6,17 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.spidchenko.week2task.FavouriteRepository;
 import com.spidchenko.week2task.MyApplication;
+import com.spidchenko.week2task.repositories.FavouriteRepository;
 import com.spidchenko.week2task.repositories.FileRepository;
 import com.spidchenko.week2task.repositories.ImageRepository;
+import com.spidchenko.week2task.repositories.SearchRequestRepository;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
 import com.spidchenko.week2task.viewmodel.FavouritesViewModel;
 import com.spidchenko.week2task.viewmodel.GalleryViewModel;
 import com.spidchenko.week2task.viewmodel.ImageViewerViewModel;
 import com.spidchenko.week2task.viewmodel.LoginViewModel;
+import com.spidchenko.week2task.viewmodel.SearchHistoryViewModel;
 import com.spidchenko.week2task.viewmodel.SearchViewModel;
 
 public class ViewModelsFactory extends ViewModelProvider.NewInstanceFactory {
@@ -23,13 +25,16 @@ public class ViewModelsFactory extends ViewModelProvider.NewInstanceFactory {
     private final FileRepository fileRepository;
     private final ImageRepository imageRepository;
     private final SharedPrefRepository sharedPrefRepository;
-
+    private final SearchRequestRepository searchRequestRepository;
+    private final LogInHelper logInHelper;
 
     public ViewModelsFactory(@NonNull Application application) {
         favouriteRepository = ((MyApplication) application).getFavouriteRepository();
         fileRepository = ((MyApplication) application).getFileRepository();
         imageRepository = ((MyApplication) application).getImageRepository();
-        sharedPrefRepository = ((MyApplication) application).getSharedPreferencesRepository();
+        sharedPrefRepository = ((MyApplication) application).getSharedPrefRepository();
+        searchRequestRepository = ((MyApplication) application).getSearchRequestRepository();
+        logInHelper = ((MyApplication) application).getLogInHelper();
     }
 
     @SuppressWarnings("unchecked")
@@ -46,13 +51,17 @@ public class ViewModelsFactory extends ViewModelProvider.NewInstanceFactory {
         }
 
         if (modelClass == ImageViewerViewModel.class) {
-            return (T) new ImageViewerViewModel(favouriteRepository, fileRepository);
+            return (T) new ImageViewerViewModel(favouriteRepository, sharedPrefRepository, fileRepository);
         }
 
         if (modelClass == SearchViewModel.class) {
-            return (T) new SearchViewModel(imageRepository, sharedPrefRepository);
+            return (T) new SearchViewModel(imageRepository, sharedPrefRepository, searchRequestRepository);
         }
 
-        return null;
+        if (modelClass == SearchHistoryViewModel.class) {
+            return (T) new SearchHistoryViewModel(searchRequestRepository);
+        }
+
+        return (T) new LoginViewModel(logInHelper);
     }
 }

@@ -7,10 +7,12 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.spidchenko.week2task.R;
+import com.spidchenko.week2task.db.models.SearchRequest;
 import com.spidchenko.week2task.helpers.SingleLiveEvent;
 import com.spidchenko.week2task.network.Result;
 import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.repositories.ImageRepository;
+import com.spidchenko.week2task.repositories.SearchRequestRepository;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
 
 import java.util.List;
@@ -28,12 +30,16 @@ public class SearchViewModel extends ViewModel {
 
     private final ImageRepository mImageRepository;
     private final SharedPrefRepository mSharedPrefRepository;
+    private final SearchRequestRepository mSearchRequestRepository;
 
 
-    public SearchViewModel(ImageRepository imageRepository, SharedPrefRepository sharedPrefRepository) {
+    public SearchViewModel(ImageRepository imageRepository,
+                           SharedPrefRepository sharedPrefRepository,
+                           SearchRequestRepository searchRequestRepository) {
 
         mImageRepository = imageRepository;
         mSharedPrefRepository = sharedPrefRepository;
+        mSearchRequestRepository = searchRequestRepository;
 
         mLastSearchString.setValue(mSharedPrefRepository.getLastSearch());
         Log.d(TAG, "SearchViewModel: Created");
@@ -43,11 +49,15 @@ public class SearchViewModel extends ViewModel {
         return mImages;
     }
 
-    public void searchImages(String searchRequest) {
+    public void searchImages(String searchString) {
         downloadStarted();
-        mSharedPrefRepository.saveLastSearch(searchRequest);
-        setSearchString(searchRequest);
-        mImageRepository.updateImages(searchRequest, result -> {
+        mSharedPrefRepository.saveLastSearch(searchString);
+        setSearchString(searchString);
+
+        int userId = mSharedPrefRepository.getUserId();
+        mSearchRequestRepository.saveCurrentSearchInDb(new SearchRequest(userId, searchString));
+
+        mImageRepository.updateImages(searchString, result -> {
             if (result instanceof Result.Error) {
                 handleError((Result.Error<List<Image>>) result);
             } else {
@@ -62,7 +72,11 @@ public class SearchViewModel extends ViewModel {
         String geoSearchString = "GeoSearch. Lat:" + lat.substring(0, 5) +
                 " Lon:" + lon.substring(0, 5);
         setSearchString(geoSearchString);
-        mImageRepository.updateImagesByCoordinates(lat, lon, geoSearchString, result -> {
+
+        int userId = mSharedPrefRepository.getUserId();
+        mSearchRequestRepository.saveCurrentSearchInDb(new SearchRequest(userId, geoSearchString));
+
+        mImageRepository.updateImagesByCoordinates(lat, lon, result -> {
             if (result instanceof Result.Error) {
                 handleError((Result.Error<List<Image>>) result);
             } else {

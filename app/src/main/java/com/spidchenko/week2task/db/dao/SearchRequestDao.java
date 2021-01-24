@@ -1,5 +1,6 @@
 package com.spidchenko.week2task.db.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -15,6 +16,6 @@ public interface SearchRequestDao {
     long addSearchRequest(SearchRequest searchRequest);
 
     @Query("SELECT * FROM searches WHERE user_id = :userId ORDER BY id DESC")
-    List<SearchRequest> getAllSearchRequests(int userId);
+    LiveData<List<SearchRequest>> getAllSearchRequests(int userId);
 
 }

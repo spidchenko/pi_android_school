@@ -6,11 +6,11 @@ import androidx.annotation.StringRes;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.spidchenko.week2task.FavouriteRepository;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.helpers.SingleLiveEvent;
 import com.spidchenko.week2task.network.Result;
+import com.spidchenko.week2task.repositories.FavouriteRepository;
 
 import java.util.List;
 

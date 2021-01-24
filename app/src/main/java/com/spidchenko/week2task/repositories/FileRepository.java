@@ -23,7 +23,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.spidchenko.week2task.FavouriteRepository;
 import com.spidchenko.week2task.db.models.Favourite;
 
 import java.io.File;

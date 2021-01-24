@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class SharedPrefRepository {
     private static final String PREF_FILE_KEY = "com.spidchenko.week2task.PREF_FILE_KEY";
-    private static final String PREF_LOGIN_KEY = "com.spidchenko.week2task.PREF_LOGIN_KEY";
+    private static final String PREF_USER_ID_KEY = "com.spidchenko.week2task.PREF_LOGIN_KEY";
     private static final String PREF_LAST_SEARCH_KEY = "com.spidchenko.week2task.PREF_LAST_SEARCH_KEY";
     private static final String TAG = "SharedPrefRepo.LOG_TAG";
 
@@ -30,9 +30,9 @@ public class SharedPrefRepository {
         return sInstance;
     }
 
-    public String getLogin() {
-        Log.d(TAG, "getLogin: " + sSharedPreferences.getString(PREF_LOGIN_KEY, ""));
-        return sSharedPreferences.getString(PREF_LOGIN_KEY, "");
+    public int getUserId() {
+        Log.d(TAG, "getLogin: " + sSharedPreferences.getInt(PREF_USER_ID_KEY, -1));
+        return sSharedPreferences.getInt(PREF_USER_ID_KEY, -1);
     }
 
     public String getLastSearch() {
@@ -40,10 +40,10 @@ public class SharedPrefRepository {
         return sSharedPreferences.getString(PREF_LAST_SEARCH_KEY, "");
     }
 
-    public void saveLogin(String login) {
-        Log.d(TAG, "saveLogin: " + login);
+    public void saveUserId(int userId) {
+        Log.d(TAG, "saveUserId: " + userId);
         SharedPreferences.Editor editor = sSharedPreferences.edit();
-        editor.putString(PREF_LOGIN_KEY, login);
+        editor.putInt(PREF_USER_ID_KEY, userId);
         editor.apply();
     }
 

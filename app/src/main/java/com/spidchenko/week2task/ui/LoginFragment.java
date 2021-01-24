@@ -2,8 +2,6 @@ package com.spidchenko.week2task.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +17,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.viewmodel.LoginViewModel;
 
@@ -36,7 +33,7 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LoginViewModel.Factory factory = new LoginViewModel.Factory(requireActivity().getApplication());
+        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
         mViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
     }
 
