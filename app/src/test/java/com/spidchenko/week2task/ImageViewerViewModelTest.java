@@ -13,22 +13,27 @@ import com.spidchenko.week2task.viewmodel.ImageViewerViewModel;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.MockitoAnnotations;
 
 public class ImageViewerViewModelTest {
-
     private static final int MOCK_USER_ID = 42;
 
-    FavouriteRepository favouriteRepositoryMock = Mockito.mock(FavouriteRepository.class);
-    SharedPrefRepository sharedPrefRepositoryMock = Mockito.mock(SharedPrefRepository.class);
-    FileRepository fileRepositoryMock = Mockito.mock(FileRepository.class);
-    ImageViewerViewModel imageViewerViewModel = Mockito.mock(ImageViewerViewModel.class);
+    @Mock
+    FavouriteRepository favouriteRepositoryMock;
+    @Mock
+    SharedPrefRepository sharedPrefRepositoryMock;
+    @Mock
+    FileRepository fileRepositoryMock;
+    @Mock
+
+    ImageViewerViewModel imageViewerViewModel;
 
 
     @Before
     public void setUp() {
+        MockitoAnnotations.openMocks(this);
         imageViewerViewModel = new ImageViewerViewModel(favouriteRepositoryMock,
                 sharedPrefRepositoryMock,
                 fileRepositoryMock);
@@ -37,7 +42,7 @@ public class ImageViewerViewModelTest {
     }
 
     @Test
-    public void check_getInFavourites() {
+    public void getInFavourites_callRepoWithValidInput() {
         imageViewerViewModel.getInFavourites("TestSearchString", "http://test.url");
         Mockito.verify(favouriteRepositoryMock).getFavourite(Mockito.argThat(
                 (Favourite f) -> f.getUser() == MOCK_USER_ID &&
@@ -46,7 +51,7 @@ public class ImageViewerViewModelTest {
     }
 
     @Test
-    public void check_toggleFavourite_if_not_favourite() {
+    public void toggleFavourite_whenNotFavourite() {
         imageViewerViewModel.toggleFavourite("NotInFavourites", "http://not.in");
         Mockito.verify(favouriteRepositoryMock).addFavorite(Mockito.argThat(
                 (Favourite f) -> f.getUser() == MOCK_USER_ID &&
@@ -56,13 +61,10 @@ public class ImageViewerViewModelTest {
     }
 
     @Test
-    public void check_toggleFavourite_if_favourite() {
-
+    public void toggleFavourite_whenFavourite() {
         Mockito.when(favouriteRepositoryMock.getFavourite(Mockito.any())).thenReturn(new MutableLiveData<>(new Favourite()));
-
         //Set in Favourites:
         imageViewerViewModel.getInFavourites("", "");
-
         imageViewerViewModel.toggleFavourite("InFavourites", "http://in.fav");
         Mockito.verify(favouriteRepositoryMock).deleteFavourite(Mockito.argThat(
                 (Favourite f) -> f.getUser() == MOCK_USER_ID &&
@@ -71,17 +73,17 @@ public class ImageViewerViewModelTest {
     }
 
     @Test
-    public void check_saveImage() {
+    public void saveImage_callRepoWithValidInput() {
         RequestManager requestManagerMock = Mockito.mock(RequestManager.class);
         ContentResolver contentResolverMock = Mockito.mock(ContentResolver.class);
-
         imageViewerViewModel.saveImage(requestManagerMock, contentResolverMock,
                 "ToSave", "http://to.save");
-
-        Mockito.verify(fileRepositoryMock).saveImage(eq(requestManagerMock), eq(contentResolverMock), Mockito.argThat(
-                (Favourite f) -> f.getUser() == MOCK_USER_ID &&
-                        f.getSearchRequest().equals("ToSave") &&
-                        f.getUrl().equals("http://to.save")));
+        Mockito.verify(fileRepositoryMock).saveImage(Mockito.eq(requestManagerMock),
+                Mockito.eq(contentResolverMock),
+                Mockito.argThat(
+                        (Favourite f) -> f.getUser() == MOCK_USER_ID &&
+                                f.getSearchRequest().equals("ToSave") &&
+                                f.getUrl().equals("http://to.save")));
     }
 
 }

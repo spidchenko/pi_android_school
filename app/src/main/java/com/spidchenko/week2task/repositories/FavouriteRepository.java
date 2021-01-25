@@ -17,21 +17,21 @@ public class FavouriteRepository {
     private final Executor mExecutor;
 
 
-    private FavouriteRepository(final AppDatabase database,
+    private FavouriteRepository(final FavouriteDao favouriteDao,
                                 final SharedPrefRepository sharedPrefRepository,
                                 final Executor executor) {
         mSharedPrefRepository = sharedPrefRepository;
         mExecutor = executor;
-        mFavouriteDao = database.favouriteDao();
+        mFavouriteDao = favouriteDao;
     }
 
-    public static FavouriteRepository getInstance(final AppDatabase database,
+    public static FavouriteRepository getInstance(final FavouriteDao favouriteDao,
                                                   final SharedPrefRepository sharedPrefRepository,
                                                   final Executor executor) {
         if (sInstance == null) {
             synchronized (FavouriteRepository.class) {
                 if (sInstance == null) {
-                    sInstance = new FavouriteRepository(database, sharedPrefRepository, executor);
+                    sInstance = new FavouriteRepository(favouriteDao, sharedPrefRepository, executor);
                 }
             }
         }

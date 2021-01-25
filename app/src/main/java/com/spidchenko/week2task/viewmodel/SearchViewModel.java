@@ -42,7 +42,6 @@ public class SearchViewModel extends ViewModel {
         mSearchRequestRepository = searchRequestRepository;
 
         mLastSearchString.setValue(mSharedPrefRepository.getLastSearch());
-        Log.d(TAG, "SearchViewModel: Created");
     }
 
     public LiveData<List<Image>> getAllImages() {
