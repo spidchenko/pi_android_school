@@ -26,7 +26,6 @@ public class FavouritesViewModel extends ViewModel {
     public FavouritesViewModel(FavouriteRepository repository) {
         mFavouriteRepository = repository;
         mFavourites = mFavouriteRepository.getFavouritesWithCategories();
-        Log.d(TAG, "FavouritesViewModel: Created " + this + "( repo=" + repository + ")");
     }
 
     public LiveData<List<Favourite>> getFavouritesWithCategories() {
