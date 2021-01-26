@@ -1,6 +1,5 @@
 package com.spidchenko.week2task.helpers;
 
-import com.spidchenko.week2task.db.AppDatabase;
 import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.db.models.User;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
@@ -14,10 +13,10 @@ public class LogInHelper {
     private final Executor mExecutor;
     private final SharedPrefRepository mSharedPrefRepository;
 
-    private LogInHelper(final AppDatabase appDatabase,
+    private LogInHelper(final UserDao userDao,
                         final SharedPrefRepository sharedPrefRepository,
                         final Executor executor) {
-        mUserDao = appDatabase.userDao();
+        mUserDao = userDao;
         isLoggedIn.setValue(false);
         mSharedPrefRepository = sharedPrefRepository;
         mExecutor = executor;
@@ -28,13 +27,13 @@ public class LogInHelper {
     }
 
 
-    public static LogInHelper getInstance(final AppDatabase appDatabase,
+    public static LogInHelper getInstance(final UserDao userDao,
                                           final SharedPrefRepository sharedPrefRepository,
                                           final Executor executor) {
         if (sInstance == null) {
             synchronized (LogInHelper.class) {
                 if (sInstance == null) {
-                    sInstance = new LogInHelper(appDatabase, sharedPrefRepository, executor);
+                    sInstance = new LogInHelper(userDao, sharedPrefRepository, executor);
                 }
             }
         }

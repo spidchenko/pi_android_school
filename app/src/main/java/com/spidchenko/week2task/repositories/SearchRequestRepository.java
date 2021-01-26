@@ -1,9 +1,8 @@
 package com.spidchenko.week2task.repositories;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.spidchenko.week2task.db.AppDatabase;
+import com.spidchenko.week2task.db.dao.SearchRequestDao;
 import com.spidchenko.week2task.db.models.SearchRequest;
 
 import java.util.List;
@@ -13,25 +12,24 @@ public class SearchRequestRepository {
 
     private final SharedPrefRepository mSharedPrefRepository;
     private final Executor mExecutor;
-    private final AppDatabase mAppDatabase;
-    private MutableLiveData<List<SearchRequest>> mSearchRequests;
+    private final SearchRequestDao mSearchRequestDao;
     private static volatile SearchRequestRepository sInstance;
 
-    private SearchRequestRepository(final AppDatabase appDatabase,
+    private SearchRequestRepository(final SearchRequestDao searchRequestDao,
                                     final SharedPrefRepository sharedPrefRepository,
                                     final Executor executor) {
         mSharedPrefRepository = sharedPrefRepository;
-        mAppDatabase = appDatabase;
+        mSearchRequestDao = searchRequestDao;
         mExecutor = executor;
     }
 
-    public static SearchRequestRepository getInstance(final AppDatabase appDatabase,
+    public static SearchRequestRepository getInstance(final SearchRequestDao searchRequestDao,
                                                       final SharedPrefRepository sharedPrefRepository,
                                                       final Executor executor) {
         if (sInstance == null) {
             synchronized (SearchRequestRepository.class) {
                 if (sInstance == null) {
-                    sInstance = new SearchRequestRepository(appDatabase, sharedPrefRepository, executor);
+                    sInstance = new SearchRequestRepository(searchRequestDao, sharedPrefRepository, executor);
                 }
             }
         }
@@ -39,15 +37,12 @@ public class SearchRequestRepository {
     }
 
     public void saveCurrentSearchInDb(final SearchRequest request) {
-        mExecutor.execute(() -> mAppDatabase.searchRequestDao().addSearchRequest(request));
+        mExecutor.execute(() -> mSearchRequestDao.addSearchRequest(request));
     }
 
     public LiveData<List<SearchRequest>> getSearchRequests() {
-        if (mSearchRequests == null) {
-            mSearchRequests = new MutableLiveData<>();
-        }
         int userId = mSharedPrefRepository.getUserId();
-        return mAppDatabase.searchRequestDao().getAllSearchRequests(userId);
+        return mSearchRequestDao.getAllSearchRequests(userId);
     }
 
 }

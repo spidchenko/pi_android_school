@@ -1,7 +1,5 @@
 package com.spidchenko.week2task;
 
-import androidx.lifecycle.MutableLiveData;
-
 import com.spidchenko.week2task.db.dao.FavouriteDao;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.repositories.FavouriteRepository;
@@ -25,7 +23,6 @@ public class FavouriteRepositoryTest {
     @Mock
     FavouriteRepository.RepositoryCallback<Boolean> repositoryCallbackMock;
 
-    //        private final Executor executor = Executors.newFixedThreadPool(2);
     private final Executor executor = new CurrentThreadExecutor();
 
     private FavouriteRepository favouriteRepository;

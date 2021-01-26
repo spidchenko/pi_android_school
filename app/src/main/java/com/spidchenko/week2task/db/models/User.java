@@ -1,7 +1,5 @@
 package com.spidchenko.week2task.db.models;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -25,7 +23,6 @@ public class User {
     @Ignore
     public User(@NonNull String login) {
         this.mLogin = login;
-        Log.d(TAG, "User: Created " + login);
     }
 
     public int getId() {
