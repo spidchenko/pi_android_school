@@ -29,6 +29,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity
     private ActionBarDrawerToggle drawerToggle;
     private FragmentContainerView mDetailView;
     private FragmentManager mFragmentManager;
+    private NavController mNavController;
 
     ActivityResultLauncher<Intent> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -84,6 +87,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
         if (findViewById(R.id.detail_content) != null) {
             Log.d(TAG, "onCreate: Now in TABLET mode");
             mIsTabletMode = true;
@@ -96,12 +101,12 @@ public class MainActivity extends AppCompatActivity
 
         mFragmentManager = getSupportFragmentManager();
 
-        mIsOnLoginScreen = (Objects.requireNonNull(mFragmentManager.findFragmentById(R.id.content)).getClass() == LoginFragment.class);
+//FIXME        mIsOnLoginScreen = (Objects.requireNonNull(mFragmentManager.findFragmentById(R.id.content)).getClass() == LoginFragment.class);
 
         // ActionBar on login screen disabled
-        if (!mIsOnLoginScreen) {
-            initActionBar();
-        }
+//FIXME        if (!mIsOnLoginScreen) {
+//            initActionBar();
+//        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !Settings.canDrawOverlays(this)) {
             Toast.makeText(this, R.string.need_alert_permission, Toast.LENGTH_LONG).show();
@@ -143,61 +148,62 @@ public class MainActivity extends AppCompatActivity
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                menuItem -> {
-                    selectDrawerItem(menuItem);
-                    return true;
-                });
-    }
+//    private void setupDrawerContent(NavigationView navigationView) {
+//        navigationView.setNavigationItemSelectedListener(
+//                menuItem -> {
+//                    selectDrawerItem(menuItem);
+//                    return true;
+//                });
+//    }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
         return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
     }
 
-    public void selectDrawerItem(MenuItem menuItem) {
-        Class<? extends Fragment> fragmentClass;
-        int itemId = menuItem.getItemId();
-        if (itemId == R.id.nav_search) {
-            fragmentClass = SearchFragment.class;
-        } else if (itemId == R.id.nav_favourites) {
-            fragmentClass = FavouritesFragment.class;
-        } else if (itemId == R.id.nav_gallery) {
-            fragmentClass = GalleryFragment.class;
-        } else if (itemId == R.id.nav_search_history) {
-            fragmentClass = SearchHistoryFragment.class;
-        } else if (itemId == R.id.nav_maps) {
-            fragmentClass = MapsFragment.class;
-        } else {
-            fragmentClass = SearchFragment.class;
-        }
-
-
-        // Pop off everything up to and including the current tab
-        try {
-            Fragment fragment = fragmentClass.newInstance();
-            mFragmentManager.popBackStack(BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            mFragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .replace(R.id.content, fragment)
-                    .addToBackStack(BACK_STACK_ROOT_TAG)
-                    .commit();
-        } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
-        }
-
-        hideDetailView();
-
-        // Insert the fragment by replacing any existing fragment
-        replaceFragment(fragmentClass, null);
-
-        // Highlight the selected item has been done by NavigationView
-        menuItem.setChecked(true);
-        // Set action bar title
-        setTitle(menuItem.getTitle());
-        // Close the navigation drawer
-        mDrawer.closeDrawers();
-    }
+//    public void selectDrawerItem(MenuItem menuItem) {
+//        //FIXME
+////        Class<? extends Fragment> fragmentClass;
+////        int itemId = menuItem.getItemId();
+////        if (itemId == R.id.nav_search) {
+////            fragmentClass = SearchFragment.class;
+////        } else if (itemId == R.id.nav_favourites) {
+////            fragmentClass = FavouritesFragment.class;
+////        } else if (itemId == R.id.nav_gallery) {
+////            fragmentClass = GalleryFragment.class;
+////        } else if (itemId == R.id.nav_search_history) {
+////            fragmentClass = SearchHistoryFragment.class;
+////        } else if (itemId == R.id.nav_maps) {
+////            fragmentClass = MapsFragment.class;
+////        } else {
+////            fragmentClass = SearchFragment.class;
+////        }
+////
+////
+////        // Pop off everything up to and including the current tab
+////        try {
+////            Fragment fragment = fragmentClass.newInstance();
+////            mFragmentManager.popBackStack(BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+////            mFragmentManager.beginTransaction()
+////                    .setReorderingAllowed(true)
+////                    .replace(R.id.content, fragment)
+////                    .addToBackStack(BACK_STACK_ROOT_TAG)
+////                    .commit();
+////        } catch (IllegalAccessException | InstantiationException e) {
+////            e.printStackTrace();
+////        }
+//
+//        hideDetailView();
+//
+//        // Insert the fragment by replacing any existing fragment
+////        replaceFragment(fragmentClass, null);
+//
+//        // Highlight the selected item has been done by NavigationView
+//        menuItem.setChecked(true);
+//        // Set action bar title
+//        setTitle(menuItem.getTitle());
+//        // Close the navigation drawer
+//        mDrawer.closeDrawers();
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -275,13 +281,14 @@ public class MainActivity extends AppCompatActivity
         // Find our drawer view
         NavigationView nvDrawer = findViewById(R.id.nvView);
         // Setup drawer view
-        setupDrawerContent(nvDrawer);
+//        setupDrawerContent(nvDrawer);
     }
 
     // Action from login fragment
     @Override
     public void onLogIn() {
-        replaceFragment(SearchFragment.class, null);
+        mNavController.navigate(R.id.searchFragment);
+//        replaceFragment(SearchFragment.class, null);
         mIsOnLoginScreen = false;
         initActionBar();
     }

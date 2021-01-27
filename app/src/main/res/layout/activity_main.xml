@@ -20,12 +20,21 @@
             android:minHeight="?attr/actionBarSize"
             app:title="@string/app_name" />
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/content"
-            android:name="com.spidchenko.week2task.ui.LoginFragment"
+        <fragment
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            app:navGraph="@navigation/nav_graph"
+            app:defaultNavHost="true"
+            />
+
+<!--        <androidx.fragment.app.FragmentContainerView-->
+<!--            android:id="@+id/content"-->
+<!--            android:name="com.spidchenko.week2task.ui.LoginFragment"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView
