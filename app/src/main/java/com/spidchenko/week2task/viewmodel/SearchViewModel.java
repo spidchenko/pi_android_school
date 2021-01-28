@@ -92,6 +92,7 @@ public class SearchViewModel extends ViewModel {
             temp.remove(position);
             mImages.setValue(temp);
         }
+        mSnackBarMessage.setValue(R.string.removed_from_list);
     }
 
     public LiveData<String> getSearchString() {

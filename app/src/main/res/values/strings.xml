@@ -18,6 +18,7 @@
 
     <string name="action_favourites">Favourites</string>
     <string name="removed_from_favourites">Removed from Favourites</string>
+    <string name="removed_from_list">Removed from list</string>
     <string name="added_to_favourites">Added to Favourites</string>
 
     <string name="night_mode_on">Night mode activated</string>

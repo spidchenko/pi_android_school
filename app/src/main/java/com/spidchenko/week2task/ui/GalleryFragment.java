@@ -114,6 +114,10 @@ public class GalleryFragment extends Fragment {
             mRecyclerAdapter.setImages((ArrayList<File>) files);
             mRecyclerAdapter.notifyDataSetChanged();
         });
+
+        mViewModel.getSnackBarMessage().observe(this,
+                message -> Snackbar.make(requireView(), message,
+                        BaseTransientBottomBar.LENGTH_LONG).show());
     }
 
     interface OnFragmentInteractionListener {
