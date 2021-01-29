@@ -94,11 +94,11 @@ public class MainActivityTest {
                 .check(matches(withText(R.string.error_nothing_found)));
     }
 
-    @Test
-    public void testDrawer_visibleWhenOpen() {
-        openNavigationDrawer();
-        onView(withId(R.id.nav_search)).check(matches(isDisplayed()));
-    }
+//    @Test
+//    public void testDrawer_visibleWhenOpen() {
+//        openNavigationDrawer();
+//        onView(withId(R.id.nav_search)).check(matches(isDisplayed()));
+//    }
 
     @Test
     public void searchPictures_progressBarVisible() {
@@ -211,26 +211,26 @@ public class MainActivityTest {
 
 
     private void navigate_to(int destination) {
-        switch (destination) {
-            case NAV_SEARCH:
-                break;
-            case NAV_FAVOURITES:
-                openNavigationDrawer();
-                onView(withId(R.id.nav_favourites)).perform(click());
-                break;
-            case NAV_GALLERY:
-                openNavigationDrawer();
-                onView(withId(R.id.nav_gallery)).perform(click());
-                break;
-            case NAV_SEARCH_HISTORY:
-                openNavigationDrawer();
-                onView(withId(R.id.nav_search_history)).perform(click());
-                break;
-            case NAV_MAPS:
-                openNavigationDrawer();
-                onView(withId(R.id.nav_maps)).perform(click());
-                break;
-        }
+//        switch (destination) {
+//            case NAV_SEARCH:
+//                break;
+//            case NAV_FAVOURITES:
+//                openNavigationDrawer();
+//                onView(withId(R.id.nav_favourites)).perform(click());
+//                break;
+//            case NAV_GALLERY:
+//                openNavigationDrawer();
+//                onView(withId(R.id.nav_gallery)).perform(click());
+//                break;
+//            case NAV_SEARCH_HISTORY:
+//                openNavigationDrawer();
+//                onView(withId(R.id.nav_search_history)).perform(click());
+//                break;
+//            case NAV_MAPS:
+//                openNavigationDrawer();
+//                onView(withId(R.id.nav_maps)).perform(click());
+//                break;
+//        }
     }
 
     private void openNavigationDrawer() {

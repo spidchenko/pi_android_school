@@ -5,14 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -30,7 +27,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -39,8 +38,6 @@ import com.spidchenko.week2task.BatteryLevelReceiver;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.network.models.Image;
-
-import java.util.Objects;
 
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LATITUDE;
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LONGITUDE;
@@ -63,7 +60,6 @@ public class MainActivity extends AppCompatActivity
     private Boolean mIsOnLoginScreen;
     private Boolean mIsTabletMode = false;
     private DrawerLayout mDrawer;
-    private Toolbar toolbar;
     private ActionBarDrawerToggle drawerToggle;
     private FragmentContainerView mDetailView;
     private FragmentManager mFragmentManager;
@@ -87,7 +83,21 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+        mNavController = navHostFragment.getNavController();
+
+        // Set up App Bar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(mNavController.getGraph())
+                        .setDrawerLayout(findViewById(R.id.drawer_layout))
+                        .build();
+        NavigationUI.setupWithNavController(toolbar, mNavController, appBarConfiguration);
+
+        // Set up Navigation drawer
+        NavigationView navView = findViewById(R.id.nav_view);
+        NavigationUI.setupWithNavController(navView, mNavController);
 
         if (findViewById(R.id.detail_content) != null) {
             Log.d(TAG, "onCreate: Now in TABLET mode");
@@ -141,12 +151,12 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        // Pass any configuration change to the drawer toggles
-        drawerToggle.onConfigurationChanged(newConfig);
-    }
+//    @Override
+//    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//        // Pass any configuration change to the drawer toggles
+//        drawerToggle.onConfigurationChanged(newConfig);
+//    }
 
 //    private void setupDrawerContent(NavigationView navigationView) {
 //        navigationView.setNavigationItemSelectedListener(
@@ -156,9 +166,9 @@ public class MainActivity extends AppCompatActivity
 //                });
 //    }
 
-    private ActionBarDrawerToggle setupDrawerToggle() {
-        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
-    }
+//    private ActionBarDrawerToggle setupDrawerToggle() {
+//        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
+//    }
 
 //    public void selectDrawerItem(MenuItem menuItem) {
 //        //FIXME
@@ -205,21 +215,21 @@ public class MainActivity extends AppCompatActivity
 //        mDrawer.closeDrawers();
 //    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.action_bar_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem nightMode = menu.findItem(R.id.menu_toggle_night_mode);
-        if (mIsNightMode != null) {
-            nightMode.setIcon(mIsNightMode ? R.drawable.ic_moon : R.drawable.ic_sun);
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater menuInflater = getMenuInflater();
+//        menuInflater.inflate(R.menu.action_bar_menu, menu);
+//        return super.onCreateOptionsMenu(menu);
+//    }
+//
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        MenuItem nightMode = menu.findItem(R.id.menu_toggle_night_mode);
+//        if (mIsNightMode != null) {
+//            nightMode.setIcon(mIsNightMode ? R.drawable.ic_moon : R.drawable.ic_sun);
+//        }
+//        return super.onPrepareOptionsMenu(menu);
+//    }
 
     private void toggleNightMode() {
         // Get the night mode state of the app.
@@ -261,36 +271,36 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void initActionBar() {
-        // Set a Toolbar to replace the ActionBar.
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-
-        // Find our drawer view
-        mDrawer = findViewById(R.id.drawer_layout);
-        drawerToggle = setupDrawerToggle();
-
-        // Setup toggle to display hamburger icon with nice animation
-        drawerToggle.setDrawerIndicatorEnabled(true);
-        drawerToggle.syncState();
-
-        // Tie DrawerLayout events to the ActionBarToggle
-        mDrawer.addDrawerListener(drawerToggle);
-
-        // Find our drawer view
-        NavigationView nvDrawer = findViewById(R.id.nvView);
-        // Setup drawer view
-//        setupDrawerContent(nvDrawer);
-    }
+//    private void initActionBar() {
+//        // Set a Toolbar to replace the ActionBar.
+//        toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+//
+//        // Find our drawer view
+//        mDrawer = findViewById(R.id.drawer_layout);
+//        drawerToggle = setupDrawerToggle();
+//
+//        // Setup toggle to display hamburger icon with nice animation
+//        drawerToggle.setDrawerIndicatorEnabled(true);
+//        drawerToggle.syncState();
+//
+//        // Tie DrawerLayout events to the ActionBarToggle
+//        mDrawer.addDrawerListener(drawerToggle);
+//
+//        // Find our drawer view
+//        NavigationView nvDrawer = findViewById(R.id.nvView);
+//        // Setup drawer view
+////        setupDrawerContent(nvDrawer);
+//    }
 
     // Action from login fragment
     @Override
     public void onLogIn() {
-        mNavController.navigate(R.id.searchFragment);
+        mNavController.navigate(R.id.action_loginFragment_to_searchFragment);
 //        replaceFragment(SearchFragment.class, null);
         mIsOnLoginScreen = false;
-        initActionBar();
+//        initActionBar();
     }
 
     // Action from search fragment

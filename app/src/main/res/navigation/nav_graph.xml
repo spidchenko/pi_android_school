@@ -39,7 +39,11 @@
         android:id="@+id/favouritesFragment"
         android:name="com.spidchenko.week2task.ui.FavouritesFragment"
         android:label="fragment_favourites"
-        tools:layout="@layout/fragment_favourites" />
+        tools:layout="@layout/fragment_favourites">
+        <action
+            android:id="@+id/action_favouritesFragment_to_imageViewerFragment"
+            app:destination="@id/imageViewerFragment" />
+    </fragment>
     <fragment
         android:id="@+id/galleryFragment"
         android:name="com.spidchenko.week2task.ui.GalleryFragment"
