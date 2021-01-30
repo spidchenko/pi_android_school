@@ -309,7 +309,8 @@ public class MainActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_URL, image.getUrl(Image.PIC_SIZE_MEDIUM));
         bundle.putString(EXTRA_SEARCH_STRING, searchString);
-        replaceFragment(ImageViewerFragment.class, bundle);
+        mNavController.navigate(R.id.action_searchFragment_to_imageViewerFragment, bundle);
+//        replaceFragment(ImageViewerFragment.class, bundle);
     }
 
     @Override
@@ -317,12 +318,14 @@ public class MainActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_LATITUDE, lat);
         bundle.putString(EXTRA_LONGITUDE, lon);
-        replaceFragment(SearchFragment.class, bundle);
+        mNavController.navigate(R.id.action_mapsFragment_to_searchFragment,bundle);
+//        replaceFragment(SearchFragment.class, bundle);
     }
 
     @Override
     public void onTakePhotosAction() {
-        replaceFragment(CameraFragment.class, null);
+        mNavController.navigate(R.id.action_galleryFragment_to_cameraFragment);
+//        replaceFragment(CameraFragment.class, null);
     }
 
     @Override
@@ -330,28 +333,29 @@ public class MainActivity extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_URL, favourite.getUrl());
         bundle.putString(EXTRA_SEARCH_STRING, favourite.getSearchRequest());
-        replaceFragment(ImageViewerFragment.class, bundle);
+        mNavController.navigate(R.id.action_favouritesFragment_to_imageViewerFragment, bundle);
+//        replaceFragment(ImageViewerFragment.class, bundle);
     }
 
-    private void replaceFragment(@NonNull Class<? extends Fragment> fragmentClass, Bundle bundle) {
-
-        int container;
-
-        if ((fragmentClass == ImageViewerFragment.class) && mIsTabletMode) {
-            container = R.id.detail_content;
-            showDetailView();
-        } else {
-            container = R.id.content;
-            hideDetailView();
-        }
-
-        mFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(container, fragmentClass, bundle)
-                .addToBackStack(null)
-                .commit();
-    }
+//    private void replaceFragment(@NonNull Class<? extends Fragment> fragmentClass, Bundle bundle) {
+//
+//        int container;
+//
+//        if ((fragmentClass == ImageViewerFragment.class) && mIsTabletMode) {
+//            container = R.id.detail_content;
+//            showDetailView();
+//        } else {
+//            container = R.id.content;
+//            hideDetailView();
+//        }
+//
+//        mFragmentManager
+//                .beginTransaction()
+//                .setReorderingAllowed(true)
+//                .replace(container, fragmentClass, bundle)
+//                .addToBackStack(null)
+//                .commit();
+//    }
 
     private void showDetailView() {
         if (mDetailView != null) {

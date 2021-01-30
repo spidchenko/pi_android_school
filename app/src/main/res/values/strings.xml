@@ -20,6 +20,8 @@
     <string name="removed_from_favourites">Removed from Favourites</string>
     <string name="added_to_favourites">Added to Favourites</string>
 
+    <string name="image_viewer">Image</string>
+
     <string name="night_mode_on">Night mode activated</string>
     <string name="night_mode_off">Day mode activated</string>
 
