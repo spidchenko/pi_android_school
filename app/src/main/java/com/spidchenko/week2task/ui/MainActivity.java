@@ -17,15 +17,14 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -37,7 +36,11 @@ import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.BatteryLevelReceiver;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.models.Favourite;
+import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.network.models.Image;
+import com.spidchenko.week2task.viewmodel.LoginViewModel;
+
+import java.util.Objects;
 
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LATITUDE;
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LONGITUDE;
@@ -59,11 +62,13 @@ public class MainActivity extends AppCompatActivity
     private final Boolean mIsNightMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
     private Boolean mIsOnLoginScreen;
     private Boolean mIsTabletMode = false;
+    private Boolean mIsLoggedIn = false;
     private DrawerLayout mDrawer;
     private ActionBarDrawerToggle drawerToggle;
     private FragmentContainerView mDetailView;
     private FragmentManager mFragmentManager;
     private NavController mNavController;
+    private LoginViewModel mLoginViewModel;
 
     ActivityResultLauncher<Intent> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -85,13 +90,13 @@ public class MainActivity extends AppCompatActivity
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
-        mNavController = navHostFragment.getNavController();
+        mNavController = Objects.requireNonNull(navHostFragment).getNavController();
 
         // Set up App Bar
         Toolbar toolbar = findViewById(R.id.toolbar);
         AppBarConfiguration appBarConfiguration =
                 new AppBarConfiguration.Builder(mNavController.getGraph())
-                        .setDrawerLayout(findViewById(R.id.drawer_layout))
+                        .setOpenableLayout(findViewById(R.id.drawer_layout))
                         .build();
         NavigationUI.setupWithNavController(toolbar, mNavController, appBarConfiguration);
 
@@ -122,6 +127,9 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, R.string.need_alert_permission, Toast.LENGTH_LONG).show();
             requestPermissionToLaunchOnBoot();
         }
+
+        ViewModelsFactory factory = new ViewModelsFactory(getApplication());
+        mLoginViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
 
     }
 
@@ -294,14 +302,14 @@ public class MainActivity extends AppCompatActivity
 ////        setupDrawerContent(nvDrawer);
 //    }
 
-    // Action from login fragment
-    @Override
-    public void onLogIn() {
-        mNavController.navigate(R.id.action_loginFragment_to_searchFragment);
-//        replaceFragment(SearchFragment.class, null);
-        mIsOnLoginScreen = false;
-//        initActionBar();
-    }
+//    // Action from login fragment
+//    @Override
+//    public void onLogIn() {
+//        mNavController.navigate(R.id.action_loginFragment_to_searchFragment);
+////        replaceFragment(SearchFragment.class, null);
+//        mIsOnLoginScreen = false;
+////        initActionBar();
+//    }
 
     // Action from search fragment
     @Override

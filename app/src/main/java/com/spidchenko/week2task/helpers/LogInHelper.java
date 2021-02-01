@@ -1,5 +1,8 @@
 package com.spidchenko.week2task.helpers;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.db.models.User;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
@@ -8,7 +11,7 @@ import java.util.concurrent.Executor;
 
 public class LogInHelper {
     private final UserDao mUserDao;
-    private final SingleLiveEvent<Boolean> isLoggedIn = new SingleLiveEvent<>();
+    private final MutableLiveData<Boolean> isLoggedIn = new MutableLiveData<>();
     private static volatile LogInHelper sInstance;
     private final Executor mExecutor;
     private final SharedPrefRepository mSharedPrefRepository;
@@ -22,7 +25,7 @@ public class LogInHelper {
         mExecutor = executor;
     }
 
-    public SingleLiveEvent<Boolean> getIsLoggedIn() {
+    public LiveData<Boolean> getIsLoggedIn() {
         return isLoggedIn;
     }
 

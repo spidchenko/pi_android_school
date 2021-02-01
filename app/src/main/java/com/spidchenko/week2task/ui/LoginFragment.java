@@ -14,6 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.spidchenko.week2task.R;
@@ -29,12 +32,13 @@ public class LoginFragment extends Fragment {
     private EditText mEtUsername;
     private Button mBtnSignIn;
     private LoginViewModel mViewModel;
+    private NavController mNavController;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
-        mViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity(), factory).get(LoginViewModel.class);
     }
 
     @Override
@@ -49,6 +53,20 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mViewModel.getIsLoggedIn().observe(requireActivity(), isLoggedIn -> {
+            if (isLoggedIn) {
+                int startDestination = mNavController.getGraph().getStartDestination();
+                NavOptions navOptions = new NavOptions.Builder()
+                        .setPopUpTo(startDestination, true)
+                        .build();
+                mNavController.navigate(startDestination, null, navOptions);
+            }
+        });
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_login, container, false);
@@ -57,11 +75,7 @@ public class LoginFragment extends Fragment {
         mTlUsername = rootView.findViewById(R.id.username_input_layout);
         mBtnSignIn = rootView.findViewById(R.id.btn_sign_in);
 
-        mViewModel.getIsLoggedIn().observe(getViewLifecycleOwner(), isLoggedIn -> {
-            if (isLoggedIn) {
-                mListener.onLogIn();
-            }
-        });
+        mNavController = NavHostFragment.findNavController(this);
 
         // Sign in action
         mBtnSignIn.setOnClickListener(view -> {
@@ -92,7 +106,7 @@ public class LoginFragment extends Fragment {
     }
 
     interface OnFragmentInteractionListener {
-        void onLogIn();
+//        void onLogIn();
 
         void hideKeyboard();
     }

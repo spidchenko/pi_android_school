@@ -4,12 +4,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.spidchenko.week2task.helpers.LogInHelper;
-import com.spidchenko.week2task.helpers.SingleLiveEvent;
 
 public class LoginViewModel extends ViewModel {
 
     private final LogInHelper mLogInHelper;
-    private final SingleLiveEvent<Boolean> isLoggedIn;
+    private final LiveData<Boolean> isLoggedIn;
 
     public LoginViewModel(final LogInHelper logInHelper) {
         mLogInHelper = logInHelper;

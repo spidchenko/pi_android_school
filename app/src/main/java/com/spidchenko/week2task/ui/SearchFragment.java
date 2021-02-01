@@ -12,8 +12,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +27,7 @@ import com.spidchenko.week2task.adapter.ImageListAdapter;
 import com.spidchenko.week2task.helpers.SwipeHelper;
 import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.network.models.Image;
+import com.spidchenko.week2task.viewmodel.LoginViewModel;
 import com.spidchenko.week2task.viewmodel.SearchViewModel;
 
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LATITUDE;
@@ -38,6 +41,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     private String mCurrentSearchString;
     private ImageListAdapter mRecyclerAdapter;
     private SearchViewModel mViewModel;
+    private LoginViewModel mUserViewModel;
 
     OnFragmentInteractionListener mListener;
 
@@ -62,6 +66,21 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
+        mUserViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
+
+        mUserViewModel.getIsLoggedIn().observe(requireActivity(), isLoggedIn -> {
+            if (isLoggedIn) {
+                //       NavHostFragment.findNavController(this).popBackStack();
+            } else {
+                NavHostFragment.findNavController(this).navigate(R.id.loginFragment);
+            }
+        });
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
@@ -72,6 +91,15 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
         ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
         mViewModel = new ViewModelProvider(this, factory).get(SearchViewModel.class);
+//        mUserViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
+//
+//        mUserViewModel.getIsLoggedIn().observe(requireActivity(), isLoggedIn -> {
+//            if (isLoggedIn) {
+//         //       NavHostFragment.findNavController(this).popBackStack();
+//            } else {
+//                NavHostFragment.findNavController(this).navigate(R.id.loginFragment);
+//            }
+//        });
 
         // Perform Flickr search by coordinates
         if ((getArguments() != null) && (savedInstanceState == null)) {
