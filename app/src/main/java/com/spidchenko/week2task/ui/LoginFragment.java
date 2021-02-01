@@ -10,12 +10,15 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -23,9 +26,12 @@ import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.viewmodel.LoginViewModel;
 
+import java.util.Objects;
+
 public class LoginFragment extends Fragment {
 
     private static final String TAG = "LoginFragment.LOG_TAG";
+    public static final String LOGIN_SUCCESSFUL = "LOGIN_SUCCESSFUL";
 
     private OnFragmentInteractionListener mListener;
     private TextInputLayout mTlUsername;
@@ -33,6 +39,7 @@ public class LoginFragment extends Fragment {
     private Button mBtnSignIn;
     private LoginViewModel mViewModel;
     private NavController mNavController;
+    private SavedStateHandle mSavedStateHandle;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,13 +57,27 @@ public class LoginFragment extends Fragment {
             throw new ClassCastException(context.toString()
                     + getResources().getString(R.string.exception_message));
         }
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Log.d(TAG, "handleOnBackPressed: ");
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mSavedStateHandle = Objects.requireNonNull(Navigation.findNavController(view)
+                .getPreviousBackStackEntry())
+                .getSavedStateHandle();
+        mSavedStateHandle.set(LOGIN_SUCCESSFUL, false);
+
         mViewModel.getIsLoggedIn().observe(requireActivity(), isLoggedIn -> {
             if (isLoggedIn) {
+                mSavedStateHandle.set(LOGIN_SUCCESSFUL, true);
                 int startDestination = mNavController.getGraph().getStartDestination();
                 NavOptions navOptions = new NavOptions.Builder()
                         .setPopUpTo(startDestination, true)

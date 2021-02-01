@@ -46,7 +46,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 if (isGranted) {
                     getLocation();
                 } else {
-                    Snackbar.make(requireView(), R.string.need_photo_permission,
+                    Snackbar.make(requireView(), R.string.need_location_permission,
                             BaseTransientBottomBar.LENGTH_LONG).show();
                 }
             });

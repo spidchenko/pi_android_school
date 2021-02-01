@@ -14,7 +14,10 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +33,8 @@ import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.viewmodel.LoginViewModel;
 import com.spidchenko.week2task.viewmodel.SearchViewModel;
 
+import java.util.Objects;
+
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LATITUDE;
 import static com.spidchenko.week2task.ui.MapsFragment.EXTRA_LONGITUDE;
 
@@ -41,7 +46,6 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     private String mCurrentSearchString;
     private ImageListAdapter mRecyclerAdapter;
     private SearchViewModel mViewModel;
-    private LoginViewModel mUserViewModel;
 
     OnFragmentInteractionListener mListener;
 
@@ -69,12 +73,10 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
-        mUserViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
+        LoginViewModel loginViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
 
-        mUserViewModel.getIsLoggedIn().observe(requireActivity(), isLoggedIn -> {
-            if (isLoggedIn) {
-                //       NavHostFragment.findNavController(this).popBackStack();
-            } else {
+        loginViewModel.getIsLoggedIn().observe(requireActivity(), isLoggedIn -> {
+            if (!isLoggedIn) {
                 NavHostFragment.findNavController(this).navigate(R.id.loginFragment);
             }
         });
@@ -91,15 +93,17 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
 
         ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
         mViewModel = new ViewModelProvider(this, factory).get(SearchViewModel.class);
-//        mUserViewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
-//
-//        mUserViewModel.getIsLoggedIn().observe(requireActivity(), isLoggedIn -> {
-//            if (isLoggedIn) {
-//         //       NavHostFragment.findNavController(this).popBackStack();
-//            } else {
-//                NavHostFragment.findNavController(this).navigate(R.id.loginFragment);
-//            }
-//        });
+
+        // Exit if we returned from Login screen
+        NavController navController = NavHostFragment.findNavController(this);
+        NavBackStackEntry navBackStackEntry = navController.getCurrentBackStackEntry();
+        SavedStateHandle savedStateHandle = Objects.requireNonNull(navBackStackEntry).getSavedStateHandle();
+        savedStateHandle.getLiveData(LoginFragment.LOGIN_SUCCESSFUL)
+                .observe(navBackStackEntry, success -> {
+                    if (!(Boolean) success) {
+                        requireActivity().finish();
+                    }
+                });
 
         // Perform Flickr search by coordinates
         if ((getArguments() != null) && (savedInstanceState == null)) {

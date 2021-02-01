@@ -35,6 +35,7 @@
     <string name="error_undefined_location">Can not find your current location now</string>
     <string name="action_gallery">Gallery</string>
     <string name="need_photo_permission">This feature requires your permission to take photos</string>
+    <string name="need_location_permission">This feature requires your permission to search for nearby photos</string>
     <string name="need_alert_permission">This application requires your permission to start after reboot</string>
     <string name="alert_permission_ok">This application will start after reboot</string>
     <string name="need_storage_permission">This feature requires your permission to save images</string>
@@ -45,4 +46,5 @@
     <string name="one_of_your_favorite_pictures">One of your favorite pictures</string>
     <string name="image_saved">Image Saved successfully</string>
     <string name="exception_message">Must implement OnFragmentInteractionListener</string>
+    <string name="camera">Camera</string>
 </resources>
