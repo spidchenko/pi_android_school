@@ -47,4 +47,5 @@
     <string name="image_saved">Image Saved successfully</string>
     <string name="exception_message">Must implement OnFragmentInteractionListener</string>
     <string name="camera">Camera</string>
+    <string name="settings">Settings</string>
 </resources>

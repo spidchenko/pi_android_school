@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_searchFragment_to_galleryFragment"
             app:destination="@id/galleryFragment" />
+        <action
+            android:id="@+id/action_searchFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/favouritesFragment"
@@ -73,4 +76,8 @@
         android:name="com.spidchenko.week2task.ui.CameraFragment"
         android:label="@string/camera"
         tools:layout="@layout/fragment_camera" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.spidchenko.week2task.ui.SettingsFragment"
+        android:label="@string/settings" />
 </navigation>

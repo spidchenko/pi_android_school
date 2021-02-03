@@ -29,5 +29,10 @@
             android:icon="@drawable/ic_map"
             android:title="@string/action_map" />
 
+        <item
+            android:id="@id/settingsFragment"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settings" />
+
     </group>
 </menu>
