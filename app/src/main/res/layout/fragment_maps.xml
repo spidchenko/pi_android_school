@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.MapsFragment">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/google_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        tools:context=".ui.MapsActivity" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_map_search"
+        style="@style/Widget.Week2Task.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/searchButtonMargin"
+        android:layout_marginTop="@dimen/searchButtonMargin"
+        android:layout_marginEnd="@dimen/searchButtonMargin"
+        android:text="@string/search_on_map" />
+
+</LinearLayout>

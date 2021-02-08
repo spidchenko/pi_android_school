@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="searchButtonMargin">8dp</dimen>
+    <dimen name="recyclerViewMargin">8dp</dimen>
+    <dimen name="icon_on_web_view_margin">10dp</dimen>
+    <dimen name="search_text_margin">8dp</dimen>
+    <dimen name="splashScreenLogoSize">150dp</dimen>
+    <dimen name="favouriteImageHeight">300dp</dimen>
+    <dimen name="fabMargin">32dp</dimen>
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cv_favourite_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/iv_favourite_image"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/favouriteImageHeight"
+            android:adjustViewBounds="false"
+            tools:srcCompat="@tools:sample/avatars"
+            android:contentDescription="@string/one_of_your_favorite_pictures" />
+
+        <TextView
+            android:id="@+id/tv_favourite_image_search_string"
+            style="@style/searchStringText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            tools:text="@tools:sample/cities" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_remove_from_favourites"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        app:srcCompat="@drawable/ic_remove_from_favourites"
+        android:contentDescription="@string/remove_from_favourites" />
+</com.google.android.material.card.MaterialCardView>
