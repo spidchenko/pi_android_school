@@ -18,6 +18,7 @@
 
     <string name="action_favourites">Favourites</string>
     <string name="removed_from_favourites">Removed from Favourites</string>
+    <string name="removed_from_list">Removed from list</string>
     <string name="added_to_favourites">Added to Favourites</string>
 
     <string name="image_viewer">Image</string>
@@ -48,4 +49,9 @@
     <string name="exception_message">Must implement OnFragmentInteractionListener</string>
     <string name="camera">Camera</string>
     <string name="settings">Settings</string>
+    <string name="ui_title">Interface</string>
+    <string name="sync_title">Background work</string>
+    <string name="update_in_background">Check for updates</string>
+    <string name="update_interval_title">Update interval</string>
+    <string name="update_request_title">Keyword to search</string>
 </resources>

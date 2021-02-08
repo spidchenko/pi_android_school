@@ -1,7 +1,31 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <SwitchPreferenceCompat
-        app:key="night_mode"
-        app:title="@string/toggle_night_mode" />
+    <PreferenceCategory app:title="@string/ui_title">
+        <SwitchPreferenceCompat
+            app:key="night_mode"
+            app:title="@string/toggle_night_mode" />
+    </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/sync_title">
+
+        <SwitchPreferenceCompat
+            app:key="background_update"
+            app:title="@string/update_in_background" />
+
+        <EditTextPreference
+            app:dependency="background_update"
+            app:key="request"
+            app:title="@string/update_request_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:defaultValue="15_minutes"
+            app:dependency="background_update"
+            app:entries="@array/update_intervals_entries"
+            app:entryValues="@array/update_intervals_values"
+            app:key="update"
+            app:title="@string/update_interval_title"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
 </PreferenceScreen>

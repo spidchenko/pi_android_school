@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="update_intervals_entries">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>6 hours</item>
+        <item>24 hours</item>
+    </string-array>
+
+    <string-array name="update_intervals_values">
+        <item>15_minutes</item>
+        <item>30_minutes</item>
+        <item>1_hour</item>
+        <item>6_hours</item>
+        <item>24_hours</item>
+    </string-array>
+
+</resources>
