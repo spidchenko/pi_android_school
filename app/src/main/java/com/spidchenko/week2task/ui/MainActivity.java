@@ -34,6 +34,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.spidchenko.week2task.BatteryLevelReceiver;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.db.models.Favourite;
+import com.spidchenko.week2task.db.models.SyncImage;
 import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.network.models.Image;
 import com.spidchenko.week2task.viewmodel.LoginViewModel;
@@ -49,7 +50,8 @@ public class MainActivity extends AppCompatActivity
         SearchFragment.OnFragmentInteractionListener,
         MapsFragment.OnFragmentInteractionListener,
         GalleryFragment.OnFragmentInteractionListener,
-        FavouritesFragment.OnFragmentInteractionListener {
+        FavouritesFragment.OnFragmentInteractionListener,
+        SyncImagesFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity.LOG_TAG";
     public static final String EXTRA_URL = "com.spidchenko.week2task.extras.EXTRA_URL";
@@ -192,5 +194,13 @@ public class MainActivity extends AppCompatActivity
         bundle.putString(EXTRA_URL, favourite.getUrl());
         bundle.putString(EXTRA_SEARCH_STRING, favourite.getSearchRequest());
         mNavController.navigate(R.id.action_favouritesFragment_to_imageViewerFragment, bundle);
+    }
+
+    @Override
+    public void onOpenImageAction(SyncImage image) {
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_URL, image.getUrl());
+        bundle.putString(EXTRA_SEARCH_STRING, image.getSearchText());
+        mNavController.navigate(R.id.action_syncImagesFragment_to_imageViewerFragment, bundle);
     }
 }

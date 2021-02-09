@@ -31,6 +31,7 @@
 
     <string name="action_search_history">Search history</string>
     <string name="action_map">Search on map</string>
+    <string name="action_sync_images">New images</string>
     <string name="search_on_map">Search on map</string>
     <string name="select_point_message">Select point to search photos near</string>
     <string name="error_undefined_location">Can not find your current location now</string>

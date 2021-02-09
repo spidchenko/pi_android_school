@@ -8,12 +8,19 @@ import androidx.room.RoomDatabase;
 
 import com.spidchenko.week2task.db.dao.FavouriteDao;
 import com.spidchenko.week2task.db.dao.SearchRequestDao;
+import com.spidchenko.week2task.db.dao.SyncImageDao;
 import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.db.models.Favourite;
 import com.spidchenko.week2task.db.models.SearchRequest;
+import com.spidchenko.week2task.db.models.SyncImage;
 import com.spidchenko.week2task.db.models.User;
 
-@Database(entities = {User.class, Favourite.class, SearchRequest.class}, version = 4, exportSchema = false)
+@Database(entities = {
+        User.class,
+        Favourite.class,
+        SearchRequest.class,
+        SyncImage.class},
+        version = 5, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String DB_FILE_NAME = "com.spidchenko.week2task.db";
@@ -38,5 +45,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract FavouriteDao favouriteDao();
 
     public abstract SearchRequestDao searchRequestDao();
+
+    public abstract SyncImageDao syncImageDao();
 
 }

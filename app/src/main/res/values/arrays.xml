@@ -10,11 +10,11 @@
     </string-array>
 
     <string-array name="update_intervals_values">
-        <item>15_minutes</item>
-        <item>30_minutes</item>
-        <item>1_hour</item>
-        <item>6_hours</item>
-        <item>24_hours</item>
+        <item>0.25</item>
+        <item>0.5</item>
+        <item>1</item>
+        <item>6</item>
+        <item>24</item>
     </string-array>
 
 </resources>

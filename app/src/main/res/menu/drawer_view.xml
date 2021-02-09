@@ -30,6 +30,11 @@
             android:title="@string/action_map" />
 
         <item
+            android:id="@id/syncImagesFragment"
+            android:icon="@drawable/ic_sync"
+            android:title="@string/action_sync_images" />
+
+        <item
             android:id="@id/settingsFragment"
             android:icon="@drawable/ic_settings"
             android:title="@string/settings" />

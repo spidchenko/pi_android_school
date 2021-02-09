@@ -33,6 +33,9 @@
         <action
             android:id="@+id/action_searchFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_searchFragment_to_syncImagesFragment"
+            app:destination="@id/syncImagesFragment" />
     </fragment>
     <fragment
         android:id="@+id/favouritesFragment"
@@ -80,4 +83,13 @@
         android:id="@+id/settingsFragment"
         android:name="com.spidchenko.week2task.ui.SettingsFragment"
         android:label="@string/settings" />
+    <fragment
+        android:id="@+id/syncImagesFragment"
+        android:name="com.spidchenko.week2task.ui.SyncImagesFragment"
+        android:label="@string/action_sync_images"
+        tools:layout="@layout/sync_images_fragment">
+        <action
+            android:id="@+id/action_syncImagesFragment_to_imageViewerFragment"
+            app:destination="@id/imageViewerFragment" />
+    </fragment>
 </navigation>
