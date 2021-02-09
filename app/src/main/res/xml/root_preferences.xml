@@ -6,9 +6,7 @@
             app:title="@string/toggle_night_mode" />
     </PreferenceCategory>
 
-    <PreferenceCategory
-        app:key="background_work_category"
-        app:title="@string/sync_title">
+    <PreferenceCategory app:title="@string/sync_title">
 
         <SwitchPreferenceCompat
             app:key="background_update"
@@ -21,7 +19,6 @@
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
-            app:defaultValue="0.25"
             app:dependency="background_update"
             app:entries="@array/update_intervals_entries"
             app:entryValues="@array/update_intervals_values"

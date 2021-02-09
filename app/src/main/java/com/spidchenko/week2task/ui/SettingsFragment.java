@@ -1,20 +1,19 @@
 package com.spidchenko.week2task.ui;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.preference.EditTextPreference;
-import androidx.preference.ListPreference;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreferenceCompat;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.spidchenko.week2task.R;
+import com.spidchenko.week2task.SyncWorker;
 
-import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
@@ -24,97 +23,70 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_BACKGROUND_UPDATE = "background_update";
     public static final String PREF_UPDATE_TEXT = "request";
     public static final String PREF_UPDATE_INTERVAL = "interval hours";
-    public static final String PREF_CATEGORY_BACKGROUND_WORK = "background_work_category";
     private static final String TAG = "SettingsFrag.LOG_TAG";
-    private static final int APPLY_SETTINGS_DELAY = 200;
 
-    private SwitchPreferenceCompat nightMode;
-    private SwitchPreferenceCompat backgroundUpdate;
-    private EditTextPreference keyword;
-    private ListPreference updateInterval;
+    private final SharedPreferences.OnSharedPreferenceChangeListener mListener =
+            (sharedPreferences, key) -> {
 
-    // TODO SharedPreferences.OnSharedPreferenceChangeListener
-    // https://developer.android.com/guide/topics/ui/settings/use-saved-values
+                if (key.equals(PREF_NIGHT_MODE)) {
 
-    private Preference.OnPreferenceChangeListener mListener = (preference, newValue) -> {
+                    if (sharedPreferences.getBoolean(key, false)) {
+                        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES);
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO);
+                    }
 
-        if (preference.getKey().equals(PREF_NIGHT_MODE)) {
-            setNightModeAsynchronously((boolean) newValue);
-            return true;
-        } else {
+                } else {
 
-            // if one of background work settings
-            if (Objects.requireNonNull(preference.getParent()).getKey()
-                    .equals(PREF_CATEGORY_BACKGROUND_WORK)) {
-                updateBackgroundTask();
-            }
+                    boolean isBackgroundUpdatesEnabled =
+                            sharedPreferences.getBoolean(PREF_BACKGROUND_UPDATE, false);
+                    String updateText = sharedPreferences.getString(PREF_UPDATE_TEXT, "");
+                    int updateInterval = Integer.parseInt(
+                            sharedPreferences.getString(PREF_UPDATE_INTERVAL, "0"));
 
-            Log.d(TAG, "backgroundUpdate.isChecked(): " + backgroundUpdate.isChecked());
-            Log.d(TAG, "keyword.getText(): " + keyword.getText());
-            Log.d(TAG, "updateInterval.getValue(): " + updateInterval.getValue());
+                    if (isBackgroundUpdatesEnabled &&
+                            !updateText.isEmpty() &&
+                            updateInterval > 0) {
+                        Log.d(TAG, "onSharedPreferenceChanged: Starting background task... Text: " + updateText + ". Interval: " + updateInterval);
 
-//            if (backgroundUpdate.isChecked() && !keyword.getText().trim().isEmpty() && updateInterval.getValue())
+                        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
+                                SyncWorker.class,
+                                updateInterval,
+                                TimeUnit.MINUTES).build();
 
-        }
+                        WorkManager.getInstance(getContext())
+                                .enqueueUniquePeriodicWork("sync",
+                                        ExistingPeriodicWorkPolicy.REPLACE,
+                                        workRequest);
+                    } else {
+                        WorkManager.getInstance(getContext()).cancelUniqueWork("sync");
+                        Log.d(TAG, "onSharedPreferenceChanged: Background task canceled");
+                    }
 
-        if (preference.getKey().equals(PREF_BACKGROUND_UPDATE)) {
+                }
 
-        }
+            };
 
-        // TODO
-        Log.d(TAG, "pref parent: " + preference.getParent());
-        return true;
-    };
 
-    private void updateBackgroundTask() {
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceManager()
+                .getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(mListener);
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceManager()
+                .getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(mListener);
     }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
-        nightMode = findPreference(PREF_NIGHT_MODE);
-        if (nightMode != null) {
-            nightMode.setOnPreferenceChangeListener(mListener);
-//            nightMode.setOnPreferenceChangeListener((preference, isEnabled) -> {
-//                setNightModeAsynchronously((boolean) isEnabled);
-//                return true;
-//            });
-        }
-
-        backgroundUpdate = findPreference(PREF_BACKGROUND_UPDATE);
-        if (backgroundUpdate != null) {
-            backgroundUpdate.setOnPreferenceChangeListener(mListener);
-        }
-
-        keyword = findPreference(PREF_UPDATE_TEXT);
-        if (keyword != null) {
-            keyword.setOnPreferenceChangeListener(mListener);
-        }
-
-        updateInterval = findPreference(PREF_UPDATE_INTERVAL);
-        if (updateInterval != null) {
-            updateInterval.setOnPreferenceChangeListener(mListener);
-        }
-
-//            backgroundUpdate.setOnPreferenceChangeListener((preference, isEnabled) -> {
-//                if ((boolean) isEnabled) {
-////                    PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(SyncWorker.class, 1, TimeUnit.HOURS).build();
-//                } else {
-//
-//                }
-//            });
-    }
-
-
-    private void setNightModeAsynchronously(boolean isNightMode) {
-        if (isNightMode) {
-            new Handler(Looper.getMainLooper()).postDelayed(() ->
-                    AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES), APPLY_SETTINGS_DELAY);
-        } else {
-            new Handler(Looper.getMainLooper()).postDelayed(() ->
-                    AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO), APPLY_SETTINGS_DELAY);
-        }
     }
 
 }

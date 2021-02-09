@@ -55,4 +55,6 @@
     <string name="update_in_background">Check for updates</string>
     <string name="update_interval_title">Update interval</string>
     <string name="update_request_title">Keyword to search</string>
+    <string name="channel_name">Sync Images</string>
+    <string name="channel_description">Download new flikr images in background</string>
 </resources>
