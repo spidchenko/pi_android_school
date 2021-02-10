@@ -12,18 +12,21 @@ import com.spidchenko.week2task.repositories.FileRepository;
 import com.spidchenko.week2task.repositories.ImageRepository;
 import com.spidchenko.week2task.repositories.SearchRequestRepository;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
+import com.spidchenko.week2task.repositories.SyncImageRepository;
 import com.spidchenko.week2task.viewmodel.FavouritesViewModel;
 import com.spidchenko.week2task.viewmodel.GalleryViewModel;
 import com.spidchenko.week2task.viewmodel.ImageViewerViewModel;
 import com.spidchenko.week2task.viewmodel.LoginViewModel;
 import com.spidchenko.week2task.viewmodel.SearchHistoryViewModel;
 import com.spidchenko.week2task.viewmodel.SearchViewModel;
+import com.spidchenko.week2task.viewmodel.SyncImagesViewModel;
 
 public class ViewModelsFactory extends ViewModelProvider.NewInstanceFactory {
 
     private final FavouriteRepository favouriteRepository;
     private final FileRepository fileRepository;
     private final ImageRepository imageRepository;
+    private final SyncImageRepository syncImageRepository;
     private final SharedPrefRepository sharedPrefRepository;
     private final SearchRequestRepository searchRequestRepository;
     private final LogInHelper logInHelper;
@@ -32,6 +35,7 @@ public class ViewModelsFactory extends ViewModelProvider.NewInstanceFactory {
         favouriteRepository = ((MyApplication) application).getFavouriteRepository();
         fileRepository = ((MyApplication) application).getFileRepository();
         imageRepository = ((MyApplication) application).getImageRepository();
+        syncImageRepository = ((MyApplication) application).getSyncImageRepository();
         sharedPrefRepository = ((MyApplication) application).getSharedPrefRepository();
         searchRequestRepository = ((MyApplication) application).getSearchRequestRepository();
         logInHelper = ((MyApplication) application).getLogInHelper();
@@ -60,6 +64,10 @@ public class ViewModelsFactory extends ViewModelProvider.NewInstanceFactory {
 
         if (modelClass == SearchHistoryViewModel.class) {
             return (T) new SearchHistoryViewModel(searchRequestRepository);
+        }
+
+        if (modelClass == SyncImagesViewModel.class) {
+            return (T) new SyncImagesViewModel(syncImageRepository);
         }
 
         return (T) new LoginViewModel(logInHelper);

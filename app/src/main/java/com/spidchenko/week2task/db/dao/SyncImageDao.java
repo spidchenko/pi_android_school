@@ -17,9 +17,9 @@ public interface SyncImageDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     long addSyncImage(SyncImage syncImage);
 
-    @Delete
-    void deleteSyncImage(SyncImage syncImage);
+    @Query("DELETE FROM syncImages WHERE url LIKE :url")
+    void deleteSyncImage(String url);
 
     @Query("SELECT * FROM syncImages")
-    LiveData<List<SyncImage>> getAllSyncImages();
+    LiveData<List<SyncImage>> getAllImages();
 }

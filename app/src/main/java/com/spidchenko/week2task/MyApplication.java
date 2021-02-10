@@ -7,6 +7,7 @@ import com.facebook.stetho.Stetho;
 import com.spidchenko.week2task.db.AppDatabase;
 import com.spidchenko.week2task.db.dao.FavouriteDao;
 import com.spidchenko.week2task.db.dao.SearchRequestDao;
+import com.spidchenko.week2task.db.dao.SyncImageDao;
 import com.spidchenko.week2task.db.dao.UserDao;
 import com.spidchenko.week2task.helpers.LogInHelper;
 import com.spidchenko.week2task.network.ServiceGenerator;
@@ -15,6 +16,7 @@ import com.spidchenko.week2task.repositories.FileRepository;
 import com.spidchenko.week2task.repositories.ImageRepository;
 import com.spidchenko.week2task.repositories.SearchRequestRepository;
 import com.spidchenko.week2task.repositories.SharedPrefRepository;
+import com.spidchenko.week2task.repositories.SyncImageRepository;
 
 public class MyApplication extends Application {
 
@@ -43,6 +45,10 @@ public class MyApplication extends Application {
         return getDatabase().userDao();
     }
 
+    public SyncImageDao getSyncImageDao() {
+        return getDatabase().syncImageDao();
+    }
+
     public SearchRequestDao getSearchRequestDao() {
         return getDatabase().searchRequestDao();
     }
@@ -57,6 +63,10 @@ public class MyApplication extends Application {
 
     public ImageRepository getImageRepository() {
         return ImageRepository.getInstance(ServiceGenerator.getFlickrApi());
+    }
+
+    public SyncImageRepository getSyncImageRepository() {
+        return SyncImageRepository.getInstance(getSyncImageDao(), mAppExecutors.diskIO());
     }
 
     public SharedPrefRepository getSharedPrefRepository() {
@@ -74,5 +84,6 @@ public class MyApplication extends Application {
     private AppDatabase getDatabase() {
         return AppDatabase.getInstance(this);
     }
+
 
 }

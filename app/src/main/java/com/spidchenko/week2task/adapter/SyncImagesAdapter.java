@@ -20,7 +20,6 @@ import java.util.List;
 public class SyncImagesAdapter extends RecyclerView.Adapter<SyncImagesAdapter.ViewHolder> {
 
     private static final String TAG = "ImgListAdapter.LOG_TAG";
-    private static String mSearchString;
     private final OnCardListener mOnCardListener;
     private List<SyncImage> mSyncImages;
 
@@ -55,10 +54,7 @@ public class SyncImagesAdapter extends RecyclerView.Adapter<SyncImagesAdapter.Vi
 
     public void setImages(List<SyncImage> images) {
         mSyncImages = images;
-    }
-
-    public void setSearchString(String searchString) {
-        mSearchString = searchString;
+        this.notifyDataSetChanged();
     }
 
     public SyncImage getImageAtPosition(int position) {
@@ -93,7 +89,7 @@ public class SyncImagesAdapter extends RecyclerView.Adapter<SyncImagesAdapter.Vi
             Glide.with(ivImageSurface.getContext())
                     .load(image.getUrl())
                     .into(ivImageSurface);
-            tvImageSearchString.setText(mSearchString);
+            tvImageSearchString.setText(image.getSearchText());
             Log.d(TAG, "Binded! " + image.getId());
         }
     }

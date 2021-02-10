@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
+import static com.spidchenko.week2task.SyncWorker.SEARCH_STRING;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_NIGHT_MODE = "night_mode";
@@ -50,11 +52,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         Log.d(TAG, "onSharedPreferenceChanged: Starting background task... Text: " + updateText + ". Interval: " + updateInterval);
 
 
-                        // FIXME add arguments to worker
                         PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
                                 SyncWorker.class,
                                 updateInterval,
                                 TimeUnit.MINUTES)
+                                .setInputData(
+                                        new Data.Builder()
+                                                .putString(SEARCH_STRING, updateText)
+                                                .build())
 //                                .setInitialDelay(updateInterval, TimeUnit.MINUTES) // FIXME not send notification immediately
                                 .build();
 
@@ -92,6 +97,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
         // TODO set appropriate status if work isn't scheduled
+        // TODO check soft keyboard stays open issue
     }
 
 }

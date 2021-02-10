@@ -29,8 +29,9 @@ public class SyncWorker extends Worker {
     private static final String TAG = "SyncWorker.LOG_TAG";
     private static final String CHANNEL_ID = "sync_images_channel";
     private static final int NOTIFICATION_ID = 42;
+    public static final String SEARCH_STRING = "SEARCH_STRING";
 
-    private Executor mExecutor = new AppExecutors().diskIO();
+    private final Executor mExecutor = new AppExecutors().diskIO();
 
     public SyncWorker(
             @NonNull Context context,
@@ -42,7 +43,7 @@ public class SyncWorker extends Worker {
     @Override
     public Result doWork() {
         createNotificationChannel();
-        syncImages("dogs"); //FIXME take string from settings
+        syncImages(getInputData().getString(SEARCH_STRING));
 
         return Result.success();
     }
@@ -54,40 +55,42 @@ public class SyncWorker extends Worker {
             if (result instanceof com.spidchenko.week2task.network.Result.Error) {
 //                handleError((com.spidchenko.week2task.network.Result.Error<List<Image>>) result);
                 Log.d(TAG, "syncImages: Error");
+                // TODO return failure from worker
             } else {
                 mExecutor.execute(() -> {
                     int numNewImages = 0;
                     SyncImageDao syncImageDao = AppDatabase.getInstance(getApplicationContext()).syncImageDao();
                     for (Image image : ((com.spidchenko.week2task.network.Result.Success<List<Image>>) result).data) {
                         Log.d(TAG, "syncImages: " + image.getUrl(Image.PIC_SIZE_MEDIUM));
-                        SyncImage syncImage = new SyncImage(image, "dogs");
+                        SyncImage syncImage = new SyncImage(image, searchRequest);
                         long insertedId = syncImageDao.addSyncImage(syncImage);
                         if (insertedId > 0) {
                             numNewImages++;
                         }
                         Log.d(TAG, "syncImages: new ID " + insertedId);
                     }
-                    showNotification(numNewImages);
+                    showNotification(numNewImages, searchRequest);
                 });
             }
         });
 
-
     }
 
-    private void showNotification(int numNewImages) {
+    private void showNotification(int numNewImages, String searchRequest) {
         PendingIntent intent = new NavDeepLinkBuilder(getApplicationContext())
                 .setComponentName(MainActivity.class)
                 .setGraph(R.navigation.nav_graph)
                 .setDestination(R.id.syncImagesFragment)
                 .createPendingIntent();
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_favorite_selected)
-                .setContentTitle(getApplicationContext().getString(R.string.sync_notification_title, "test Arg")) //FIXME use actual searchText here
-                .setContentText(getApplicationContext().getString(R.string.sync_notification_text, numNewImages))
-                .setContentIntent(intent)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_sync)
+                        .setContentTitle(getApplicationContext()
+                                .getString(R.string.sync_notification_title, searchRequest))
+                        .setContentText(getApplicationContext().getString(R.string.sync_notification_text, numNewImages))
+                        .setContentIntent(intent)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
@@ -95,17 +98,15 @@ public class SyncWorker extends Worker {
     }
 
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getApplicationContext().getString(R.string.channel_name);
             String description = getApplicationContext().getString(R.string.channel_description);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getApplicationContext().getSystemService(NotificationManager.class);
+
+            NotificationManager notificationManager = getApplicationContext()
+                    .getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }

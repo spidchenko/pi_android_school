@@ -18,6 +18,7 @@ import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.adapter.SyncImagesAdapter;
 import com.spidchenko.week2task.db.models.SyncImage;
 import com.spidchenko.week2task.helpers.SwipeHelper;
+import com.spidchenko.week2task.helpers.ViewModelsFactory;
 import com.spidchenko.week2task.viewmodel.SyncImagesViewModel;
 
 public class SyncImagesFragment extends Fragment implements SyncImagesAdapter.OnCardListener {
@@ -54,8 +55,8 @@ public class SyncImagesFragment extends Fragment implements SyncImagesAdapter.On
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // TODO mb ViewModel Factory here
-        mViewModel = new ViewModelProvider(this).get(SyncImagesViewModel.class);
+        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
+        mViewModel = new ViewModelProvider(this, factory).get(SyncImagesViewModel.class);
     }
 
 
@@ -73,6 +74,8 @@ public class SyncImagesFragment extends Fragment implements SyncImagesAdapter.On
     }
 
     private void subscribeToModel() {
+        mViewModel.getAllImages().observe(getViewLifecycleOwner(), syncImages ->
+                mRecyclerAdapter.setImages(syncImages));
     }
 
     @Override
