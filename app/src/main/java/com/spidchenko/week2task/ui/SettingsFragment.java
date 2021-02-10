@@ -49,17 +49,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             updateInterval > 0) {
                         Log.d(TAG, "onSharedPreferenceChanged: Starting background task... Text: " + updateText + ". Interval: " + updateInterval);
 
+
+                        // FIXME add arguments to worker
                         PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
                                 SyncWorker.class,
                                 updateInterval,
-                                TimeUnit.MINUTES).build();
+                                TimeUnit.MINUTES)
+//                                .setInitialDelay(updateInterval, TimeUnit.MINUTES) // FIXME not send notification immediately
+                                .build();
 
-                        WorkManager.getInstance(getContext())
+                        WorkManager.getInstance(requireContext())
                                 .enqueueUniquePeriodicWork("sync",
                                         ExistingPeriodicWorkPolicy.REPLACE,
                                         workRequest);
                     } else {
-                        WorkManager.getInstance(getContext()).cancelUniqueWork("sync");
+                        WorkManager.getInstance(requireContext()).cancelUniqueWork("sync");
                         Log.d(TAG, "onSharedPreferenceChanged: Background task canceled");
                     }
 
@@ -87,6 +91,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
+        // TODO set appropriate status if work isn't scheduled
     }
 
 }

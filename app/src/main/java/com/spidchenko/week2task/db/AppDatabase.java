@@ -20,7 +20,7 @@ import com.spidchenko.week2task.db.models.User;
         Favourite.class,
         SearchRequest.class,
         SyncImage.class},
-        version = 5, exportSchema = false)
+        version = 7, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String DB_FILE_NAME = "com.spidchenko.week2task.db";

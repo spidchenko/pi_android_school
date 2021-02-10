@@ -95,6 +95,7 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
         mViewModel = new ViewModelProvider(this, factory).get(SearchViewModel.class);
 
         // Exit if we returned from Login screen
+        // FIXME check here. on Android 10 endless loop?
         NavController navController = NavHostFragment.findNavController(this);
         NavBackStackEntry navBackStackEntry = navController.getCurrentBackStackEntry();
         SavedStateHandle savedStateHandle = Objects.requireNonNull(navBackStackEntry).getSavedStateHandle();
@@ -106,7 +107,8 @@ public class SearchFragment extends Fragment implements ImageListAdapter.OnCardL
                 });
 
         // Perform Flickr search by coordinates
-        if ((getArguments() != null) && (savedInstanceState == null)) {
+        // FIXME better check this arguments
+        if ((getArguments() != null) && (getArguments().getString(EXTRA_LATITUDE) != null) && (savedInstanceState == null)) {
             mViewModel.searchImagesByCoordinates(mSearchLatitude, mSearchLongitude);
             mListener.hideKeyboard();
         }

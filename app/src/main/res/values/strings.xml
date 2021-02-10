@@ -57,4 +57,6 @@
     <string name="update_request_title">Keyword to search</string>
     <string name="channel_name">Sync Images</string>
     <string name="channel_description">Download new flikr images in background</string>
+    <string name="sync_notification_title">Flickr Background Sync (%1$s)</string>
+    <string name="sync_notification_text">New images: %1$d</string>
 </resources>

@@ -3,9 +3,12 @@ package com.spidchenko.week2task.db.models;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "syncImages")
+import com.spidchenko.week2task.network.models.Image;
+
+@Entity(tableName = "syncImages", indices = {@Index(value = "url", unique = true)})
 public class SyncImage {
 
     @PrimaryKey(autoGenerate = true)
@@ -14,6 +17,7 @@ public class SyncImage {
 
     @ColumnInfo(name = "text")
     private String searchText;
+
 
     @ColumnInfo(name = "url")
     private String url;
@@ -25,9 +29,9 @@ public class SyncImage {
     }
 
     @Ignore
-    public SyncImage(String text, String url) {
-        this.searchText = text;
-        this.url = url;
+    public SyncImage(Image image, String searchText) {
+        this.searchText = searchText;
+        this.url = image.getUrl(Image.PIC_SIZE_MEDIUM);
     }
 
     public int getId() {
