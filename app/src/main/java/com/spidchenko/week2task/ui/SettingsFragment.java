@@ -9,11 +9,14 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.spidchenko.week2task.R;
 import com.spidchenko.week2task.SyncWorker;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
@@ -22,9 +25,10 @@ import static com.spidchenko.week2task.SyncWorker.SEARCH_STRING;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_NIGHT_MODE = "night_mode";
-    public static final String PREF_BACKGROUND_UPDATE = "background_update";
-    public static final String PREF_UPDATE_TEXT = "request";
-    public static final String PREF_UPDATE_INTERVAL = "interval hours";
+    private static final String PREF_BACKGROUND_UPDATE = "background_update";
+    private static final String PREF_UPDATE_TEXT = "request";
+    private static final String PREF_UPDATE_INTERVAL = "interval hours";
+    private static final String WORK_NAME = "sync";
     private static final String TAG = "SettingsFrag.LOG_TAG";
 
     private final SharedPreferences.OnSharedPreferenceChangeListener mListener =
@@ -60,15 +64,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                         new Data.Builder()
                                                 .putString(SEARCH_STRING, updateText)
                                                 .build())
-//                                .setInitialDelay(updateInterval, TimeUnit.MINUTES) // FIXME not send notification immediately
+                                .setInitialDelay(updateInterval, TimeUnit.MINUTES)
                                 .build();
 
                         WorkManager.getInstance(requireContext())
-                                .enqueueUniquePeriodicWork("sync",
+                                .enqueueUniquePeriodicWork(WORK_NAME,
                                         ExistingPeriodicWorkPolicy.REPLACE,
                                         workRequest);
                     } else {
-                        WorkManager.getInstance(requireContext()).cancelUniqueWork("sync");
+                        WorkManager.getInstance(requireContext()).cancelUniqueWork(WORK_NAME);
                         Log.d(TAG, "onSharedPreferenceChanged: Background task canceled");
                     }
 
@@ -93,10 +97,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 .unregisterOnSharedPreferenceChangeListener(mListener);
     }
 
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
-        // TODO set appropriate status if work isn't scheduled
+        ListenableFuture<List<WorkInfo>> workInfo = WorkManager.getInstance(requireContext()).getWorkInfosForUniqueWork(WORK_NAME);
+        Log.d(TAG, "onCreatePreferences: " + workInfo.toString());
+
         // TODO check soft keyboard stays open issue
     }
 

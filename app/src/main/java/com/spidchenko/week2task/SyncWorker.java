@@ -24,6 +24,7 @@ import com.spidchenko.week2task.ui.MainActivity;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SyncWorker extends Worker {
     private static final String TAG = "SyncWorker.LOG_TAG";
@@ -31,12 +32,19 @@ public class SyncWorker extends Worker {
     private static final int NOTIFICATION_ID = 42;
     public static final String SEARCH_STRING = "SEARCH_STRING";
 
+    private static final int STATUS_RUNNING = 10;
+    private static final int STATUS_SUCCESS = 20;
+    private static final int STATUS_FAILURE = 30;
+
     private final Executor mExecutor = new AppExecutors().diskIO();
+    private final AtomicInteger workStatus = new AtomicInteger();
 
     public SyncWorker(
             @NonNull Context context,
             @NonNull WorkerParameters params) {
         super(context, params);
+        workStatus.set(STATUS_RUNNING);
+        Log.d(TAG, "SyncWorker: init");
     }
 
     @NonNull
@@ -45,17 +53,42 @@ public class SyncWorker extends Worker {
         createNotificationChannel();
         syncImages(getInputData().getString(SEARCH_STRING));
 
-        return Result.success();
+        synchronized (workStatus) {
+            while (workStatus.get() == STATUS_RUNNING) {
+                try {
+                    Log.d(TAG, "doWork: Sleeping...");
+                    workStatus.wait(1000);
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "doWork: Error: " + e);
+                }
+            }
+
+            Log.d(TAG, "doWork: Waking up...");
+
+            if (workStatus.get() == STATUS_SUCCESS) {
+                Log.d(TAG, "doWork: Result Success");
+                return Result.success();
+            } else {
+                Log.d(TAG, "doWork: Result Failure");
+                return Result.failure();
+            }
+        }
     }
 
     private void syncImages(String searchRequest) {
         ImageRepository imageRepository = ImageRepository.getInstance(ServiceGenerator.getFlickrApi());
 
         imageRepository.updateImages(searchRequest, result -> {
+
             if (result instanceof com.spidchenko.week2task.network.Result.Error) {
-//                handleError((com.spidchenko.week2task.network.Result.Error<List<Image>>) result);
-                Log.d(TAG, "syncImages: Error");
-                // TODO return failure from worker
+                Log.d(TAG, "syncImages: Error " +
+                        ((com.spidchenko.week2task.network.Result.Error<List<Image>>) result)
+                                .throwable.getMessage());
+                Log.d(TAG, "syncImages: setting Error failure");
+                synchronized (workStatus) {
+                    workStatus.set(STATUS_FAILURE);
+                }
+
             } else {
                 mExecutor.execute(() -> {
                     int numNewImages = 0;
@@ -70,8 +103,15 @@ public class SyncWorker extends Worker {
                         Log.d(TAG, "syncImages: new ID " + insertedId);
                     }
                     showNotification(numNewImages, searchRequest);
+                    Log.d(TAG, "syncImages: setting success true");
+                    synchronized (workStatus) {
+                        workStatus.set(STATUS_SUCCESS);
+                        Log.d(TAG, "syncImages: Notify");
+                        workStatus.notifyAll();
+                    }
                 });
             }
+
         });
 
     }
