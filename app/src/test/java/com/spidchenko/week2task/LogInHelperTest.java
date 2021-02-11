@@ -22,19 +22,19 @@ import static com.spidchenko.week2task.LiveDataTestUtil.getOrAwaitValue;
 
 public class LogInHelperTest {
 
-    private final Executor executor = new LogInHelperTest.CurrentThreadExecutor();
+    private final Executor mExecutor = new LogInHelperTest.CurrentThreadExecutor();
     @Rule // -> allows liveData to work on different thread besides main, must be public!
-    public InstantTaskExecutorRule executorRule = new InstantTaskExecutorRule();
+    public InstantTaskExecutorRule mExecutorRule = new InstantTaskExecutorRule();
     @Mock
-    private UserDao userDaoMock;
+    private UserDao mUserDaoMock;
     @Mock
-    private SharedPrefRepository sharedPrefRepositoryMock;
-    private LogInHelper logInHelper;
+    private SharedPrefRepository mSharedPrefRepositoryMock;
+    private LogInHelper mLogInHelper;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        logInHelper = LogInHelper.getInstance(userDaoMock, sharedPrefRepositoryMock, executor);
+        mLogInHelper = LogInHelper.getInstance(mUserDaoMock, mSharedPrefRepositoryMock, mExecutor);
     }
 
     @Test
@@ -44,15 +44,15 @@ public class LogInHelperTest {
         User user = new User(userName);
         user.setId(userId);
 
-        Mockito.when(userDaoMock.getUser(Mockito.anyString())).thenReturn(user);
-        logInHelper.logIn(userName);
+        Mockito.when(mUserDaoMock.getUser(Mockito.anyString())).thenReturn(user);
+        mLogInHelper.logIn(userName);
 
-        Mockito.verify(sharedPrefRepositoryMock).saveUserId(userId);
+        Mockito.verify(mSharedPrefRepositoryMock).saveUserId(userId);
     }
 
     @Test
-    public void getIsLoggedIn() throws InterruptedException {
-        LiveData<Boolean> isLogged = logInHelper.getIsLoggedIn();
+    public void logIn_setsIsLoggedInLiveData() throws InterruptedException {
+        LiveData<Boolean> isLogged = mLogInHelper.isLoggedIn();
         getOrAwaitValue(isLogged);
         Assert.assertNotNull(isLogged);
     }

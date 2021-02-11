@@ -18,7 +18,7 @@ public class NavigationTestUtil {
     public static final int NAV_SEARCH_HISTORY = 4;
     public static final int NAV_MAPS = 5;
 
-    public static void navigate_to(int destination) {
+    public static void navigateTo(int destination) {
         switch (destination) {
             case NAV_SEARCH:
                 break;

@@ -8,8 +8,6 @@ import com.spidchenko.week2task.adapter.FavouritesListAdapter;
 
 public class SwipeHelper {
 
-    private static final String TAG = "SwipeHelper.LOG_TAG";
-
     public static ItemTouchHelper getSwipeToDismissTouchHelper(onSwipeListener listener) {
         return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {

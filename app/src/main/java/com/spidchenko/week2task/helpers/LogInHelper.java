@@ -25,7 +25,7 @@ public class LogInHelper {
         mExecutor = executor;
     }
 
-    public LiveData<Boolean> getIsLoggedIn() {
+    public LiveData<Boolean> isLoggedIn() {
         return isLoggedIn;
     }
 

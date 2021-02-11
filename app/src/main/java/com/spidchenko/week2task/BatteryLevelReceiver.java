@@ -7,7 +7,7 @@ import android.os.BatteryManager;
 import android.widget.Toast;
 
 public class BatteryLevelReceiver extends BroadcastReceiver {
-    private int previousBatteryLevel;
+    private int mPreviousBatteryLevel;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -16,9 +16,9 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
             int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
             if ((level > 0) && (scale > 0)) {
                 int currentBatteryLevel = (level * 100) / scale;
-                if (currentBatteryLevel != previousBatteryLevel) {
+                if (currentBatteryLevel != mPreviousBatteryLevel) {
                     Toast.makeText(context, currentBatteryLevel + "%", Toast.LENGTH_LONG).show();
-                    previousBatteryLevel = currentBatteryLevel;
+                    mPreviousBatteryLevel = currentBatteryLevel;
                 }
             }
         }

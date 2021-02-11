@@ -127,8 +127,6 @@ public class LoginFragment extends Fragment {
     }
 
     interface OnFragmentInteractionListener {
-//        void onLogIn();
-
         void hideKeyboard();
     }
 }

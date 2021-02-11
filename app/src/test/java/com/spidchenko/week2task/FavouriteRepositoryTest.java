@@ -17,15 +17,15 @@ public class FavouriteRepositoryTest {
     private static final int MOCK_USER_ID = 242;
 
     @Mock
-    private FavouriteDao favouriteDaoMock;
+    private FavouriteDao mFavouriteDaoMock;
     @Mock
-    private SharedPrefRepository sharedPrefRepoMock;
+    private SharedPrefRepository mSharedPrefRepoMock;
     @Mock
-    FavouriteRepository.RepositoryCallback<Boolean> repositoryCallbackMock;
+    FavouriteRepository.RepositoryCallback<Boolean> mRepositoryCallbackMock;
 
-    private final Executor executor = new CurrentThreadExecutor();
+    private final Executor mExecutor = new CurrentThreadExecutor();
 
-    private FavouriteRepository favouriteRepository;
+    private FavouriteRepository mFavouriteRepository;
 
     static class CurrentThreadExecutor implements Executor {
         public void execute(Runnable r) {
@@ -36,29 +36,29 @@ public class FavouriteRepositoryTest {
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        Mockito.when(sharedPrefRepoMock.getUserId()).thenReturn(MOCK_USER_ID);
+        Mockito.when(mSharedPrefRepoMock.getUserId()).thenReturn(MOCK_USER_ID);
 
-        favouriteRepository = FavouriteRepository.getInstance(favouriteDaoMock,
-                sharedPrefRepoMock,
-                executor);
+        mFavouriteRepository = FavouriteRepository.getInstance(mFavouriteDaoMock,
+                mSharedPrefRepoMock,
+                mExecutor);
     }
 
     @Test
     public void getFavouritesWithCategories_callDaoWithValidInput() {
-        favouriteRepository.getFavouritesWithCategories();
-        Mockito.verify(favouriteDaoMock).getFavouritesWithCategories(MOCK_USER_ID);
+        mFavouriteRepository.getFavouritesWithCategories();
+        Mockito.verify(mFavouriteDaoMock).getFavouritesWithCategories(MOCK_USER_ID);
     }
 
     @Test
     public void addFavorite_completes() {
-        favouriteRepository.addFavorite(new Favourite(), repositoryCallbackMock);
-        Mockito.verify(repositoryCallbackMock).onComplete(Mockito.any());
+        mFavouriteRepository.addFavorite(new Favourite(), mRepositoryCallbackMock);
+        Mockito.verify(mRepositoryCallbackMock).onComplete(Mockito.any());
     }
 
     @Test
     public void deleteFavourite_completes() {
-        favouriteRepository.deleteFavourite(new Favourite(), repositoryCallbackMock);
-        Mockito.verify(repositoryCallbackMock).onComplete(Mockito.any());
+        mFavouriteRepository.deleteFavourite(new Favourite(), mRepositoryCallbackMock);
+        Mockito.verify(mRepositoryCallbackMock).onComplete(Mockito.any());
     }
 
 }

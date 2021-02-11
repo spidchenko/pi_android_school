@@ -20,28 +20,28 @@ public class LoginViewModelTest {
     public InstantTaskExecutorRule executorRule = new InstantTaskExecutorRule();
 
     @Mock
-    LogInHelper logInHelperMock;
-    LoginViewModel loginViewModel;
+    private LogInHelper mLogInHelperMock;
+    private LoginViewModel mLoginViewModel;
 
-    SingleLiveEvent<Boolean> event = new SingleLiveEvent<>();
+    private final SingleLiveEvent<Boolean> mEvent = new SingleLiveEvent<>();
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        event.setValue(true);
-        Mockito.when(logInHelperMock.getIsLoggedIn()).thenReturn(event);
-        loginViewModel = new LoginViewModel(logInHelperMock);
+        mEvent.setValue(true);
+        Mockito.when(mLogInHelperMock.isLoggedIn()).thenReturn(mEvent);
+        mLoginViewModel = new LoginViewModel(mLogInHelperMock);
     }
 
     @Test
     public void logIn_callHelperWithValidInput() {
-        loginViewModel.logIn("TestUserName");
-        Mockito.verify(logInHelperMock).logIn("TestUserName");
+        mLoginViewModel.logIn("TestUserName");
+        Mockito.verify(mLogInHelperMock).logIn("TestUserName");
     }
 
     @Test
     public void getIsLoggedIn_hasValidReturnValue() {
-        Assert.assertEquals(loginViewModel.getIsLoggedIn(), event);
+        Assert.assertEquals(mLoginViewModel.getIsLoggedIn(), mEvent);
     }
 
 }

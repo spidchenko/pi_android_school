@@ -18,37 +18,37 @@ import static org.mockito.ArgumentMatchers.eq;
 public class FavouritesViewModelTest {
 
     @Mock
-    private FavouriteRepository repositoryMock;
+    private FavouriteRepository mRepositoryMock;
 
-    private FavouritesViewModel favouritesViewModel;
+    private FavouritesViewModel mFavouritesViewModel;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        Mockito.when(repositoryMock.getFavouritesWithCategories()).thenReturn(new MutableLiveData<>());
-        favouritesViewModel = new FavouritesViewModel(repositoryMock);
+        Mockito.when(mRepositoryMock.getFavouritesWithCategories()).thenReturn(new MutableLiveData<>());
+        mFavouritesViewModel = new FavouritesViewModel(mRepositoryMock);
     }
 
     @Test
     public void getFavouritesWithCategories_callRepo() {
-        Mockito.verify(repositoryMock, Mockito.times(1)).getFavouritesWithCategories();
+        Mockito.verify(mRepositoryMock, Mockito.times(1)).getFavouritesWithCategories();
     }
 
     @Test
     public void deleteFavourites_callRepo() {
         Favourite favourite = new Favourite();
-        favouritesViewModel.deleteFavourite(favourite);
-        Mockito.verify(repositoryMock).deleteFavourite(eq(favourite), Mockito.any());
+        mFavouritesViewModel.deleteFavourite(favourite);
+        Mockito.verify(mRepositoryMock).deleteFavourite(eq(favourite), Mockito.any());
     }
 
     @Test
     public void getFavouritesWithCategories_returnNotNull() {
-        Assert.assertNotNull(favouritesViewModel.getFavouritesWithCategories());
+        Assert.assertNotNull(mFavouritesViewModel.getFavouritesWithCategories());
     }
 
     @Test
     public void getSnackBarMessage_returnNotNull() {
-        Assert.assertNotNull(favouritesViewModel.getSnackBarMessage());
+        Assert.assertNotNull(mFavouritesViewModel.getSnackBarMessage());
     }
 
 }

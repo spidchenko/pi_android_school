@@ -18,26 +18,26 @@ import java.util.concurrent.Executor;
 
 public class SearchRequestRepositoryTest {
 
-    private final Executor executor = new CurrentThreadExecutor();
+    private final Executor mExecutor = new CurrentThreadExecutor();
     @Rule // -> allows liveData to work on different thread besides main, must be public!
-    public InstantTaskExecutorRule executorRule = new InstantTaskExecutorRule();
+    public InstantTaskExecutorRule mExecutorRule = new InstantTaskExecutorRule();
     @Mock
-    private SearchRequestDao searchRequestDao;
+    private SearchRequestDao mSearchRequestDao;
     @Mock
-    private SharedPrefRepository sharedPrefRepository;
-    private SearchRequestRepository searchRequestRepository;
+    private SharedPrefRepository mSharedPrefRepository;
+    private SearchRequestRepository mSearchRequestRepository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        searchRequestRepository = SearchRequestRepository.getInstance(searchRequestDao, sharedPrefRepository, executor);
+        mSearchRequestRepository = SearchRequestRepository.getInstance(mSearchRequestDao, mSharedPrefRepository, mExecutor);
     }
 
     @Test
     public void saveCurrentSearchInDb_callDao() {
         SearchRequest request = new SearchRequest(42, "Test");
-        searchRequestRepository.saveCurrentSearchInDb(request);
-        Mockito.verify(searchRequestDao).addSearchRequest(request);
+        mSearchRequestRepository.saveCurrentSearchInDb(request);
+        Mockito.verify(mSearchRequestDao).addSearchRequest(request);
     }
 
     static private class CurrentThreadExecutor implements Executor {

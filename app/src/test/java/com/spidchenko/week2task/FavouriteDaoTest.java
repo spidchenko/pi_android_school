@@ -32,28 +32,28 @@ import static com.spidchenko.week2task.LiveDataTestUtil.getOrAwaitValue;
 public class FavouriteDaoTest {
 
     @Rule // -> allows liveData to work on different thread besides main, must be public!
-    public InstantTaskExecutorRule executorRule = new InstantTaskExecutorRule();
+    public InstantTaskExecutorRule mExecutorRule = new InstantTaskExecutorRule();
 
-    private AppDatabase database;
-    private FavouriteDao favouriteDao;
+    private AppDatabase mDatabase;
+    private FavouriteDao mFavouriteDao;
 
     @Before
     public void createDb() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        database = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).allowMainThreadQueries().build();
-        favouriteDao = database.favouriteDao();
+        mDatabase = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).allowMainThreadQueries().build();
+        mFavouriteDao = mDatabase.favouriteDao();
     }
 
     @After
     public void closeDb() {
-        database.close();
+        mDatabase.close();
     }
 
     @Test
     public void addFavourite_savesData() {
         Favourite favourite = new Favourite(1, "Test", "http://te.st");
-        favouriteDao.addFavourite(favourite);
-        Assert.assertNotNull(favouriteDao.getFavourite(1, "http://te.st"));
+        mFavouriteDao.addFavourite(favourite);
+        Assert.assertNotNull(mFavouriteDao.getFavourite(1, "http://te.st"));
     }
 
     @Test
@@ -63,8 +63,8 @@ public class FavouriteDaoTest {
         String url = "http://te.st";
 
         Favourite favourite = new Favourite(userId, searchRequest, url);
-        favouriteDao.addFavourite(favourite);
-        LiveData<Favourite> dbLiveData = favouriteDao.getFavourite(userId, url);
+        mFavouriteDao.addFavourite(favourite);
+        LiveData<Favourite> dbLiveData = mFavouriteDao.getFavourite(userId, url);
         getOrAwaitValue(dbLiveData);
         Assert.assertEquals(Objects.requireNonNull(dbLiveData.getValue()).getUrl(), url);
     }
@@ -94,10 +94,10 @@ public class FavouriteDaoTest {
         );
 
         for (Favourite f : favourites) {
-            favouriteDao.addFavourite(f);
+            mFavouriteDao.addFavourite(f);
         }
 
-        LiveData<List<Favourite>> favouritesFromDb = favouriteDao.getFavouritesWithCategories(1);
+        LiveData<List<Favourite>> favouritesFromDb = mFavouriteDao.getFavouritesWithCategories(1);
         getOrAwaitValue(favouritesFromDb);
         Assert.assertEquals(Objects.requireNonNull(favouritesFromDb.getValue()).size(), favouritesWithCategories.size());
     }
@@ -108,10 +108,10 @@ public class FavouriteDaoTest {
         String searchRequest = "Test";
         String url = "http://te.st";
 
-        favouriteDao.addFavourite(new Favourite(userId, searchRequest, url));
-        favouriteDao.deleteFavourite(userId, url);
+        mFavouriteDao.addFavourite(new Favourite(userId, searchRequest, url));
+        mFavouriteDao.deleteFavourite(userId, url);
 
-        LiveData<Favourite> favouriteFromDb = favouriteDao.getFavourite(userId, url);
+        LiveData<Favourite> favouriteFromDb = mFavouriteDao.getFavourite(userId, url);
         getOrAwaitValue(favouriteFromDb);
 
         Assert.assertNull(favouriteFromDb.getValue());

@@ -24,35 +24,35 @@ import org.robolectric.annotation.Config;
 public class UserDaoTest {
 
     @Rule // -> allows liveData to work on different thread besides main, must be public!
-    public InstantTaskExecutorRule executorRule = new InstantTaskExecutorRule();
+    public InstantTaskExecutorRule mExecutorRule = new InstantTaskExecutorRule();
 
-    private AppDatabase database;
-    private UserDao userDao;
+    private AppDatabase mDatabase;
+    private UserDao mUserDao;
 
     @Before
     public void createDb() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        database = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).allowMainThreadQueries().build();
-        userDao = database.userDao();
+        mDatabase = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).allowMainThreadQueries().build();
+        mUserDao = mDatabase.userDao();
     }
 
     @After
     public void closeDb() {
-        database.close();
+        mDatabase.close();
     }
 
     @Test
     public void addUser_savesData() {
         String login = "UserTestLogin";
-        userDao.addUser(new User(login));
-        Assert.assertNotNull(userDao.getUser(login));
+        mUserDao.addUser(new User(login));
+        Assert.assertNotNull(mUserDao.getUser(login));
     }
 
     @Test
     public void getUser_returnValidData() {
         String login = "AnotherUserTestLogin";
-        userDao.addUser(new User(login));
-        Assert.assertEquals(userDao.getUser(login).getLogin(), login);
+        mUserDao.addUser(new User(login));
+        Assert.assertEquals(mUserDao.getUser(login).getLogin(), login);
     }
 
     @Test

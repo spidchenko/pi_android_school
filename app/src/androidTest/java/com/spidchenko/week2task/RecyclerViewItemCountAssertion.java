@@ -12,14 +12,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RecyclerViewItemCountAssertion implements ViewAssertion {
-    private final Matcher<Integer> matcher;
+    private final Matcher<Integer> mMatcher;
 
     public RecyclerViewItemCountAssertion(int expectedCount) {
-        this.matcher = is(expectedCount);
+        this.mMatcher = is(expectedCount);
     }
 
     public RecyclerViewItemCountAssertion(Matcher<Integer> matcher) {
-        this.matcher = matcher;
+        this.mMatcher = matcher;
     }
 
     @Override
@@ -30,6 +30,6 @@ public class RecyclerViewItemCountAssertion implements ViewAssertion {
         RecyclerView recyclerView = (RecyclerView) view;
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         assert adapter != null;
-        assertThat(adapter.getItemCount(), matcher);
+        assertThat(adapter.getItemCount(), mMatcher);
     }
 }

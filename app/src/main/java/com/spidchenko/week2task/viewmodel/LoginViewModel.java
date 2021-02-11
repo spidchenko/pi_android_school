@@ -12,7 +12,7 @@ public class LoginViewModel extends ViewModel {
 
     public LoginViewModel(final LogInHelper logInHelper) {
         mLogInHelper = logInHelper;
-        isLoggedIn = logInHelper.getIsLoggedIn();
+        isLoggedIn = logInHelper.isLoggedIn();
     }
 
     public void logIn(String userName) {

@@ -30,21 +30,21 @@ import static com.spidchenko.week2task.LiveDataTestUtil.getOrAwaitValue;
 public class SearchRequestDaoTest {
 
     @Rule // -> allows liveData to work on different thread besides main, must be public!
-    public InstantTaskExecutorRule executorRule = new InstantTaskExecutorRule();
+    public InstantTaskExecutorRule mExecutorRule = new InstantTaskExecutorRule();
 
-    private AppDatabase database;
-    private SearchRequestDao searchRequestDao;
+    private AppDatabase mDatabase;
+    private SearchRequestDao mSearchRequestDao;
 
     @Before
     public void createDb() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        database = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).allowMainThreadQueries().build();
-        searchRequestDao = database.searchRequestDao();
+        mDatabase = Room.inMemoryDatabaseBuilder(context, AppDatabase.class).allowMainThreadQueries().build();
+        mSearchRequestDao = mDatabase.searchRequestDao();
     }
 
     @After
     public void closeDb() {
-        database.close();
+        mDatabase.close();
     }
 
     @Test
@@ -53,9 +53,9 @@ public class SearchRequestDaoTest {
         String request = "test";
         SearchRequest searchRequest = new SearchRequest(userId, request);
 
-        searchRequestDao.addSearchRequest(searchRequest);
+        mSearchRequestDao.addSearchRequest(searchRequest);
 
-        LiveData<List<SearchRequest>> searchRequestLiveData = searchRequestDao.getAllSearchRequests(userId);
+        LiveData<List<SearchRequest>> searchRequestLiveData = mSearchRequestDao.getAllSearchRequests(userId);
         getOrAwaitValue(searchRequestLiveData);
         Assert.assertNotNull(searchRequestLiveData.getValue());
     }
@@ -66,9 +66,9 @@ public class SearchRequestDaoTest {
         String request = "TEST";
         SearchRequest searchRequest = new SearchRequest(userId, request);
 
-        searchRequestDao.addSearchRequest(searchRequest);
+        mSearchRequestDao.addSearchRequest(searchRequest);
 
-        LiveData<List<SearchRequest>> searchRequestLiveData = searchRequestDao.getAllSearchRequests(userId);
+        LiveData<List<SearchRequest>> searchRequestLiveData = mSearchRequestDao.getAllSearchRequests(userId);
         getOrAwaitValue(searchRequestLiveData);
         Assert.assertEquals(Objects.requireNonNull(searchRequestLiveData.getValue()).get(0).getSearchRequest(), request);
     }

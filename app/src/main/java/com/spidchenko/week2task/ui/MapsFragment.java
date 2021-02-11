@@ -38,9 +38,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mGoogleMap;
     private Marker mMarker;
 
-    OnFragmentInteractionListener mListener;
+    private OnFragmentInteractionListener mListener;
 
-    ActivityResultLauncher<String> requestPermissionLauncher =
+    private final ActivityResultLauncher<String> mRequestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 Log.d(TAG, "Permission callback! = " + isGranted);
                 if (isGranted) {
@@ -105,7 +105,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             getLocation();
         } else {
             Log.d(TAG, "Permission not granted! Trying to ask for...");
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+            mRequestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
         }
 
     }

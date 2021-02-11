@@ -16,29 +16,29 @@ import java.io.File;
 public class GalleryViewModelTest {
 
     @Mock
-    private FileRepository fileRepositoryMock;
+    private FileRepository mFileRepositoryMock;
     @Mock
-    private ContentResolver contentResolverMock;
+    private ContentResolver mContentResolverMock;
 
-    private GalleryViewModel galleryViewModel;
+    private GalleryViewModel mGalleryViewModel;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        galleryViewModel = new GalleryViewModel(fileRepositoryMock);
+        mGalleryViewModel = new GalleryViewModel(mFileRepositoryMock);
     }
 
     @Test
     public void getImageFiles_callRepo() {
-        galleryViewModel.getImageFiles();
-        Mockito.verify(fileRepositoryMock).getImageFiles();
+        mGalleryViewModel.getImageFiles();
+        Mockito.verify(mFileRepositoryMock).getImageFiles();
     }
 
     @Test
     public void deleteFile_callRepo() {
         File file = new File("TestFile");
-        fileRepositoryMock.deleteFile(contentResolverMock, file);
-        Mockito.verify(fileRepositoryMock).deleteFile(contentResolverMock, file);
+        mFileRepositoryMock.deleteFile(mContentResolverMock, file);
+        Mockito.verify(mFileRepositoryMock).deleteFile(mContentResolverMock, file);
     }
 
 }

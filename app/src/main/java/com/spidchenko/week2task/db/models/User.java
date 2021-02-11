@@ -12,10 +12,10 @@ public class User {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    int mId;
+    private int mId;
 
     @ColumnInfo(name = "login")
-    String mLogin;
+    private String mLogin;
 
     public User() {
     }

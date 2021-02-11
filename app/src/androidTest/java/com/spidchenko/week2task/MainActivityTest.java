@@ -9,7 +9,6 @@ import androidx.test.filters.LargeTest;
 import com.spidchenko.week2task.ui.MainActivity;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +31,7 @@ import static com.spidchenko.week2task.NavigationTestUtil.NAV_FAVOURITES;
 import static com.spidchenko.week2task.NavigationTestUtil.NAV_GALLERY;
 import static com.spidchenko.week2task.NavigationTestUtil.NAV_MAPS;
 import static com.spidchenko.week2task.NavigationTestUtil.NAV_SEARCH_HISTORY;
-import static com.spidchenko.week2task.NavigationTestUtil.navigate_to;
+import static com.spidchenko.week2task.NavigationTestUtil.navigateTo;
 import static com.spidchenko.week2task.NavigationTestUtil.openNavigationDrawer;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.StringContains.containsString;
@@ -44,7 +43,7 @@ public class MainActivityTest {
     private static final String TEST_SEARCH = "Dogs";
     private static final String TEST_SEARCH_NO_RESULTS = "Fsf353sdP#f";
 
-    private static boolean setUpIsDone = false;
+    private static boolean mSetUpIsDone = false;
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule
@@ -52,14 +51,14 @@ public class MainActivityTest {
 
     @Before
     public void setUp() {
-        if (setUpIsDone) {
+        if (mSetUpIsDone) {
             return;
         }
         // Log in as user
         onView(withId(R.id.username)).perform(typeText(TEST_USERNAME));
         closeSoftKeyboard();
         onView(withId(R.id.btn_sign_in)).perform(click());
-        setUpIsDone = true;
+        mSetUpIsDone = true;
     }
 
 
@@ -175,12 +174,13 @@ public class MainActivityTest {
 
 
     @Test
-    public void takePhotoAndSwipe_photoRemovedFromList() {
-        navigate_to(NAV_GALLERY);
+    public void takePhotoAndSwipe_photoRemovedFromList() throws InterruptedException {
+        navigateTo(NAV_GALLERY);
         onView(withId(R.id.btn_make_photo)).perform(click());
         // Check Camera Fragment Visible
         onView(withId(R.id.previewView)).check(matches(isDisplayed()));
         onView(withId(R.id.btn_take_shot)).perform(click());
+        Thread.sleep(1000);
         Espresso.pressBack();
         Espresso.pressBack();
         onView(withId(R.id.rv_gallery_images)).check(new RecyclerViewItemCountAssertion(greaterThan(0)));
@@ -190,30 +190,30 @@ public class MainActivityTest {
     }
 
 
-    // Navigation Tests:
+//     Navigation Tests:
 
 
     @Test
     public void navigateToFavouritesScreen_favouritesFragmentVisible() {
-        navigate_to(NAV_FAVOURITES);
+        navigateTo(NAV_FAVOURITES);
         onView(withId(R.id.rv_favourite_images)).check(matches(isDisplayed()));
     }
 
     @Test
     public void navigateToGalleryScreen_galleryFragmentVisible() {
-        navigate_to(NAV_GALLERY);
+        navigateTo(NAV_GALLERY);
         onView(withId(R.id.rv_gallery_images)).check(matches(isDisplayed()));
     }
 
     @Test
     public void navigateToSearchHist_searchHistFragmentVisible() {
-        navigate_to(NAV_SEARCH_HISTORY);
+        navigateTo(NAV_SEARCH_HISTORY);
         onView(withId(R.id.rv_search_history)).check(matches(isDisplayed()));
     }
 
     @Test
     public void navigateToMapsScreen_mapsFragmentVisible() {
-        navigate_to(NAV_MAPS);
+        navigateTo(NAV_MAPS);
         onView(withId(R.id.btn_map_search)).check(matches(isDisplayed()));
     }
 

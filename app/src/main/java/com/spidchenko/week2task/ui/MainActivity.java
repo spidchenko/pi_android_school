@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity
     private NavController mNavController;
     private LoginViewModel mLoginViewModel;
 
-    ActivityResultLauncher<Intent> requestPermissionLauncher =
+    private final ActivityResultLauncher<Intent> mRequestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (!Settings.canDrawOverlays(this)) {
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:" + getPackageName()));
-            requestPermissionLauncher.launch(intent);
+            mRequestPermissionLauncher.launch(intent);
         }
     }
 

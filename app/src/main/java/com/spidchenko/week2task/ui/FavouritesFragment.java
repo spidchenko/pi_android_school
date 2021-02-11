@@ -30,7 +30,7 @@ public class FavouritesFragment extends Fragment implements FavouritesListAdapte
 
     private static final String TAG = "FavFragment.LOG_TAG";
 
-    OnFragmentInteractionListener mListener;
+    private OnFragmentInteractionListener mListener;
     private FavouritesViewModel mViewModel;
     private RecyclerView mRvFavouriteImages;
     private FavouritesListAdapter mRecyclerAdapter;

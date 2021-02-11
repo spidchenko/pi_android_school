@@ -3,8 +3,10 @@ package com.spidchenko.week2task.ui;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.inputmethod.EditorInfo;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -104,7 +106,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ListenableFuture<List<WorkInfo>> workInfo = WorkManager.getInstance(requireContext()).getWorkInfosForUniqueWork(WORK_NAME);
         Log.d(TAG, "onCreatePreferences: " + workInfo.toString());
 
-        // TODO check soft keyboard stays open issue
+        EditTextPreference searchString = findPreference(PREF_UPDATE_TEXT);
+        if (searchString != null) {
+            searchString.setOnBindEditTextListener(editText -> {
+                editText.setSingleLine();
+                editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            });
+        }
     }
-
 }

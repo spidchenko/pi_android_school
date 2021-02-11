@@ -11,16 +11,16 @@ public class Favourite {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    int mId;
+    private int mId;
 
     @ColumnInfo(name = "user_id")
-    int mUser;
+    private int mUser;
 
     @ColumnInfo(name = "search_string")
-    String mSearchRequest;
+    private String mSearchRequest;
 
     @ColumnInfo(name = "url")
-    String mUrl;
+    private String mUrl;
 
 
     public Favourite() {

@@ -21,30 +21,30 @@ public class ImageViewerViewModelTest {
     private static final int MOCK_USER_ID = 42;
 
     @Mock
-    FavouriteRepository favouriteRepositoryMock;
+    private FavouriteRepository mFavouriteRepositoryMock;
     @Mock
-    SharedPrefRepository sharedPrefRepositoryMock;
+    private SharedPrefRepository mSharedPrefRepositoryMock;
     @Mock
-    FileRepository fileRepositoryMock;
+    private FileRepository mFileRepositoryMock;
     @Mock
 
-    ImageViewerViewModel imageViewerViewModel;
+    private ImageViewerViewModel mImageViewerViewModel;
 
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        imageViewerViewModel = new ImageViewerViewModel(favouriteRepositoryMock,
-                sharedPrefRepositoryMock,
-                fileRepositoryMock);
+        mImageViewerViewModel = new ImageViewerViewModel(mFavouriteRepositoryMock,
+                mSharedPrefRepositoryMock,
+                mFileRepositoryMock);
 
-        Mockito.when(sharedPrefRepositoryMock.getUserId()).thenReturn(MOCK_USER_ID);
+        Mockito.when(mSharedPrefRepositoryMock.getUserId()).thenReturn(MOCK_USER_ID);
     }
 
     @Test
     public void getInFavourites_callRepoWithValidInput() {
-        imageViewerViewModel.getInFavourites("TestSearchString", "http://test.url");
-        Mockito.verify(favouriteRepositoryMock).getFavourite(Mockito.argThat(
+        mImageViewerViewModel.getInFavourites("TestSearchString", "http://test.url");
+        Mockito.verify(mFavouriteRepositoryMock).getFavourite(Mockito.argThat(
                 (Favourite f) -> f.getUser() == MOCK_USER_ID &&
                         f.getSearchRequest().equals("TestSearchString") &&
                         f.getUrl().equals("http://test.url")));
@@ -52,8 +52,8 @@ public class ImageViewerViewModelTest {
 
     @Test
     public void toggleFavourite_whenNotFavourite() {
-        imageViewerViewModel.toggleFavourite("NotInFavourites", "http://not.in");
-        Mockito.verify(favouriteRepositoryMock).addFavorite(Mockito.argThat(
+        mImageViewerViewModel.toggleFavourite("NotInFavourites", "http://not.in");
+        Mockito.verify(mFavouriteRepositoryMock).addFavorite(Mockito.argThat(
                 (Favourite f) -> f.getUser() == MOCK_USER_ID &&
                         f.getSearchRequest().equals("NotInFavourites") &&
                         f.getUrl().equals("http://not.in")
@@ -62,11 +62,11 @@ public class ImageViewerViewModelTest {
 
     @Test
     public void toggleFavourite_whenFavourite() {
-        Mockito.when(favouriteRepositoryMock.getFavourite(Mockito.any())).thenReturn(new MutableLiveData<>(new Favourite()));
+        Mockito.when(mFavouriteRepositoryMock.getFavourite(Mockito.any())).thenReturn(new MutableLiveData<>(new Favourite()));
         //Set in Favourites:
-        imageViewerViewModel.getInFavourites("", "");
-        imageViewerViewModel.toggleFavourite("InFavourites", "http://in.fav");
-        Mockito.verify(favouriteRepositoryMock).deleteFavourite(Mockito.argThat(
+        mImageViewerViewModel.getInFavourites("", "");
+        mImageViewerViewModel.toggleFavourite("InFavourites", "http://in.fav");
+        Mockito.verify(mFavouriteRepositoryMock).deleteFavourite(Mockito.argThat(
                 (Favourite f) -> f.getUser() == MOCK_USER_ID &&
                         f.getSearchRequest().equals("InFavourites") &&
                         f.getUrl().equals("http://in.fav")), Mockito.any());
@@ -76,9 +76,9 @@ public class ImageViewerViewModelTest {
     public void saveImage_callRepoWithValidInput() {
         RequestManager requestManagerMock = Mockito.mock(RequestManager.class);
         ContentResolver contentResolverMock = Mockito.mock(ContentResolver.class);
-        imageViewerViewModel.saveImage(requestManagerMock, contentResolverMock,
+        mImageViewerViewModel.saveImage(requestManagerMock, contentResolverMock,
                 "ToSave", "http://to.save");
-        Mockito.verify(fileRepositoryMock).saveImage(Mockito.eq(requestManagerMock),
+        Mockito.verify(mFileRepositoryMock).saveImage(Mockito.eq(requestManagerMock),
                 Mockito.eq(contentResolverMock),
                 Mockito.argThat(
                         (Favourite f) -> f.getUser() == MOCK_USER_ID &&

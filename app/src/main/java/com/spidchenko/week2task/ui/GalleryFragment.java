@@ -35,12 +35,11 @@ public class GalleryFragment extends Fragment {
 
     private static final String TAG = "GalleryFragment.LOG_TAG";
     private GalleryViewModel mViewModel;
-    OnFragmentInteractionListener mListener;
-    // TODO: 12/22/20 Suggestion: Look into ButterKnife library. It is easy to use & integrate and it will simplify view bindings.
+    private OnFragmentInteractionListener mListener;
     private RecyclerView mRvImages;
     private GalleryAdapter mRecyclerAdapter;
 
-    ActivityResultLauncher<String> requestPermissionLauncher =
+    private final ActivityResultLauncher<String> mRequestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 Log.d(TAG, "Permission callback! = " + isGranted);
                 if (isGranted) {
@@ -85,7 +84,7 @@ public class GalleryFragment extends Fragment {
                 enableCamera();
             } else {
                 Log.d(TAG, "actionTakePhoto: Permission not granted! Trying to ask for...");
-                requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+                mRequestPermissionLauncher.launch(Manifest.permission.CAMERA);
             }
         });
 

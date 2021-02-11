@@ -21,16 +21,16 @@ public class SearchViewModelTest {
     private static final String MOCK_LAST_SEARCH = "Last Search";
 
     @Rule // -> allows liveData to work on different thread besides main, must be public!
-    public InstantTaskExecutorRule executorRule = new InstantTaskExecutorRule();
+    public InstantTaskExecutorRule mExecutorRule = new InstantTaskExecutorRule();
 
-    private SearchViewModel searchViewModel;
+    private SearchViewModel mSearchViewModel;
 
     @Mock
-    ImageRepository imageRepoMock;
+    private ImageRepository mImageRepoMock;
     @Mock
-    SharedPrefRepository sharedPrefRepoMock;
+    private SharedPrefRepository sharedPrefRepoMock;
     @Mock
-    SearchRequestRepository searchRequestRepoMock;
+    private SearchRequestRepository searchRequestRepoMock;
 
     @Before
     public void setUp() {
@@ -39,20 +39,20 @@ public class SearchViewModelTest {
         Mockito.when(sharedPrefRepoMock.getUserId()).thenReturn(MOCK_USER_ID);
         Mockito.when(sharedPrefRepoMock.getLastSearch()).thenReturn(MOCK_LAST_SEARCH);
 
-        searchViewModel = new SearchViewModel(imageRepoMock, sharedPrefRepoMock, searchRequestRepoMock);
+        mSearchViewModel = new SearchViewModel(mImageRepoMock, sharedPrefRepoMock, searchRequestRepoMock);
     }
 
     @Test
     public void searchImages_lastSearchSavedInSharedPref() {
         String searchString = "Test Search String";
-        searchViewModel.searchImages(searchString);
+        mSearchViewModel.searchImages(searchString);
         Mockito.verify(sharedPrefRepoMock).saveLastSearch(searchString);
     }
 
     @Test
     public void searchImages_lastSearchSavedInDb() {
         String searchString = "Test Search String To Be Saved In Db";
-        searchViewModel.searchImages(searchString);
+        mSearchViewModel.searchImages(searchString);
         Mockito.verify(searchRequestRepoMock).saveCurrentSearchInDb(Mockito.argThat(
                 (SearchRequest s) -> s.getUserId() == MOCK_USER_ID &&
                         s.getSearchRequest().equals(searchString)
@@ -62,13 +62,13 @@ public class SearchViewModelTest {
     @Test
     public void searchImages_callRepoUpdate() {
         String searchString = "Test String";
-        searchViewModel.searchImages(searchString);
-        Mockito.verify(imageRepoMock).updateImages(Mockito.eq(searchString), Mockito.any());
+        mSearchViewModel.searchImages(searchString);
+        Mockito.verify(mImageRepoMock).updateImages(Mockito.eq(searchString), Mockito.any());
     }
 
     @Test
     public void searchImagesByCoordinates_hasValidSearchString() {
-        searchViewModel.searchImagesByCoordinates("-12.12323234", "45.23412334");
+        mSearchViewModel.searchImagesByCoordinates("-12.12323234", "45.23412334");
         Mockito.verify(searchRequestRepoMock).saveCurrentSearchInDb(Mockito.argThat(
                 (SearchRequest s) -> s.getUserId() == MOCK_USER_ID &&
                         s.getSearchRequest().equals("GeoSearch. Lat:-12.1 Lon:45.23")
@@ -79,23 +79,23 @@ public class SearchViewModelTest {
     public void searchImages_callRepoUpdateByCoords() {
         String lat = "33.3333";
         String lon = "44.4444";
-        searchViewModel.searchImagesByCoordinates(lat, lon);
-        Mockito.verify(imageRepoMock).updateImagesByCoordinates(Mockito.eq(lat), Mockito.eq(lon),
+        mSearchViewModel.searchImagesByCoordinates(lat, lon);
+        Mockito.verify(mImageRepoMock).updateImagesByCoordinates(Mockito.eq(lat), Mockito.eq(lon),
                 Mockito.any());
     }
 
     @Test
     public void getSearchString_returnValidValue() {
-        Assert.assertEquals(searchViewModel.getSearchString().getValue(), MOCK_LAST_SEARCH);
+        Assert.assertEquals(mSearchViewModel.getSearchString().getValue(), MOCK_LAST_SEARCH);
     }
 
     @Test
     public void cgetAllImages_returnNotNull() {
-        Assert.assertNotNull(searchViewModel.getAllImages());
+        Assert.assertNotNull(mSearchViewModel.getAllImages());
     }
 
     @Test
     public void getLoadingState_returnNotNull() {
-        Assert.assertNotNull(searchViewModel.getLoadingState());
+        Assert.assertNotNull(mSearchViewModel.getLoadingState());
     }
 }

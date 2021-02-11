@@ -37,13 +37,13 @@ public class SyncWorker extends Worker {
     private static final int STATUS_FAILURE = 30;
 
     private final Executor mExecutor = new AppExecutors().diskIO();
-    private final AtomicInteger workStatus = new AtomicInteger();
+    private final AtomicInteger mWorkStatus = new AtomicInteger();
 
     public SyncWorker(
             @NonNull Context context,
             @NonNull WorkerParameters params) {
         super(context, params);
-        workStatus.set(STATUS_RUNNING);
+        mWorkStatus.set(STATUS_RUNNING);
         Log.d(TAG, "SyncWorker: init");
     }
 
@@ -53,11 +53,11 @@ public class SyncWorker extends Worker {
         createNotificationChannel();
         syncImages(getInputData().getString(SEARCH_STRING));
 
-        synchronized (workStatus) {
-            while (workStatus.get() == STATUS_RUNNING) {
+        synchronized (mWorkStatus) {
+            while (mWorkStatus.get() == STATUS_RUNNING) {
                 try {
                     Log.d(TAG, "doWork: Sleeping...");
-                    workStatus.wait(1000);
+                    mWorkStatus.wait(1000);
                 } catch (InterruptedException e) {
                     Log.e(TAG, "doWork: Error: " + e);
                 }
@@ -65,7 +65,7 @@ public class SyncWorker extends Worker {
 
             Log.d(TAG, "doWork: Waking up...");
 
-            if (workStatus.get() == STATUS_SUCCESS) {
+            if (mWorkStatus.get() == STATUS_SUCCESS) {
                 Log.d(TAG, "doWork: Result Success");
                 return Result.success();
             } else {
@@ -85,8 +85,8 @@ public class SyncWorker extends Worker {
                         ((com.spidchenko.week2task.network.Result.Error<List<Image>>) result)
                                 .throwable.getMessage());
                 Log.d(TAG, "syncImages: setting Error failure");
-                synchronized (workStatus) {
-                    workStatus.set(STATUS_FAILURE);
+                synchronized (mWorkStatus) {
+                    mWorkStatus.set(STATUS_FAILURE);
                 }
 
             } else {
@@ -104,10 +104,10 @@ public class SyncWorker extends Worker {
                     }
                     showNotification(numNewImages, searchRequest);
                     Log.d(TAG, "syncImages: setting success true");
-                    synchronized (workStatus) {
-                        workStatus.set(STATUS_SUCCESS);
+                    synchronized (mWorkStatus) {
+                        mWorkStatus.set(STATUS_SUCCESS);
                         Log.d(TAG, "syncImages: Notify");
-                        workStatus.notifyAll();
+                        mWorkStatus.notifyAll();
                     }
                 });
             }

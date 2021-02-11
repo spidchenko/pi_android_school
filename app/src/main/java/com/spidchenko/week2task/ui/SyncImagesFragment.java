@@ -23,7 +23,7 @@ import com.spidchenko.week2task.viewmodel.SyncImagesViewModel;
 
 public class SyncImagesFragment extends Fragment implements SyncImagesAdapter.OnCardListener {
 
-    OnFragmentInteractionListener mListener;
+    private OnFragmentInteractionListener mListener;
     private SyncImagesViewModel mViewModel;
     private RecyclerView mRvImages;
     private SyncImagesAdapter mRecyclerAdapter;

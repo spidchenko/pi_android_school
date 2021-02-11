@@ -17,28 +17,28 @@ import java.util.List;
 
 public class SearchHistoryViewModelTest {
 
-    private SearchHistoryViewModel searchHistoryViewModel;
+    private SearchHistoryViewModel mSearchHistoryViewModel;
 
     @Mock
-    private SearchRequestRepository searchRequestRepositoryMock;
+    private SearchRequestRepository mSearchRequestRepositoryMock;
 
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        searchHistoryViewModel = new SearchHistoryViewModel(searchRequestRepositoryMock);
+        mSearchHistoryViewModel = new SearchHistoryViewModel(mSearchRequestRepositoryMock);
     }
 
     @Test
     public void getSearchRequests_callRepo() {
-        searchHistoryViewModel.getSearchRequests();
-        Mockito.verify(searchRequestRepositoryMock).getSearchRequests();
+        mSearchHistoryViewModel.getSearchRequests();
+        Mockito.verify(mSearchRequestRepositoryMock).getSearchRequests();
     }
 
     @Test
     public void getSearchRequests_returnValidResult() {
         MutableLiveData<List<SearchRequest>> requests = new MutableLiveData<>();
-        Mockito.when(searchRequestRepositoryMock.getSearchRequests()).thenReturn(requests);
-        Assert.assertEquals(searchHistoryViewModel.getSearchRequests(), requests);
+        Mockito.when(mSearchRequestRepositoryMock.getSearchRequests()).thenReturn(requests);
+        Assert.assertEquals(mSearchHistoryViewModel.getSearchRequests(), requests);
     }
 
 }

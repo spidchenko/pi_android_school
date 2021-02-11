@@ -33,12 +33,12 @@ public class ImageViewerFragment extends Fragment {
     private static final String TAG = "ImgViewFragment.LOG_TAG";
 
     private ImageViewerViewModel mViewModel;
-    private CheckBox cbToggleFavourite;
+    private CheckBox mCbToggleFavourite;
 
     private String mExtraUrl;
     private String mExtraSearchString;
 
-    ActivityResultLauncher<String> requestPermissionLauncher =
+    private final ActivityResultLauncher<String> mRequestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 Log.d(TAG, "Permission callback! = " + isGranted);
                 if (isGranted) {
@@ -71,7 +71,7 @@ public class ImageViewerFragment extends Fragment {
 
         WebView webView = rootView.findViewById(R.id.webView);
         TextView tvSearchString = rootView.findViewById(R.id.tv_search_string);
-        cbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
+        mCbToggleFavourite = rootView.findViewById(R.id.cb_toggle_favourite);
         tvSearchString.setText(mExtraSearchString);
         ImageView ivSaveImage = rootView.findViewById(R.id.img_save);
 
@@ -82,7 +82,7 @@ public class ImageViewerFragment extends Fragment {
                 ". SearchString: " + mExtraSearchString);
 
         // Check/Uncheck current image as favourite and save choice to local Database
-        cbToggleFavourite.setOnClickListener(view -> mViewModel.toggleFavourite(mExtraSearchString, mExtraUrl));
+        mCbToggleFavourite.setOnClickListener(view -> mViewModel.toggleFavourite(mExtraSearchString, mExtraUrl));
 
         // Save current image to Media folder
         ivSaveImage.setOnClickListener(view -> {
@@ -93,7 +93,7 @@ public class ImageViewerFragment extends Fragment {
                         mExtraSearchString, mExtraUrl);
             } else {
                 Log.d(TAG, "actionSaveImage: Permission not granted! Trying to ask for...");
-                requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                mRequestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
         });
 
@@ -105,7 +105,7 @@ public class ImageViewerFragment extends Fragment {
 
         mViewModel.getInFavourites(mExtraSearchString, mExtraUrl).observe(getViewLifecycleOwner(), inFavourites -> {
             Log.d(TAG, "onCreate: inFavouritesLiveData = " + inFavourites);
-            cbToggleFavourite.setChecked((inFavourites != null) && (!inFavourites.getUrl().isEmpty()));
+            mCbToggleFavourite.setChecked((inFavourites != null) && (!inFavourites.getUrl().isEmpty()));
         });
 
         mViewModel.getSnackBarMessage().observe(this,

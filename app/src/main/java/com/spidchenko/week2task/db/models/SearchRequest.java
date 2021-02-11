@@ -10,13 +10,13 @@ public class SearchRequest {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    int mId;
+    private int mId;
 
     @ColumnInfo(name = "user_id")
-    int mUserId;
+    private int mUserId;
 
     @ColumnInfo(name = "search_string")
-    String mSearchRequest;
+    private String mSearchRequest;
 
     public SearchRequest() {
     }

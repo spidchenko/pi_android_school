@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CameraFragment extends Fragment {
-    private File photosDirectory;
+    private File mPhotosDirectory;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,13 +35,13 @@ public class CameraFragment extends Fragment {
         PreviewView previewView = rootView.findViewById(R.id.previewView);
 
         FileRepository fileRepository = FileRepository.getInstance(requireActivity().getApplication());
-        photosDirectory = fileRepository.getPhotosDirectory();
+        mPhotosDirectory = fileRepository.getPhotosDirectory();
 
         CameraHelper cameraHelper = new CameraHelper(requireContext(), getViewLifecycleOwner(), previewView);
 
         btnTakeShot.setOnClickListener(view -> {
             SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
-            File file = new File(photosDirectory, mDateFormat.format(new Date()) + ".jpg");
+            File file = new File(mPhotosDirectory, mDateFormat.format(new Date()) + ".jpg");
             cameraHelper.takePicture(requireContext(), file, () -> {
                 Snackbar.make(requireView(), R.string.image_saved,
                         BaseTransientBottomBar.LENGTH_LONG).show();
