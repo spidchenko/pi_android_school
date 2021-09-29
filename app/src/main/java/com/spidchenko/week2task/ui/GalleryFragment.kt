@@ -1,125 +1,132 @@
-package com.spidchenko.week2task.ui;
+package com.spidchenko.week2task.ui
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
+import com.spidchenko.week2task.R
+import com.spidchenko.week2task.adapter.GalleryAdapter
+import com.spidchenko.week2task.helpers.SwipeHelper.OnSwipeListener
+import com.spidchenko.week2task.helpers.SwipeHelper.getSwipeToDismissTouchHelper
+import com.spidchenko.week2task.helpers.ViewModelsFactory
+import com.spidchenko.week2task.viewmodel.GalleryViewModel
+import java.io.File
+import java.util.*
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.adapter.GalleryAdapter;
-import com.spidchenko.week2task.helpers.SwipeHelper;
-import com.spidchenko.week2task.helpers.ViewModelsFactory;
-import com.spidchenko.week2task.viewmodel.GalleryViewModel;
-
-import java.io.File;
-import java.util.ArrayList;
-
-public class GalleryFragment extends Fragment {
-
-    private static final String TAG = "GalleryFragment.LOG_TAG";
-    private GalleryViewModel mViewModel;
-    private OnFragmentInteractionListener mListener;
-    private RecyclerView mRvImages;
-    private GalleryAdapter mRecyclerAdapter;
-
-    private final ActivityResultLauncher<String> mRequestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                Log.d(TAG, "Permission callback! = " + isGranted);
-                if (isGranted) {
-                    enableCamera();
-                } else {
-                    Snackbar.make(requireView(), R.string.need_photo_permission,
-                            BaseTransientBottomBar.LENGTH_LONG).show();
-                }
-            });
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new ClassCastException(context.toString()
-                    + getResources().getString(R.string.exception_message));
-        }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
-        mViewModel = new ViewModelProvider(this, factory).get(GalleryViewModel.class);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        View rootView = inflater.inflate(R.layout.fragment_gallery, container, false);
-        mRvImages = rootView.findViewById(R.id.rv_gallery_images);
-        FloatingActionButton btnMakePhoto = rootView.findViewById(R.id.btn_make_photo);
-        subscribeToModel();
-        initRecyclerView();
-        // Open fragment to make new photo
-        btnMakePhoto.setOnClickListener(view -> {
-            if (ContextCompat.checkSelfPermission(requireActivity().getApplicationContext(),
-                    Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                enableCamera();
+class GalleryFragment : Fragment() {
+    private var mViewModel: GalleryViewModel? = null
+    private var mListener: OnFragmentInteractionListener? = null
+    private var mRvImages: RecyclerView? = null
+    private var mRecyclerAdapter: GalleryAdapter? = null
+    private val mRequestPermissionLauncher =
+        registerForActivityResult(RequestPermission()) { isGranted: Boolean ->
+            Log.d(TAG, "Permission callback! = $isGranted")
+            if (isGranted) {
+                enableCamera()
             } else {
-                Log.d(TAG, "actionTakePhoto: Permission not granted! Trying to ask for...");
-                mRequestPermissionLauncher.launch(Manifest.permission.CAMERA);
+                Snackbar.make(
+                    requireView(), R.string.need_photo_permission,
+                    BaseTransientBottomBar.LENGTH_LONG
+                ).show()
             }
-        });
+        }
 
-        return rootView;
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mListener =
+            if (context is OnFragmentInteractionListener) {
+                context
+            } else {
+                throw ClassCastException(
+                    context.toString()
+                            + resources.getString(R.string.exception_message)
+                )
+            }
     }
 
-    private void enableCamera() {
-        mListener.onTakePhotosAction();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val factory = ViewModelsFactory(requireActivity().application)
+        mViewModel = ViewModelProvider(this, factory).get(GalleryViewModel::class.java)
     }
 
-    private void initRecyclerView() {
-        mRecyclerAdapter = new GalleryAdapter(null);
-        mRvImages.setAdapter(mRecyclerAdapter);
-        mRvImages.setLayoutManager(new LinearLayoutManager(requireActivity()));
-
-        ItemTouchHelper helper = SwipeHelper.getSwipeToDismissTouchHelper(position ->
-                mViewModel.deleteFile(requireActivity().getApplicationContext().getContentResolver(),
-                        mRecyclerAdapter.getFileAtPosition(position)));
-
-        helper.attachToRecyclerView(mRvImages);
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val rootView = inflater.inflate(R.layout.fragment_gallery, container, false)
+        mRvImages = rootView.findViewById(R.id.rv_gallery_images)
+        val btnMakePhoto: FloatingActionButton = rootView.findViewById(R.id.btn_make_photo)
+        subscribeToModel()
+        initRecyclerView()
+        // Open fragment to make new photo
+        btnMakePhoto.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireActivity().applicationContext,
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                enableCamera()
+            } else {
+                Log.d(TAG, "actionTakePhoto: Permission not granted! Trying to ask for...")
+                mRequestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+        return rootView
     }
 
-    private void subscribeToModel() {
-        mViewModel.getImageFiles().observe(getViewLifecycleOwner(), files -> {
-            Log.d(TAG, "Observed LiveData: " + files);
-            mRecyclerAdapter.setImages((ArrayList<File>) files);
-            mRecyclerAdapter.notifyDataSetChanged();
-        });
-
-        mViewModel.getSnackBarMessage().observe(this,
-                message -> Snackbar.make(requireView(), message,
-                        BaseTransientBottomBar.LENGTH_LONG).show());
+    private fun enableCamera() {
+        mListener!!.onTakePhotosAction()
     }
 
-    interface OnFragmentInteractionListener {
-        void onTakePhotosAction();
+    private fun initRecyclerView() {
+        mRecyclerAdapter = GalleryAdapter(null)
+        mRvImages!!.adapter = mRecyclerAdapter
+        mRvImages!!.layoutManager = LinearLayoutManager(requireActivity())
+        val helper = getSwipeToDismissTouchHelper(object : OnSwipeListener {
+            override fun onSwipeToDismiss(position: Int) {
+                mViewModel!!.deleteFile(
+                    requireActivity().applicationContext.contentResolver,
+                    mRecyclerAdapter!!.getFileAtPosition(position)
+                )
+            }
+        })
+        helper.attachToRecyclerView(mRvImages)
+    }
+
+    private fun subscribeToModel() {
+        mViewModel!!.imageFiles.observe(viewLifecycleOwner, { files: List<File?> ->
+            Log.d(TAG, "Observed LiveData: $files")
+            mRecyclerAdapter!!.setImages(files as ArrayList<File?>)
+            mRecyclerAdapter!!.notifyDataSetChanged()
+        })
+        mViewModel!!.snackBarMessage.observe(this,
+            { message: Int? ->
+                Snackbar.make(
+                    requireView(), message!!,
+                    BaseTransientBottomBar.LENGTH_LONG
+                ).show()
+            })
+    }
+
+    internal interface OnFragmentInteractionListener {
+        fun onTakePhotosAction()
+    }
+
+    companion object {
+        private const val TAG = "GalleryFragment.LOG_TAG"
     }
 }

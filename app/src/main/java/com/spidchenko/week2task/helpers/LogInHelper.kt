@@ -1,60 +1,60 @@
-package com.spidchenko.week2task.helpers;
+package com.spidchenko.week2task.helpers
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.spidchenko.week2task.db.dao.UserDao
+import com.spidchenko.week2task.db.models.User
+import com.spidchenko.week2task.helpers.LogInHelper
+import com.spidchenko.week2task.repositories.SharedPrefRepository
+import java.util.concurrent.Executor
 
-import com.spidchenko.week2task.db.dao.UserDao;
-import com.spidchenko.week2task.db.models.User;
-import com.spidchenko.week2task.repositories.SharedPrefRepository;
-
-import java.util.concurrent.Executor;
-
-public class LogInHelper {
-    private final UserDao mUserDao;
-    private final MutableLiveData<Boolean> isLoggedIn = new MutableLiveData<>();
-    private static volatile LogInHelper sInstance;
-    private final Executor mExecutor;
-    private final SharedPrefRepository mSharedPrefRepository;
-
-    private LogInHelper(final UserDao userDao,
-                        final SharedPrefRepository sharedPrefRepository,
-                        final Executor executor) {
-        mUserDao = userDao;
-        isLoggedIn.setValue(false);
-        mSharedPrefRepository = sharedPrefRepository;
-        mExecutor = executor;
+class LogInHelper private constructor(
+    private val mUserDao: UserDao,
+    sharedPrefRepository: SharedPrefRepository,
+    executor: Executor
+) {
+    private val isLoggedIn = MutableLiveData<Boolean>()
+    private val mExecutor: Executor
+    private val mSharedPrefRepository: SharedPrefRepository
+    fun isLoggedIn(): LiveData<Boolean> {
+        return isLoggedIn
     }
 
-    public LiveData<Boolean> isLoggedIn() {
-        return isLoggedIn;
+    fun logIn(userName: String?) {
+        mExecutor.execute {
+            var user = mUserDao.getUser(userName)
+            if (user == null) {
+                mUserDao.addUser(User(userName!!))
+                user = mUserDao.getUser(userName)
+            }
+            mSharedPrefRepository.saveUserId(user!!.id)
+            isLoggedIn.postValue(true)
+        }
     }
 
-
-    public static LogInHelper getInstance(final UserDao userDao,
-                                          final SharedPrefRepository sharedPrefRepository,
-                                          final Executor executor) {
-        if (sInstance == null) {
-            synchronized (LogInHelper.class) {
-                if (sInstance == null) {
-                    sInstance = new LogInHelper(userDao, sharedPrefRepository, executor);
+    companion object {
+        @Volatile
+        private var sInstance: LogInHelper? = null
+        @JvmStatic
+        fun getInstance(
+            userDao: UserDao,
+            sharedPrefRepository: SharedPrefRepository,
+            executor: Executor
+        ): LogInHelper? {
+            if (sInstance == null) {
+                synchronized(LogInHelper::class.java) {
+                    if (sInstance == null) {
+                        sInstance = LogInHelper(userDao, sharedPrefRepository, executor)
+                    }
                 }
             }
+            return sInstance
         }
-        return sInstance;
     }
 
-    public void logIn(final String userName) {
-
-        mExecutor.execute(() -> {
-            User user = mUserDao.getUser(userName);
-            if (user == null) {
-                mUserDao.addUser(new User(userName));
-                user = mUserDao.getUser(userName);
-            }
-
-            mSharedPrefRepository.saveUserId(user.getId());
-            isLoggedIn.postValue(true);
-        });
+    init {
+        isLoggedIn.value = false
+        mSharedPrefRepository = sharedPrefRepository
+        mExecutor = executor
     }
-
 }

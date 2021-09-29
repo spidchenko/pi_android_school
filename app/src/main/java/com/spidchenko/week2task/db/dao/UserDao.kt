@@ -1,19 +1,16 @@
-package com.spidchenko.week2task.db.dao;
+package com.spidchenko.week2task.db.dao
 
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-
-import com.spidchenko.week2task.db.models.User;
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.spidchenko.week2task.db.models.User
 
 @Dao
-public interface UserDao {
-
+interface UserDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void addUser(User user);
+    fun addUser(user: User?)
 
     @Query("SELECT * FROM users WHERE login LIKE :login")
-    User getUser(String login);
-
+    fun getUser(login: String?): User?
 }

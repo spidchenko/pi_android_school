@@ -1,43 +1,43 @@
-package com.spidchenko.week2task.helpers;
+package com.spidchenko.week2task.helpers
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.spidchenko.week2task.adapter.FavouritesListAdapter.CategoryViewHolder
 
-import com.spidchenko.week2task.adapter.FavouritesListAdapter;
-
-public class SwipeHelper {
-
-    public static ItemTouchHelper getSwipeToDismissTouchHelper(onSwipeListener listener) {
-        return new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-
+object SwipeHelper {
+    @JvmStatic
+    fun getSwipeToDismissTouchHelper(listener: OnSwipeListener): ItemTouchHelper {
+        return ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
             // Category view from Favourites list will not move
-            @Override
-            public int getSwipeDirs(@NonNull RecyclerView recyclerView,
-                                    @NonNull RecyclerView.ViewHolder viewHolder) {
-                if (viewHolder instanceof FavouritesListAdapter.CategoryViewHolder)
-                    return 0;
-                return super.getSwipeDirs(recyclerView, viewHolder);
+            override fun getSwipeDirs(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                return if (viewHolder is CategoryViewHolder) 0 else super.getSwipeDirs(
+                    recyclerView,
+                    viewHolder
+                )
             }
 
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
             }
 
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-                listener.onSwipeToDismiss(position);
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                listener.onSwipeToDismiss(position)
             }
-        });
+        })
     }
 
-    public interface onSwipeListener {
-        void onSwipeToDismiss(int position);
+    interface OnSwipeListener {
+        fun onSwipeToDismiss(position: Int)
     }
-
 }

@@ -1,86 +1,71 @@
-package com.spidchenko.week2task.repositories;
+package com.spidchenko.week2task.repositories
 
-import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveData
+import com.spidchenko.week2task.db.dao.FavouriteDao
+import com.spidchenko.week2task.db.models.Favourite
+import com.spidchenko.week2task.network.Result
+import java.util.concurrent.Executor
 
-import com.spidchenko.week2task.db.AppDatabase;
-import com.spidchenko.week2task.db.dao.FavouriteDao;
-import com.spidchenko.week2task.db.models.Favourite;
-import com.spidchenko.week2task.network.Result;
+class FavouriteRepository private constructor(
+    private val mFavouriteDao: FavouriteDao,
+    private val mSharedPrefRepository: SharedPrefRepository,
+    private val mExecutor: Executor
+) {
+    val favouritesWithCategories: LiveData<List<Favourite?>?>?
+        get() {
+            val userId = mSharedPrefRepository.userId
+            return mFavouriteDao.getFavouritesWithCategories(userId)
+        }
 
-import java.util.List;
-import java.util.concurrent.Executor;
-
-public class FavouriteRepository {
-    private final FavouriteDao mFavouriteDao;
-    private static volatile FavouriteRepository sInstance;
-    private final SharedPrefRepository mSharedPrefRepository;
-    private final Executor mExecutor;
-
-
-    private FavouriteRepository(final FavouriteDao favouriteDao,
-                                final SharedPrefRepository sharedPrefRepository,
-                                final Executor executor) {
-        mSharedPrefRepository = sharedPrefRepository;
-        mExecutor = executor;
-        mFavouriteDao = favouriteDao;
-    }
-
-    public static FavouriteRepository getInstance(final FavouriteDao favouriteDao,
-                                                  final SharedPrefRepository sharedPrefRepository,
-                                                  final Executor executor) {
-        if (sInstance == null) {
-            synchronized (FavouriteRepository.class) {
-                if (sInstance == null) {
-                    sInstance = new FavouriteRepository(favouriteDao, sharedPrefRepository, executor);
-                }
+    fun addFavorite(favourite: Favourite?, callback: RepositoryCallback<Boolean>) {
+        mExecutor.execute {
+            try {
+                mFavouriteDao.addFavourite(favourite)
+                callback.onComplete(Result.Success(true))
+            } catch (e: Exception) {
+                callback.onComplete(Result.Error(e))
             }
         }
-        return sInstance;
     }
 
-    public LiveData<List<Favourite>> getFavouritesWithCategories() {
-        int userId = mSharedPrefRepository.getUserId();
-        return mFavouriteDao.getFavouritesWithCategories(userId);
-    }
-
-    public void addFavorite(final Favourite favourite, RepositoryCallback<Boolean> callback) {
-        mExecutor.execute(() -> {
+    fun deleteFavourite(favourite: Favourite, callback: RepositoryCallback<Boolean>) {
+        mExecutor.execute {
             try {
-                mFavouriteDao.addFavourite(favourite);
-                callback.onComplete(new Result.Success<>(true));
-            } catch (Exception e) {
-                callback.onComplete(new Result.Error<>(e));
+                mFavouriteDao.deleteFavourite(favourite.user, favourite.url)
+                callback.onComplete(Result.Success(true))
+            } catch (e: Exception) {
+                callback.onComplete(Result.Error(e))
             }
-        });
+        }
     }
 
-    public void deleteFavourite(final Favourite favourite, final RepositoryCallback<Boolean> callback) {
-        mExecutor.execute(() -> {
-            try {
-                mFavouriteDao.deleteFavourite(favourite.getUser(), favourite.getUrl());
-                callback.onComplete(new Result.Success<>(true));
-            } catch (Exception e) {
-                callback.onComplete(new Result.Error<>(e));
+    fun getFavourite(favourite: Favourite): LiveData<Favourite?>? {
+        return mFavouriteDao.getFavourite(favourite.user, favourite.url)
+    }
+
+    interface RepositoryCallback<T> {
+        fun onComplete(result: Result<T>?)
+    }
+
+    companion object {
+        @Volatile
+        private var sInstance: FavouriteRepository? = null
+
+        @JvmStatic
+        fun getInstance(
+            favouriteDao: FavouriteDao,
+            sharedPrefRepository: SharedPrefRepository,
+            executor: Executor
+        ): FavouriteRepository? {
+            if (sInstance == null) {
+                synchronized(FavouriteRepository::class.java) {
+                    if (sInstance == null) {
+                        sInstance =
+                            FavouriteRepository(favouriteDao, sharedPrefRepository, executor)
+                    }
+                }
             }
-        });
+            return sInstance
+        }
     }
-
-    public LiveData<Favourite> getFavourite(final Favourite favourite) {
-        return mFavouriteDao.getFavourite(favourite.getUser(), favourite.getUrl());
-    }
-
-    public interface RepositoryCallback<T> {
-        void onComplete(Result<T> result);
-    }
-
 }
-
-
-
-
-
-
-
-
-
-

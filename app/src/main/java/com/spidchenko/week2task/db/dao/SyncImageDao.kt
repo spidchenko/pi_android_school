@@ -1,25 +1,20 @@
-package com.spidchenko.week2task.db.dao;
+package com.spidchenko.week2task.db.dao
 
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-
-import com.spidchenko.week2task.db.models.SyncImage;
-
-import java.util.List;
+import androidx.room.Dao
+import androidx.room.OnConflictStrategy
+import com.spidchenko.week2task.db.models.SyncImage
+import androidx.lifecycle.LiveData
+import androidx.room.Insert
+import androidx.room.Query
 
 @Dao
-public interface SyncImageDao {
-
+interface SyncImageDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    long addSyncImage(SyncImage syncImage);
+    fun addSyncImage(syncImage: SyncImage?): Long
 
     @Query("DELETE FROM syncImages WHERE url LIKE :url")
-    void deleteSyncImage(String url);
+    fun deleteSyncImage(url: String?)
 
-    @Query("SELECT * FROM syncImages")
-    LiveData<List<SyncImage>> getAllImages();
+    @get:Query("SELECT * FROM syncImages")
+    val allImages: LiveData<List<SyncImage?>?>?
 }

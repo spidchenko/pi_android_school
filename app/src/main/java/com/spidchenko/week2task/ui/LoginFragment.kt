@@ -1,132 +1,126 @@
-package com.spidchenko.week2task.ui;
+package com.spidchenko.week2task.ui
 
-import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
+import android.content.Context
+import com.google.android.material.textfield.TextInputLayout
+import android.widget.EditText
+import com.spidchenko.week2task.viewmodel.LoginViewModel
+import androidx.navigation.NavController
+import androidx.lifecycle.SavedStateHandle
+import android.os.Bundle
+import android.util.Log
+import android.view.KeyEvent
+import com.spidchenko.week2task.helpers.ViewModelsFactory
+import androidx.lifecycle.ViewModelProvider
+import com.spidchenko.week2task.R
+import androidx.activity.OnBackPressedCallback
+import androidx.navigation.NavOptions
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.navigation.fragment.NavHostFragment
+import android.widget.TextView
+import android.view.inputmethod.EditorInfo
+import android.widget.Button
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
+import java.lang.ClassCastException
+import java.util.*
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
-
-import com.google.android.material.textfield.TextInputLayout;
-import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.helpers.ViewModelsFactory;
-import com.spidchenko.week2task.viewmodel.LoginViewModel;
-
-import java.util.Objects;
-
-public class LoginFragment extends Fragment {
-
-    private static final String TAG = "LoginFragment.LOG_TAG";
-    public static final String LOGIN_SUCCESSFUL = "LOGIN_SUCCESSFUL";
-
-    private OnFragmentInteractionListener mListener;
-    private TextInputLayout mTlUsername;
-    private EditText mEtUsername;
-    private Button mBtnSignIn;
-    private LoginViewModel mViewModel;
-    private NavController mNavController;
-    private SavedStateHandle mSavedStateHandle;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ViewModelsFactory factory = new ViewModelsFactory(requireActivity().getApplication());
-        mViewModel = new ViewModelProvider(requireActivity(), factory).get(LoginViewModel.class);
+class LoginFragment : Fragment() {
+    private var mListener: OnFragmentInteractionListener? = null
+    private var mTlUsername: TextInputLayout? = null
+    private var mEtUsername: EditText? = null
+    private var mBtnSignIn: Button? = null
+    private var mViewModel: LoginViewModel? = null
+    private var mNavController: NavController? = null
+    private var mSavedStateHandle: SavedStateHandle? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val factory = ViewModelsFactory(requireActivity().application)
+        mViewModel = ViewModelProvider(requireActivity(), factory).get(
+            LoginViewModel::class.java
+        )
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mListener = if (context is OnFragmentInteractionListener) {
+            context
         } else {
-            throw new ClassCastException(context.toString()
-                    + getResources().getString(R.string.exception_message));
+            throw ClassCastException(
+                context.toString()
+                        + resources.getString(R.string.exception_message)
+            )
         }
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                Log.d(TAG, "handleOnBackPressed: ");
+        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d(TAG, "handleOnBackPressed: ")
             }
-        };
-        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        mSavedStateHandle = Objects.requireNonNull(Navigation.findNavController(view)
-                .getPreviousBackStackEntry())
-                .getSavedStateHandle();
-        mSavedStateHandle.set(LOGIN_SUCCESSFUL, false);
-
-        mViewModel.getIsLoggedIn().observe(requireActivity(), isLoggedIn -> {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mSavedStateHandle = Objects.requireNonNull(
+            Navigation.findNavController(view)
+                .previousBackStackEntry
+        )
+            ?.savedStateHandle
+        mSavedStateHandle!!.set(LOGIN_SUCCESSFUL, false)
+        mViewModel!!.isLoggedIn.observe(requireActivity(), { isLoggedIn: Boolean ->
             if (isLoggedIn) {
-                mSavedStateHandle.set(LOGIN_SUCCESSFUL, true);
-                int startDestination = mNavController.getGraph().getStartDestination();
-                NavOptions navOptions = new NavOptions.Builder()
-                        .setPopUpTo(startDestination, true)
-                        .build();
-                mNavController.navigate(startDestination, null, navOptions);
+                mSavedStateHandle!!.set(LOGIN_SUCCESSFUL, true)
+                val startDestination = mNavController!!.graph.startDestination
+                val navOptions = NavOptions.Builder()
+                    .setPopUpTo(startDestination, true)
+                    .build()
+                mNavController!!.navigate(startDestination, null, navOptions)
             }
-        });
+        })
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_login, container, false);
-
-        mEtUsername = rootView.findViewById(R.id.username);
-        mTlUsername = rootView.findViewById(R.id.username_input_layout);
-        mBtnSignIn = rootView.findViewById(R.id.btn_sign_in);
-
-        mNavController = NavHostFragment.findNavController(this);
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val rootView = inflater.inflate(R.layout.fragment_login, container, false)
+        mEtUsername = rootView.findViewById(R.id.username)
+        mTlUsername = rootView.findViewById(R.id.username_input_layout)
+        mBtnSignIn = rootView.findViewById(R.id.btn_sign_in)
+        mNavController = NavHostFragment.findNavController(this)
 
         // Sign in action
-        mBtnSignIn.setOnClickListener(view -> {
-            mListener.hideKeyboard();
-            String userName = mEtUsername.getText().toString().trim();
+        mBtnSignIn?.setOnClickListener {
+            mListener!!.hideKeyboard()
+            val userName = mEtUsername?.text.toString().trim { it <= ' ' }
             if (!isLoginValid(userName)) {
-                mTlUsername.setError(getString(R.string.login_failed));
+                mTlUsername?.error = getString(R.string.login_failed)
             } else {
-                mViewModel.logIn(userName);
+                mViewModel!!.logIn(userName)
             }
-        });
-
-        mEtUsername.setOnEditorActionListener((v, actionId, event) -> {
+        }
+        mEtUsername?.setOnEditorActionListener { _: TextView?, actionId: Int, _: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                Log.d(TAG, "onCreateView: IME_ACTION_DONE");
-                mBtnSignIn.callOnClick();
-                return true;
+                Log.d(TAG, "onCreateView: IME_ACTION_DONE")
+                mBtnSignIn?.callOnClick()
+                return@setOnEditorActionListener true
             }
-            return false;
-        });
-
-        return rootView;
+            false
+        }
+        return rootView
     }
 
-
-    private boolean isLoginValid(@Nullable String text) {
-        return text != null && text.length() > 0;
+    private fun isLoginValid(text: String?): Boolean {
+        return text != null && text.isNotEmpty()
     }
 
-    interface OnFragmentInteractionListener {
-        void hideKeyboard();
+    internal interface OnFragmentInteractionListener {
+        fun hideKeyboard()
+    }
+
+    companion object {
+        private const val TAG = "LoginFragment.LOG_TAG"
+        const val LOGIN_SUCCESSFUL = "LOGIN_SUCCESSFUL"
     }
 }

@@ -1,78 +1,63 @@
-package com.spidchenko.week2task.adapter;
+package com.spidchenko.week2task.adapter
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.spidchenko.week2task.R
+import java.io.File
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
-import com.spidchenko.week2task.R;
-
-import java.io.File;
-import java.util.ArrayList;
-
-public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
-
-    private static final String TAG = "GalleryAdapter.LOG_TAG";
-
-    private ArrayList<File> mImageFiles;
-
-    public GalleryAdapter(ArrayList<File> imageFiles) {
-        this.mImageFiles = imageFiles;
+class GalleryAdapter(private var mImageFiles: ArrayList<File>?) :
+    RecyclerView.Adapter<GalleryAdapter.ViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val itemView = LayoutInflater
+            .from(parent.context)
+            .inflate(R.layout.item_image_list, parent, false)
+        return ViewHolder(itemView)
     }
 
-    @NonNull
-    @Override
-    public GalleryAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.item_image_list, parent, false);
-        return new GalleryAdapter.ViewHolder(itemView);
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val imageFile = mImageFiles!![position]
+        holder.bindView(imageFile)
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull GalleryAdapter.ViewHolder holder, int position) {
-        File imageFile = mImageFiles.get(position);
-        holder.bindView(imageFile);
+    override fun getItemCount(): Int {
+        return if (mImageFiles == null) {
+            0
+        } else mImageFiles!!.size
     }
 
-    @Override
-    public int getItemCount() {
-        if (mImageFiles == null) {
-            return 0;
-        }
-        return mImageFiles.size();
+    fun setImages(imageFiles: ArrayList<File?>?) {
+        mImageFiles = imageFiles as ArrayList<File>?
     }
 
-    public void setImages(ArrayList<File> imageFiles) {
-        mImageFiles = imageFiles;
+    fun getFileAtPosition(position: Int): File {
+        return mImageFiles!![position]
     }
 
-    public File getFileAtPosition(int position) {
-        return mImageFiles.get(position);
-    }
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val ivImageSurface: ImageView = itemView.findViewById(R.id.iv_image_surface)
+        private val tvImageSearchString: TextView =
+            itemView.findViewById(R.id.tv_image_search_string)
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivImageSurface;
-        TextView tvImageSearchString;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ivImageSurface = itemView.findViewById(R.id.iv_image_surface);
-            tvImageSearchString = itemView.findViewById(R.id.tv_image_search_string);
-            Log.d(TAG, "ViewHolder created!");
+        fun bindView(imageFile: File) {
+            Glide.with(ivImageSurface.context)
+                .load(imageFile)
+                .into(ivImageSurface)
+            tvImageSearchString.text = imageFile.name
         }
 
-        public void bindView(File imageFile) {
-            Glide.with(ivImageSurface.getContext())
-                    .load(imageFile)
-                    .into(ivImageSurface);
-            tvImageSearchString.setText(imageFile.getName());
+        init {
+            Log.d(TAG, "ViewHolder created!")
         }
+    }
+
+    companion object {
+        private const val TAG = "GalleryAdapter.LOG_TAG"
     }
 }

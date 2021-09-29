@@ -1,15 +1,9 @@
-package com.spidchenko.week2task.network.models;
+package com.spidchenko.week2task.network.models
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
+import java.util.*
 
-import java.util.LinkedList;
-
-public class ImageContainer {
-
+class ImageContainer {
     @SerializedName("photo")
-    private final LinkedList<Image> mImage = null;
-
-    public LinkedList<Image> getImage() {
-        return mImage;
-    }
+    val image: LinkedList<Image>? = null
 }

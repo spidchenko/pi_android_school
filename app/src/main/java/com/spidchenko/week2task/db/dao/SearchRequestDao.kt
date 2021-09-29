@@ -1,21 +1,16 @@
-package com.spidchenko.week2task.db.dao;
+package com.spidchenko.week2task.db.dao
 
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-
-import com.spidchenko.week2task.db.models.SearchRequest;
-
-import java.util.List;
+import androidx.room.Dao
+import com.spidchenko.week2task.db.models.SearchRequest
+import androidx.lifecycle.LiveData
+import androidx.room.Insert
+import androidx.room.Query
 
 @Dao
-public interface SearchRequestDao {
-
+interface SearchRequestDao {
     @Insert
-    long addSearchRequest(SearchRequest searchRequest);
+    fun addSearchRequest(searchRequest: SearchRequest?): Long
 
     @Query("SELECT * FROM searches WHERE user_id = :userId ORDER BY id DESC")
-    LiveData<List<SearchRequest>> getAllSearchRequests(int userId);
-
+    fun getAllSearchRequests(userId: Int): LiveData<List<SearchRequest?>?>?
 }

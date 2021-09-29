@@ -1,37 +1,31 @@
-package com.spidchenko.week2task.network;
+package com.spidchenko.week2task.network
 
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-public class ServiceGenerator {
-    private static final String BASE_URL = "https://www.flickr.com/";
-    private static final String API_KEY = "02692fb0a64b6b1b77f7f689c7f050c7";
+object ServiceGenerator {
+    private const val BASE_URL = "https://www.flickr.com/"
+    private const val API_KEY = "02692fb0a64b6b1b77f7f689c7f050c7"
+    private val myHttpClient: OkHttpClient.Builder = OkHttpClient.Builder()
+        .addInterceptor { chain: Interceptor.Chain ->
+            val url = chain.request().url()
+                .newBuilder()
+                .addQueryParameter("api_key", API_KEY)
+                .addQueryParameter("format", "json")
+                .addQueryParameter("nojsoncallback", "1")
+                .build()
+            val request = chain.request().newBuilder().url(url).build()
+            chain.proceed(request)
+        }
+    private val client: OkHttpClient = myHttpClient.build()
+    private val retrofitBuilder = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create())
+    private val retrofit = retrofitBuilder.build()
 
-    static OkHttpClient.Builder myHttpClient = new OkHttpClient.Builder()
-            .addInterceptor(chain -> {
-                HttpUrl url = chain.request().url()
-                        .newBuilder()
-                        .addQueryParameter("api_key", API_KEY)
-                        .addQueryParameter("format", "json")
-                        .addQueryParameter("nojsoncallback", "1")
-                        .build();
-                Request request = chain.request().newBuilder().url(url).build();
-                return chain.proceed(request);
-            });
-
-    static OkHttpClient client = myHttpClient.build();
-
-    private static final Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create());
-    private static final Retrofit retrofit = retrofitBuilder.build();
-    private static final FlickrApi flickrApi = retrofit.create(FlickrApi.class);
-
-    public static FlickrApi getFlickrApi() {
-        return flickrApi;
-    }
+    @JvmStatic
+    val flickrApi: FlickrApi = retrofit.create(FlickrApi::class.java)
 }

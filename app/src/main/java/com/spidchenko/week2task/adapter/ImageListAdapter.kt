@@ -1,102 +1,84 @@
-package com.spidchenko.week2task.adapter;
+package com.spidchenko.week2task.adapter
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.spidchenko.week2task.R
+import com.spidchenko.week2task.network.models.Image
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
-import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.network.models.Image;
-
-import java.util.LinkedList;
-import java.util.List;
-
-public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> {
-
-    private static final String TAG = "ImgListAdapter.LOG_TAG";
-
-    private List<Image> mImages;
-    private final OnCardListener mOnCardListener;
-    private static String mSearchString;
-
-    public ImageListAdapter(LinkedList<Image> images, OnCardListener onCardListener) {
-        this.mOnCardListener = onCardListener;
-        this.mImages = images;
+class ImageListAdapter(images: LinkedList<Image>?, private val mOnCardListener: OnCardListener) :
+    RecyclerView.Adapter<ImageListAdapter.ViewHolder>() {
+    private var mImages: List<Image>?
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val itemView = LayoutInflater
+            .from(parent.context)
+            .inflate(R.layout.item_image_list, parent, false)
+        return ViewHolder(itemView, mOnCardListener)
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.item_image_list, parent, false);
-        return new ViewHolder(itemView, mOnCardListener);
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val image = mImages!![position]
+        holder.bindView(image)
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Image image = mImages.get(position);
-        holder.bindView(image);
+    override fun getItemCount(): Int {
+        return if (mImages == null) {
+            0
+        } else mImages!!.size
     }
 
-    @Override
-    public int getItemCount() {
-        if (mImages == null){
-            return 0;
-        }
-        return mImages.size();
+    fun setImages(images: List<Image>?) {
+        mImages = images
     }
 
-
-    public void setImages(List<Image> images) {
-        mImages = images;
+    fun setSearchString(searchString: String?) {
+        mSearchString = searchString
     }
 
-    public void setSearchString(String searchString){
-        mSearchString = searchString;
+    fun getImageAtPosition(position: Int): Image {
+        return mImages!![position]
     }
 
-    public Image getImageAtPosition(int position) {
-        return mImages.get(position);
-    }
+    class ViewHolder(itemView: View, private val onCardListener: OnCardListener) :
+        RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        private val ivImageSurface: ImageView = itemView.findViewById(R.id.iv_image_surface)
+        private val tvImageSearchString: TextView =
+            itemView.findViewById(R.id.tv_image_search_string)
 
-
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ImageView ivImageSurface;
-        TextView tvImageSearchString;
-        OnCardListener onCardListener;
-
-        public ViewHolder(@NonNull View itemView, OnCardListener onCardListener) {
-            super(itemView);
-            ivImageSurface = itemView.findViewById(R.id.iv_image_surface);
-            tvImageSearchString = itemView.findViewById(R.id.tv_image_search_string);
-            this.onCardListener = onCardListener;
-            itemView.setOnClickListener(this);
-            Log.d(TAG, "ViewHolder created!");
+        override fun onClick(v: View) {
+            onCardListener.onCardClick(adapterPosition)
         }
 
-        @Override
-        public void onClick(View v) {
-            onCardListener.onCardClick(getAdapterPosition());
+        fun bindView(image: Image) {
+            Glide.with(ivImageSurface.context)
+                .load(image.getUrl(Image.PIC_SIZE_MEDIUM))
+                .into(ivImageSurface)
+            tvImageSearchString.text = mSearchString
+            Log.d(TAG, "Binded! " + image.id)
         }
 
-        public void bindView(Image image) {
-            Glide.with(ivImageSurface.getContext())
-                    .load(image.getUrl(Image.PIC_SIZE_MEDIUM))
-                    .into(ivImageSurface);
-            tvImageSearchString.setText(mSearchString);
-            Log.d(TAG, "Binded! " + image.getId());
+        init {
+            itemView.setOnClickListener(this)
+            Log.d(TAG, "ViewHolder created!")
         }
     }
 
+    interface OnCardListener {
+        fun onCardClick(position: Int)
+    }
 
-    public interface OnCardListener {
-        void onCardClick(int position);
+    companion object {
+        private const val TAG = "ImgListAdapter.LOG_TAG"
+        private var mSearchString: String? = null
+    }
+
+    init {
+        mImages = images
     }
 }

@@ -1,71 +1,69 @@
-package com.spidchenko.week2task.helpers;
+package com.spidchenko.week2task.helpers
 
-import android.content.Context;
+import android.content.Context
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
+import com.google.common.util.concurrent.ListenableFuture
+import java.io.File
+import java.util.concurrent.ExecutionException
 
-import androidx.annotation.NonNull;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.view.PreviewView;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
+class CameraHelper(
+    context: Context?,
+    owner: LifecycleOwner,
+    private val mPreviewView: PreviewView
+) {
+    private val mCameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+        ProcessCameraProvider.getInstance(context!!)
+    private var mImageCapture: ImageCapture? = null
+    fun takePicture(context: Context?, file: File?, listener: CameraListener) {
+        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(
+            file!!
+        ).build()
+        mImageCapture!!.takePicture(
+            outputFileOptions,
+            ContextCompat.getMainExecutor(context),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    listener.onPhotoTaken()
+                }
 
-import com.google.common.util.concurrent.ListenableFuture;
+                override fun onError(error: ImageCaptureException) {
+                    error.printStackTrace()
+                }
+            })
+    }
 
-import java.io.File;
-import java.util.concurrent.ExecutionException;
+    private fun bindImageAnalysis(cameraProvider: ProcessCameraProvider, owner: LifecycleOwner) {
+        val preview = Preview.Builder().build()
+        mImageCapture = ImageCapture.Builder()
+            .setTargetRotation(mPreviewView.display.rotation)
+            .build()
+        val cameraSelector = CameraSelector.Builder()
+            .requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+        preview.setSurfaceProvider(mPreviewView.surfaceProvider)
+        cameraProvider.bindToLifecycle(owner, cameraSelector, mImageCapture, preview)
+    }
 
-public class CameraHelper {
+    interface CameraListener {
+        fun onPhotoTaken()
+    }
 
-    private final ListenableFuture<ProcessCameraProvider> mCameraProviderFuture;
-    private final PreviewView mPreviewView;
-    private ImageCapture mImageCapture;
-
-    public CameraHelper(Context context, LifecycleOwner owner, PreviewView previewView) {
-        mPreviewView = previewView;
-        mCameraProviderFuture = ProcessCameraProvider.getInstance(context);
-        mCameraProviderFuture.addListener(() -> {
+    init {
+        mCameraProviderFuture.addListener({
             try {
-                ProcessCameraProvider cameraProvider = mCameraProviderFuture.get();
-                bindImageAnalysis(cameraProvider, owner);
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
+                val cameraProvider = mCameraProviderFuture.get()
+                bindImageAnalysis(cameraProvider, owner)
+            } catch (e: ExecutionException) {
+                e.printStackTrace()
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
             }
-        }, ContextCompat.getMainExecutor(context));
+        }, ContextCompat.getMainExecutor(context))
     }
-
-    public void takePicture(Context context, File file, CameraListener listener) {
-
-        ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
-        mImageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(context), new ImageCapture.OnImageSavedCallback() {
-            @Override
-            public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                listener.onPhotoTaken();
-            }
-
-            @Override
-            public void onError(@NonNull ImageCaptureException error) {
-                error.printStackTrace();
-            }
-        });
-
-    }
-
-    private void bindImageAnalysis(@NonNull ProcessCameraProvider cameraProvider, LifecycleOwner owner) {
-        Preview preview = new Preview.Builder().build();
-        mImageCapture = new ImageCapture.Builder()
-                .setTargetRotation(mPreviewView.getDisplay().getRotation())
-                .build();
-        CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
-        preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-        cameraProvider.bindToLifecycle(owner, cameraSelector, mImageCapture, preview);
-    }
-
-    public interface CameraListener {
-        void onPhotoTaken();
-    }
-
 }

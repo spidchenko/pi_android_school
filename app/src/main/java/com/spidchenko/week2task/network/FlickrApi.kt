@@ -1,17 +1,17 @@
-package com.spidchenko.week2task.network;
+package com.spidchenko.week2task.network
 
-import com.spidchenko.week2task.network.models.ImgSearchResult;
+import retrofit2.http.GET
+import com.spidchenko.week2task.network.models.ImgSearchResult
+import retrofit2.Call
+import retrofit2.http.Query
 
-import retrofit2.Call;
-import retrofit2.http.GET;
-import retrofit2.http.Query;
-
-public interface FlickrApi {
+interface FlickrApi {
     @GET("services/rest/?method=flickr.photos.search")
-    Call<ImgSearchResult> searchImages(@Query("text") String text);
+    fun searchImages(@Query("text") text: String?): Call<ImgSearchResult?>?
 
     @GET("services/rest/?method=flickr.photos.search")
-    Call<ImgSearchResult> searchImagesByCoordinates(@Query("lat") String latitude,
-                                                    @Query("lon") String longitude);
-
+    fun searchImagesByCoordinates(
+        @Query("lat") latitude: String?,
+        @Query("lon") longitude: String?
+    ): Call<ImgSearchResult?>?
 }

@@ -1,96 +1,82 @@
-package com.spidchenko.week2task.adapter;
+package com.spidchenko.week2task.adapter
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.spidchenko.week2task.R
+import com.spidchenko.week2task.db.models.SyncImage
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
-import com.spidchenko.week2task.R;
-import com.spidchenko.week2task.db.models.SyncImage;
-
-import java.util.LinkedList;
-import java.util.List;
-
-public class SyncImagesAdapter extends RecyclerView.Adapter<SyncImagesAdapter.ViewHolder> {
-
-    private static final String TAG = "ImgListAdapter.LOG_TAG";
-    private final OnCardListener mOnCardListener;
-    private List<SyncImage> mSyncImages;
-
-    public SyncImagesAdapter(LinkedList<SyncImage> images, OnCardListener onCardListener) {
-        this.mOnCardListener = onCardListener;
-        this.mSyncImages = images;
+class SyncImagesAdapter(
+    images: LinkedList<SyncImage>?,
+    private val mOnCardListener: OnCardListener
+) : RecyclerView.Adapter<SyncImagesAdapter.ViewHolder>() {
+    private var mSyncImages: List<SyncImage>?
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val itemView = LayoutInflater
+            .from(parent.context)
+            .inflate(R.layout.item_image_list, parent, false)
+        return ViewHolder(itemView, mOnCardListener)
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.item_image_list, parent, false);
-        return new ViewHolder(itemView, mOnCardListener);
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val image = mSyncImages!![position]
+        holder.bindView(image)
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        SyncImage image = mSyncImages.get(position);
-        holder.bindView(image);
+    override fun getItemCount(): Int {
+        return if (mSyncImages == null) {
+            0
+        } else mSyncImages!!.size
     }
 
-    @Override
-    public int getItemCount() {
-        if (mSyncImages == null) {
-            return 0;
-        }
-        return mSyncImages.size();
+    fun setImages(images: List<SyncImage>?) {
+        mSyncImages = images
+        notifyDataSetChanged()
     }
 
-
-    public void setImages(List<SyncImage> images) {
-        mSyncImages = images;
-        this.notifyDataSetChanged();
+    fun getImageAtPosition(position: Int): SyncImage {
+        return mSyncImages!![position]
     }
 
-    public SyncImage getImageAtPosition(int position) {
-        return mSyncImages.get(position);
+    interface OnCardListener {
+        fun onCardClick(position: Int)
     }
 
+    class ViewHolder(itemView: View, private val onCardListener: OnCardListener) :
+        RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        private val ivImageSurface: ImageView = itemView.findViewById(R.id.iv_image_surface)
+        private val tvImageSearchString: TextView =
+            itemView.findViewById(R.id.tv_image_search_string)
 
-    public interface OnCardListener {
-        void onCardClick(int position);
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ImageView ivImageSurface;
-        TextView tvImageSearchString;
-        OnCardListener onCardListener;
-
-        public ViewHolder(@NonNull View itemView, OnCardListener onCardListener) {
-            super(itemView);
-            ivImageSurface = itemView.findViewById(R.id.iv_image_surface);
-            tvImageSearchString = itemView.findViewById(R.id.tv_image_search_string);
-            this.onCardListener = onCardListener;
-            itemView.setOnClickListener(this);
-            Log.d(TAG, "ViewHolder created!");
+        override fun onClick(v: View) {
+            onCardListener.onCardClick(adapterPosition)
         }
 
-        @Override
-        public void onClick(View v) {
-            onCardListener.onCardClick(getAdapterPosition());
+        fun bindView(image: SyncImage) {
+            Glide.with(ivImageSurface.context)
+                .load(image.url)
+                .into(ivImageSurface)
+            tvImageSearchString.text = image.searchText
+            Log.d(TAG, "Binded! " + image.id)
         }
 
-        public void bindView(SyncImage image) {
-            Glide.with(ivImageSurface.getContext())
-                    .load(image.getUrl())
-                    .into(ivImageSurface);
-            tvImageSearchString.setText(image.getSearchText());
-            Log.d(TAG, "Binded! " + image.getId());
+        init {
+            itemView.setOnClickListener(this)
+            Log.d(TAG, "ViewHolder created!")
         }
+    }
+
+    companion object {
+        private const val TAG = "ImgListAdapter.LOG_TAG"
+    }
+
+    init {
+        mSyncImages = images
     }
 }

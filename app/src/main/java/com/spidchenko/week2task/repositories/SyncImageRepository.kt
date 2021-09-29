@@ -1,42 +1,38 @@
-package com.spidchenko.week2task.repositories;
+package com.spidchenko.week2task.repositories
 
-import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveData
+import com.spidchenko.week2task.db.dao.SyncImageDao
+import com.spidchenko.week2task.db.models.SyncImage
+import java.util.concurrent.Executor
 
-import com.spidchenko.week2task.db.dao.SyncImageDao;
-import com.spidchenko.week2task.db.models.SyncImage;
+class SyncImageRepository private constructor(
+    private val mSyncImageDao: SyncImageDao,
+    private val mExecutor: Executor
+) {
+    val allImages: LiveData<List<SyncImage?>?>?
+        get() = mSyncImageDao.allImages
 
-import java.util.List;
-import java.util.concurrent.Executor;
-
-public class SyncImageRepository {
-    private final SyncImageDao mSyncImageDao;
-    private static volatile SyncImageRepository sInstance;
-    private final Executor mExecutor;
-
-    private SyncImageRepository(final SyncImageDao syncImageDao,
-                                final Executor executor) {
-        mExecutor = executor;
-        mSyncImageDao = syncImageDao;
+    fun deleteImage(image: SyncImage) {
+        mExecutor.execute { mSyncImageDao.deleteSyncImage(image.url) }
     }
 
-    public static SyncImageRepository getInstance(final SyncImageDao syncImageDao,
-                                                  final Executor executor) {
-        if (sInstance == null) {
-            synchronized (FavouriteRepository.class) {
-                if (sInstance == null) {
-                    sInstance = new SyncImageRepository(syncImageDao, executor);
+    companion object {
+        @Volatile
+        private var sInstance: SyncImageRepository? = null
+
+        @JvmStatic
+        fun getInstance(
+            syncImageDao: SyncImageDao,
+            executor: Executor
+        ): SyncImageRepository? {
+            if (sInstance == null) {
+                synchronized(FavouriteRepository::class.java) {
+                    if (sInstance == null) {
+                        sInstance = SyncImageRepository(syncImageDao, executor)
+                    }
                 }
             }
+            return sInstance
         }
-        return sInstance;
-    }
-
-    public LiveData<List<SyncImage>> getAllImages() {
-        return mSyncImageDao.getAllImages();
-    }
-
-    public void deleteImage(SyncImage image) {
-        mExecutor.execute(() -> mSyncImageDao.deleteSyncImage(image.getUrl())
-        );
     }
 }
